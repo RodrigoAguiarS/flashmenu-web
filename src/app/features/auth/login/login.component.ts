@@ -11,7 +11,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 
-import { ValidationError } from '../../../core/models/api-error.model';
+import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeToggleComponent } from '../../../shared/components/theme-toggle/theme-toggle.component';
 
@@ -98,7 +98,12 @@ export class LoginComponent {
       return;
     }
 
-    this.mensagemErro.set(body?.error || 'Nao foi possivel realizar o login. Tente novamente.');
+    if (this.ehErroPadrao(body)) {
+      this.mensagemErro.set(body.message || body.error || 'Nao foi possivel realizar o login. Tente novamente.');
+      return;
+    }
+
+    this.mensagemErro.set('Nao foi possivel realizar o login. Tente novamente.');
   }
 
   private formatarErroCampo(fieldName: string, message: string): string {
@@ -112,5 +117,9 @@ export class LoginComponent {
 
   private ehErroValidacao(value: unknown): value is ValidationError {
     return !!value && typeof value === 'object' && Array.isArray((value as ValidationError).errors);
+  }
+
+  private ehErroPadrao(value: unknown): value is StandardError {
+    return !!value && typeof value === 'object' && 'message' in value;
   }
 }

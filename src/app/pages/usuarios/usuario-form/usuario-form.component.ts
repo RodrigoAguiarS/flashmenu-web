@@ -206,7 +206,7 @@ export class UsuarioFormComponent implements OnInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      this.mensagemErro.set(body.error || body.message || 'Nao foi possivel concluir a operacao.');
+      this.mensagemErro.set(body.message || body.error || 'Nao foi possivel concluir a operacao.');
       return;
     }
 
@@ -235,4 +235,3 @@ export class UsuarioFormComponent implements OnInit {
     return !!value && typeof value === 'object' && 'message' in value;
   }
 }
-

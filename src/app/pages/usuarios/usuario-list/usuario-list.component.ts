@@ -190,7 +190,7 @@ export class UsuarioListComponent implements OnInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      return body.error || body.message || 'Nao foi possivel concluir a operacao.';
+      return body.message || body.error || 'Nao foi possivel concluir a operacao.';
     }
 
     return 'Nao foi possivel concluir a operacao.';
