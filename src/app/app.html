@@ -1,0 +1,35 @@
+@if (rotaLogin()) {
+  <router-outlet />
+} @else {
+  <nz-layout class="estrutura-app">
+    <nz-header class="cabecalho-app">
+      <a class="marca marca-app" routerLink="/dashboard" aria-label="FlashMenu">
+        <span class="marca-simbolo simbolo-app">F</span>
+        <span>FlashMenu</span>
+      </a>
+
+      <nav nz-menu nzMode="horizontal" class="navegacao-principal" aria-label="Navegacao principal">
+        <li nz-menu-item>Produtos</li>
+        <li nz-menu-item>Categorias</li>
+        <li nz-menu-item routerLink="/usuarios">Usuarios</li>
+      </nav>
+
+      <div class="acoes-cabecalho">
+        <app-theme-toggle />
+
+        <button nz-button nzType="default" type="button" (click)="sair()">
+          <span nz-icon nzType="logout" nzTheme="outline"></span>
+          Sair
+        </button>
+
+        <a nz-button nzType="primary" routerLink="/usuarios/novo">
+          Novo usuario
+        </a>
+      </div>
+    </nz-header>
+
+    <nz-content class="conteudo-app">
+      <router-outlet />
+    </nz-content>
+  </nz-layout>
+}

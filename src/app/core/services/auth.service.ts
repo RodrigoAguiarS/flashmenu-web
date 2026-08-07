@@ -1,0 +1,80 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
+import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { UsuarioResponse } from '../models/usuario.model';
+
+const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
+const TOKEN_TYPE_KEY = 'flashmenu_token_type';
+const USUARIO_KEY = 'flashmenu_usuario';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly usuarioAtual = signal<UsuarioResponse | null>(this.carregarUsuario());
+
+  readonly usuarioAutenticado: Signal<UsuarioResponse | null> = computed(() => this.usuarioAtual());
+
+  entrar(request: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
+      tap((response) => this.persistirSessao(response))
+    );
+  }
+
+  sair(): void {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_TYPE_KEY);
+    localStorage.removeItem(USUARIO_KEY);
+    this.usuarioAtual.set(null);
+    void this.router.navigate(['/login']);
+  }
+
+  usuarioLogado(): Observable<UsuarioResponse> {
+    return this.http.get<UsuarioResponse>(`${environment.apiUrl}/auth/usuarioLogado`).pipe(
+      tap((usuario) => {
+        this.usuarioAtual.set(usuario);
+        localStorage.setItem(USUARIO_KEY, JSON.stringify(usuario));
+      })
+    );
+  }
+
+  estaAutenticado(): boolean {
+    return !!this.obterToken();
+  }
+
+  obterToken(): string | null {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
+  }
+
+  obterUsuarioAtual(): UsuarioResponse | null {
+    return this.usuarioAtual();
+  }
+
+  private persistirSessao(response: LoginResponse): void {
+    localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+    localStorage.setItem(TOKEN_TYPE_KEY, response.tokenType);
+    localStorage.setItem(USUARIO_KEY, JSON.stringify(response.usuario));
+    this.usuarioAtual.set(response.usuario);
+  }
+
+  private carregarUsuario(): UsuarioResponse | null {
+    const storedUsuario = localStorage.getItem(USUARIO_KEY);
+
+    if (!storedUsuario) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUsuario) as UsuarioResponse;
+    } catch {
+      localStorage.removeItem(USUARIO_KEY);
+      return null;
+    }
+  }
+}

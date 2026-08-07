@@ -1,0 +1,67 @@
+.tela-login {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px 16px;
+  background: var(--cor-fundo);
+}
+
+.acao-tema {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.painel-login {
+  width: min(100%, 420px);
+}
+
+.cabecalho-login {
+  margin-bottom: 24px;
+}
+
+.simbolo-login {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+
+h1 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+p {
+  margin: 2px 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-login {
+  margin-bottom: 16px;
+}
+
+.alerta-login ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.botao-senha {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  color: var(--cor-texto-suave);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .tela-login {
+    padding-top: 72px;
+  }
+}

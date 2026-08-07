@@ -1,0 +1,62 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.filtros {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.filtros nz-form-item {
+  margin-bottom: 0;
+}
+
+.acao-filtro {
+  display: flex;
+  align-items: flex-end;
+}
+
+.acao-filtro button {
+  width: 100%;
+}
+
+.secao-tabela {
+  padding: 20px;
+}
+
+.acoes-linha {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .cabecalho-pagina {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-pagina a {
+    width: 100%;
+  }
+
+  .filtros nz-form-item {
+    margin-bottom: 16px;
+  }
+}
+

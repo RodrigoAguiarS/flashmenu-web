@@ -1,0 +1,183 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Usuarios</h1>
+    <p>Gerencie acessos, perfis e status dos usuarios do sistema.</p>
+  </div>
+
+  <a nz-button nzType="primary" routerLink="/usuarios/novo">
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    Novo usuario
+  </a>
+</section>
+
+<section class="filtros cartao-sistema" aria-label="Filtros de usuarios">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="12" nzLg="6">
+        <nz-form-item>
+          <nz-form-label nzFor="nome">Nome</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12" nzLg="6">
+        <nz-form-item>
+          <nz-form-label nzFor="email">E-mail</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="email" type="email" formControlName="email" placeholder="Buscar por e-mail" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12" nzLg="6">
+        <nz-form-item>
+          <nz-form-label nzFor="perfil">Perfil</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              id="perfil"
+              formControlName="perfilId"
+              nzAllowClear
+              nzPlaceHolder="Todos os perfis"
+              [nzLoading]="carregandoPerfis()"
+            >
+              @for (perfil of perfis(); track perfil.id) {
+                <nz-option [nzValue]="perfil.id" [nzLabel]="perfil.descricao"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12" nzLg="4">
+        <nz-form-item>
+          <nz-form-label nzFor="status">Status</nz-form-label>
+          <nz-form-control>
+            <nz-select id="status" formControlName="ativo" nzAllowClear nzPlaceHolder="Todos">
+              <nz-option [nzValue]="true" nzLabel="Ativo"></nz-option>
+              <nz-option [nzValue]="false" nzLabel="Inativo"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzLg="2" class="acao-filtro">
+        <button nz-button type="button" (click)="limparFiltros()">
+          Limpar
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhum usuario encontrado."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="usuarios()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzTableLayout="fixed"
+    [nzScroll]="{ x: '900px' }"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="240px">Nome</th>
+        <th nzWidth="260px">E-mail</th>
+        <th nzWidth="180px">Perfil</th>
+        <th nzWidth="120px">Status</th>
+        <th nzWidth="160px" nzAlign="right">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (usuario of usuarios(); track usuario.id) {
+        <tr>
+          <td>{{ usuario.nome }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>{{ usuario.perfil?.descricao || '-' }}</td>
+          <td>
+            <nz-tag [nzColor]="statusColor(usuario.ativo)">
+              {{ statusTexto(usuario.ativo) }}
+            </nz-tag>
+          </td>
+          <td class="acoes-linha">
+            <button
+              nz-button
+              nzType="text"
+              type="button"
+              nz-tooltip
+              nzTooltipTitle="Visualizar"
+              aria-label="Visualizar usuario"
+              (click)="visualizar(usuario)"
+            >
+              <span nz-icon nzType="eye" nzTheme="outline"></span>
+            </button>
+
+            <a
+              nz-button
+              nzType="text"
+              [routerLink]="['/usuarios', usuario.id, 'editar']"
+              nz-tooltip
+              nzTooltipTitle="Editar"
+              aria-label="Editar usuario"
+            >
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </a>
+
+            <button
+              nz-button
+              nzType="text"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja excluir este usuario?"
+              nzOkText="Excluir"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === usuario.id"
+              nz-tooltip
+              nzTooltipTitle="Excluir"
+              aria-label="Excluir usuario"
+              (nzOnConfirm)="excluir(usuario)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>
+
+<nz-drawer
+  [nzVisible]="drawerAberto()"
+  nzTitle="Detalhes do usuario"
+  nzPlacement="right"
+  [nzWidth]="420"
+  (nzOnClose)="fecharDrawer()"
+>
+  <ng-container *nzDrawerContent>
+    @if (usuarioSelecionado(); as usuario) {
+      <nz-descriptions [nzColumn]="1" nzBordered>
+        <nz-descriptions-item nzTitle="Nome">{{ usuario.nome }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="E-mail">{{ usuario.email }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Telefone">{{ usuario.telefone || '-' }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Perfil">{{ usuario.perfil?.descricao || '-' }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Status">
+          <nz-tag [nzColor]="statusColor(usuario.ativo)">
+            {{ statusTexto(usuario.ativo) }}
+          </nz-tag>
+        </nz-descriptions-item>
+      </nz-descriptions>
+    }
+  </ng-container>
+</nz-drawer>

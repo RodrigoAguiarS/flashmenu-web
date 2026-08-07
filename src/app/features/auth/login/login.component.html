@@ -1,0 +1,103 @@
+<main class="tela-login">
+  <div class="acao-tema">
+    <app-theme-toggle />
+  </div>
+
+  <section class="painel-login" aria-labelledby="titulo-login">
+    <nz-card class="cartao-sistema">
+      <div class="marca cabecalho-login">
+        <span class="marca-simbolo simbolo-login">F</span>
+        <div>
+          <h1 id="titulo-login">FlashMenu</h1>
+          <p>Acesse o painel administrativo</p>
+        </div>
+      </div>
+
+      @if (mensagemErro()) {
+        <nz-alert class="alerta-login" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+      }
+
+      @if (errosValidacao().length) {
+        <ng-template #descricaoValidacao>
+          <ul>
+            @for (erroValidacao of errosValidacao(); track erroValidacao) {
+              <li>{{ erroValidacao }}</li>
+            }
+          </ul>
+        </ng-template>
+
+        <nz-alert
+          class="alerta-login"
+          nzType="warning"
+          nzMessage="Revise os campos informados"
+          [nzDescription]="descricaoValidacao"
+          nzShowIcon
+        ></nz-alert>
+      }
+
+      <nz-spin [nzSpinning]="carregando()">
+        <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+          <nz-form-item>
+            <nz-form-label nzFor="email" nzRequired>E-mail</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe um e-mail valido."
+              [nzValidateStatus]="formulario.controls.email"
+            >
+              <nz-input-wrapper>
+                <span nzInputPrefix nz-icon nzType="mail" nzTheme="outline"></span>
+                <input
+                  nz-input
+                  id="email"
+                  type="email"
+                  autocomplete="email"
+                  formControlName="email"
+                  placeholder="usuario@email.com"
+                />
+              </nz-input-wrapper>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzFor="senha" nzRequired>Senha</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe sua senha."
+              [nzValidateStatus]="formulario.controls.senha"
+            >
+              <nz-input-wrapper>
+                <span nzInputPrefix nz-icon nzType="lock" nzTheme="outline"></span>
+                <input
+                  nz-input
+                  id="senha"
+                  [type]="senhaVisivel() ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  formControlName="senha"
+                  placeholder="Sua senha"
+                />
+
+                <button
+                  nzInputSuffix
+                  class="botao-senha"
+                  type="button"
+                  [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+                  (click)="alternarVisibilidadeSenha()"
+                >
+                  <span nz-icon [nzType]="senhaVisivel() ? 'eye-invisible' : 'eye'" nzTheme="outline"></span>
+                </button>
+              </nz-input-wrapper>
+            </nz-form-control>
+          </nz-form-item>
+
+          <button
+            nz-button
+            nzType="primary"
+            nzBlock
+            type="submit"
+            [nzLoading]="carregando()"
+          >
+            Entrar
+          </button>
+        </form>
+      </nz-spin>
+    </nz-card>
+  </section>
+</main>

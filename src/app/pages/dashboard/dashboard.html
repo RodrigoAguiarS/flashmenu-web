@@ -1,0 +1,41 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Produtos</h1>
+    <p>Resumo operacional do catalogo, estoque e promocoes.</p>
+  </div>
+</section>
+
+<section class="indicadores" aria-label="Indicadores">
+  <nz-statistic nzTitle="Produtos ativos" [nzValue]="128" />
+  <nz-statistic nzTitle="Em promocao" [nzValue]="14" />
+  <nz-statistic nzTitle="Estoque baixo" [nzValue]="7" />
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <h2>Ultimas atualizacoes</h2>
+
+  <nz-table #produtosTable [nzData]="produtos" [nzFrontPagination]="false">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Categoria</th>
+        <th>Estoque</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (produto of produtosTable.data; track produto.nome) {
+        <tr>
+          <td>{{ produto.nome }}</td>
+          <td>{{ produto.categoria }}</td>
+          <td>{{ produto.estoque }}</td>
+          <td>
+            <nz-tag [nzColor]="produto.status === 'Baixo estoque' ? 'warning' : produto.status === 'Promocao' ? 'processing' : 'success'">
+              {{ produto.status }}
+            </nz-tag>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>
