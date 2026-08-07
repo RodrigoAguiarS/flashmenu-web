@@ -1,0 +1,244 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.estado-vazio {
+  display: grid;
+  gap: 16px;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+.layout-carrinho {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.itens-carrinho {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.item-carrinho {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.item-carrinho ::ng-deep .ant-card-body {
+  padding: 12px;
+}
+
+.item-layout {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.produto-imagem,
+.produto-sem-imagem {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produto-sem-imagem {
+  display: grid;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+}
+
+.produto-sem-imagem .anticon {
+  font-size: 28px;
+}
+
+.item-conteudo {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.item-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.produto-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.produto-info strong {
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.produto-info nz-tag {
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-valores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.item-valores span,
+.item-valores strong {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.item-valores small {
+  color: var(--cor-texto-suave);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.quantidade {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quantidade button {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.quantidade nz-input-number {
+  width: 76px;
+}
+
+.resumo {
+  position: static;
+  border-radius: 8px;
+}
+
+.linha-resumo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.linha-resumo.total {
+  font-size: 18px;
+}
+
+.resumo button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media (max-width: 960px) {
+  .cabecalho-pagina a {
+    width: 100%;
+  }
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .cabecalho-pagina a {
+    width: auto;
+  }
+
+  .item-carrinho ::ng-deep .ant-card-body {
+    padding: 14px;
+  }
+
+  .item-layout {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .produto-imagem,
+  .produto-sem-imagem {
+    width: 88px;
+    height: 88px;
+  }
+
+  .item-conteudo {
+    grid-template-columns: minmax(0, 1fr) 180px 150px;
+    align-items: center;
+  }
+
+  .item-topo {
+    min-width: 0;
+  }
+
+  .item-valores {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  .layout-carrinho {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 20px;
+  }
+
+  .resumo {
+    position: sticky;
+    top: 84px;
+  }
+}
+
+@media (max-width: 420px) {
+  .item-layout {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .produto-imagem,
+  .produto-sem-imagem {
+    width: 64px;
+    height: 64px;
+  }
+}

@@ -1,0 +1,54 @@
+<section class="resultado cartao-sistema">
+  <nz-result
+    nzStatus="success"
+    nzTitle="Pedido realizado com sucesso."
+    [nzSubTitle]="pedido ? 'Pedido #' + pedido.id + ' - status ' + pedido.status : 'Seu pedido foi criado.'"
+  >
+    <div nz-result-extra>
+      <a nz-button nzType="primary" routerLink="/catalogo">Continuar comprando</a>
+    </div>
+  </nz-result>
+
+  @if (pedido) {
+    <section class="detalhes-pedido" aria-label="Resumo do pedido">
+      <div class="detalhe-topo">
+        <div>
+          <span>Forma de pagamento</span>
+          <strong>{{ pedido.formaPagamento.nome }}</strong>
+        </div>
+
+        @if (pedido.pagamento) {
+          <nz-tag [nzColor]="corStatusPagamento(pedido.pagamento.status)">
+            {{ statusPagamentoTexto(pedido.pagamento.status) }}
+          </nz-tag>
+        }
+      </div>
+
+      <div class="grade-valores">
+        <span>
+          <small>Subtotal</small>
+          {{ pedido.subtotal | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+        <span>
+          <small>Acrescimo</small>
+          {{ pedido.percentualAcrescimo }}%
+        </span>
+        <span>
+          <small>Valor do acrescimo</small>
+          {{ pedido.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+        <strong>
+          <small>Total</small>
+          {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
+        </strong>
+      </div>
+
+      @if (pedido.pagamento) {
+        <div class="linha-pagamento">
+          <span>Valor do pagamento</span>
+          <strong>{{ pedido.pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      }
+    </section>
+  }
+</section>

@@ -1,0 +1,71 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.cabecalho-pagina a {
+  width: 100%;
+}
+
+.filtros,
+.secao-tabela {
+  padding: 14px;
+}
+
+.filtros {
+  margin-bottom: 16px;
+}
+
+.filtros nz-form-item {
+  margin-bottom: 14px;
+}
+
+.acao-filtro {
+  display: flex;
+  align-items: flex-end;
+}
+
+.acao-filtro button,
+nz-input-number {
+  width: 100%;
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .cabecalho-pagina a {
+    width: auto;
+  }
+
+  .filtros,
+  .secao-tabela {
+    padding: 20px;
+  }
+
+  .filtros nz-form-item {
+    margin-bottom: 0;
+  }
+}

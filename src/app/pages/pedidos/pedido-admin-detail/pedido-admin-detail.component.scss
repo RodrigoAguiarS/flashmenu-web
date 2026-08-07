@@ -1,0 +1,159 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.painel-topo span,
+.pagamento-resumo small,
+.item-pedido span {
+  color: var(--cor-texto-suave);
+}
+
+.detalhe-layout {
+  display: grid;
+  gap: 12px;
+}
+
+.painel-detalhe {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.destaque {
+  background: color-mix(in srgb, var(--cor-superficie) 88%, var(--cor-primaria));
+}
+
+.painel-topo,
+.secao-topo,
+.item-pedido,
+.linha-resumo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.painel-topo {
+  align-items: flex-start;
+}
+
+.painel-topo > div:first-child,
+.pagamento-resumo > div,
+.item-pedido > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pedido-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.pedido-tags nz-tag {
+  margin: 0;
+}
+
+.secao-topo {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.secao-topo h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.pagamento-resumo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.itens-pedido {
+  display: grid;
+  gap: 8px;
+}
+
+.item-pedido {
+  align-items: flex-start;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-pedido:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.item-pedido > strong {
+  flex: 0 0 auto;
+}
+
+.resumo-financeiro {
+  background: var(--cor-campo);
+}
+
+.linha-resumo {
+  align-items: center;
+}
+
+.linha-resumo.total {
+  padding-top: 10px;
+  border-top: 1px solid var(--cor-borda);
+  font-size: 18px;
+}
+
+.estado-vazio {
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+:host-context(.theme-dark) ::ng-deep .ant-descriptions-item-label,
+:host-context(.theme-dark) ::ng-deep .ant-descriptions-item-content {
+  color: var(--cor-texto);
+}
+
+@media (min-width: 760px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .detalhe-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+    align-items: start;
+  }
+
+  .destaque {
+    grid-column: 1;
+  }
+
+  .resumo-financeiro {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}

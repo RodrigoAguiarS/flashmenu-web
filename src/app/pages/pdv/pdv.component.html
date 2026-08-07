@@ -1,0 +1,253 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>PDV</h1>
+    <p>Venda presencial vinculada ao usuario logado.</p>
+  </div>
+
+  <nz-tag nzColor="purple">PDV</nz-tag>
+</section>
+
+@if (mensagemErro()) {
+  <nz-alert class="alerta-pdv" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+<section class="layout-pdv">
+  <section class="painel-produtos" aria-label="Produtos para venda">
+    <section class="filtros cartao-sistema" aria-label="Filtros de produtos">
+      <form nz-form nzLayout="vertical" [formGroup]="filtros">
+        <nz-row [nzGutter]="12">
+          <nz-col nzXs="24" nzMd="13">
+            <nz-form-item>
+              <nz-form-label nzFor="nome">Produto</nz-form-label>
+              <nz-form-control>
+                <nz-input-group nzPrefixIcon="search">
+                  <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="8">
+            <nz-form-item>
+              <nz-form-label nzFor="categoria">Categoria</nz-form-label>
+              <nz-form-control>
+                <nz-select
+                  id="categoria"
+                  formControlName="categoriaId"
+                  nzAllowClear
+                  nzPlaceHolder="Todas"
+                  [nzLoading]="carregandoCategorias()"
+                >
+                  @for (categoria of categorias(); track categoria.id) {
+                    <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
+                  }
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="3" class="acao-filtro">
+            <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+          </nz-col>
+        </nz-row>
+      </form>
+    </section>
+
+    <nz-spin [nzSpinning]="carregandoProdutos()">
+      @if (possuiProdutos()) {
+        <section class="grade-produtos" aria-label="Lista de produtos">
+          @for (produto of produtos(); track produto.id) {
+            <article class="produto-card">
+              @if (imagemPrincipal(produto); as imagem) {
+                <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+              } @else {
+                <div class="produto-sem-imagem" aria-hidden="true">
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </div>
+              }
+
+              <div class="produto-info">
+                <div>
+                  <div class="produto-tags">
+                    <nz-tag>{{ produto.categoria.nome }}</nz-tag>
+                    <small>{{ estoqueTexto(produto) }}</small>
+                  </div>
+                  <strong>{{ produto.nome }}</strong>
+                  <span>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                </div>
+
+                <button
+                  class="botao-adicionar"
+                  nz-button
+                  nzType="primary"
+                  nzShape="circle"
+                  type="button"
+                  [disabled]="!podeAdicionar(produto)"
+                  nz-tooltip
+                  nzTooltipTitle="Adicionar"
+                  aria-label="Adicionar produto a venda"
+                  (click)="adicionarProduto(produto)"
+                >
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                </button>
+              </div>
+            </article>
+          }
+        </section>
+
+        <div class="paginacao">
+          <nz-pagination
+            [nzPageIndex]="pageIndex()"
+            [nzPageSize]="pageSize()"
+            [nzTotal]="total()"
+            (nzPageIndexChange)="alterarPagina($event)"
+          ></nz-pagination>
+        </div>
+      } @else {
+        <section class="estado-vazio cartao-sistema">
+          <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
+        </section>
+      }
+    </nz-spin>
+  </section>
+
+  <aside class="painel-venda" aria-label="Venda atual">
+    <div class="venda-topo">
+      <div>
+        <span>Venda atual</span>
+        <strong>{{ pdvService.quantidadeTotal() }} itens</strong>
+      </div>
+
+      @if (!pdvService.vazio()) {
+        <button
+          nz-button
+          nzShape="circle"
+          type="button"
+          nzDanger
+          nz-popconfirm
+          nzPopconfirmTitle="Deseja limpar esta venda?"
+          nzOkText="Limpar"
+          nzCancelText="Voltar"
+          aria-label="Limpar venda"
+          (nzOnConfirm)="limparVenda()"
+        >
+          <span nz-icon nzType="delete" nzTheme="outline"></span>
+        </button>
+      }
+    </div>
+
+    @if (pdvService.vazio()) {
+      <div class="venda-vazia">
+        <nz-empty nzNotFoundContent="Adicione produtos para iniciar a venda."></nz-empty>
+      </div>
+    } @else {
+      <div class="itens-venda">
+        @for (item of pdvService.itens(); track item.produto.id) {
+          <article class="item-venda">
+            @if (imagemPrincipal(item.produto); as imagem) {
+              <img class="item-imagem" [src]="imagem" [alt]="item.produto.nome" (error)="marcarImagemInvalida(item.produto.id)" />
+            } @else {
+              <div class="item-sem-imagem" aria-hidden="true">
+                <span nz-icon nzType="picture" nzTheme="outline"></span>
+              </div>
+            }
+
+            <div class="item-info">
+              <strong>{{ item.produto.nome }}</strong>
+              <span>{{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+
+              <div class="item-controles">
+                <button nz-button nzShape="circle" type="button" aria-label="Diminuir quantidade" (click)="decrementar(item)">
+                  <span nz-icon nzType="minus" nzTheme="outline"></span>
+                </button>
+                <nz-input-number
+                  [ngModel]="item.quantidade"
+                  [nzMin]="1"
+                  [nzMax]="estoqueMaximo(item.produto)"
+                  [nzStep]="1"
+                  (ngModelChange)="alterarQuantidade(item, $event)"
+                ></nz-input-number>
+                <button nz-button nzShape="circle" type="button" aria-label="Aumentar quantidade" (click)="incrementar(item)">
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                </button>
+                <button
+                  nz-button
+                  nzShape="circle"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Remover este item?"
+                  nzOkText="Remover"
+                  nzCancelText="Voltar"
+                  aria-label="Remover produto"
+                  (nzOnConfirm)="removerProduto(item.produto.id)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </div>
+            </div>
+
+            <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </article>
+        }
+      </div>
+    }
+
+    <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="finalizarVenda()">
+      <nz-form-item>
+        <nz-form-label nzFor="formaPagamentoId" nzRequired>Forma de pagamento</nz-form-label>
+        <nz-form-control
+          nzErrorTip="Selecione uma forma de pagamento."
+          [nzValidateStatus]="formulario.controls.formaPagamentoId"
+        >
+          <nz-select
+            id="formaPagamentoId"
+            formControlName="formaPagamentoId"
+            nzPlaceHolder="Selecione"
+            [nzLoading]="carregandoPagamento()"
+          >
+            @for (forma of formasPagamento(); track forma.id) {
+              <nz-option
+                [nzValue]="forma.id"
+                [nzLabel]="forma.percentualAcrescimo ? forma.nome + ' +' + forma.percentualAcrescimo + '%' : forma.nome"
+              ></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="resumo-venda">
+        <div>
+          <span>Subtotal</span>
+          <strong>{{ pdvService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        @if (formaPagamentoSelecionada(); as formaPagamento) {
+          <div>
+            <span>{{ formaPagamento.nome }} - acrescimo {{ percentualAcrescimo() }}%</span>
+            <strong>{{ valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+        }
+
+        <nz-divider></nz-divider>
+
+        <div class="total">
+          <span>Total</span>
+          <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <button
+        class="finalizar"
+        nz-button
+        nzType="primary"
+        type="submit"
+        [nzLoading]="finalizando()"
+        [disabled]="finalizando() || pdvService.vazio()"
+      >
+        <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+        Finalizar venda
+      </button>
+    </form>
+  </aside>
+</section>

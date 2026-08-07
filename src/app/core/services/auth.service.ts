@@ -10,6 +10,7 @@ import { UsuarioResponse } from '../models/usuario.model';
 const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
 const TOKEN_TYPE_KEY = 'flashmenu_token_type';
 const USUARIO_KEY = 'flashmenu_usuario';
+const ADMIN_AUTHORITY = 'administrador.criar';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,9 @@ export class AuthService {
   private readonly usuarioAtual = signal<UsuarioResponse | null>(this.carregarUsuario());
 
   readonly usuarioAutenticado: Signal<UsuarioResponse | null> = computed(() => this.usuarioAtual());
+  readonly permissoes = computed(() =>
+    new Set(this.usuarioAtual()?.perfil?.permissoes.map((permissao) => permissao.authority) ?? [])
+  );
 
   entrar(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
@@ -54,6 +58,29 @@ export class AuthService {
 
   obterUsuarioAtual(): UsuarioResponse | null {
     return this.usuarioAtual();
+  }
+
+  atualizarUsuarioAtual(usuario: UsuarioResponse): void {
+    this.usuarioAtual.set(usuario);
+    localStorage.setItem(USUARIO_KEY, JSON.stringify(usuario));
+  }
+
+  possuiPermissao(authority: string): boolean {
+    const permissoes = this.permissoes();
+    return permissoes.has(ADMIN_AUTHORITY) || permissoes.has(authority);
+  }
+
+  possuiAlgumaPermissao(authorities: string[]): boolean {
+    if (authorities.length === 0) {
+      return true;
+    }
+
+    const permissoes = this.permissoes();
+    if (permissoes.has(ADMIN_AUTHORITY)) {
+      return true;
+    }
+
+    return authorities.some((authority) => permissoes.has(authority));
   }
 
   private persistirSessao(response: LoginResponse): void {

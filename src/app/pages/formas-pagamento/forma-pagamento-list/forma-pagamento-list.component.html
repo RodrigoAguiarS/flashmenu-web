@@ -1,0 +1,64 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Formas de pagamento</h1>
+    <p>Configure o percentual de acrescimo aplicado ao checkout.</p>
+  </div>
+</section>
+
+<nz-spin [nzSpinning]="carregando()">
+  @if (possuiFormasPagamento()) {
+    <section class="lista-formas" aria-label="Formas de pagamento">
+      @for (forma of formasPagamento(); track forma.id) {
+        <article class="forma-card">
+          <header class="forma-topo">
+            <div>
+              <strong>{{ forma.nome }}</strong>
+              <span>{{ tipoTexto(forma.tipo) }}</span>
+            </div>
+
+            <nz-tag [nzColor]="forma.ativo ? 'success' : 'default'">
+              {{ forma.ativo ? 'Ativa' : 'Inativa' }}
+            </nz-tag>
+          </header>
+
+          <div class="percentual-atual">
+            <span>Percentual atual</span>
+            <strong>{{ forma.percentualAcrescimo | number:'1.2-2' }}%</strong>
+          </div>
+
+          <div class="editor-percentual">
+            <label [for]="'percentual-' + forma.id">Novo percentual</label>
+            <div class="campo-percentual">
+              <nz-input-number
+                [id]="'percentual-' + forma.id"
+                [ngModel]="percentuais()[forma.id]"
+                [nzMin]="0"
+                [nzMax]="999.99"
+                [nzStep]="0.1"
+                [nzPrecision]="2"
+                (ngModelChange)="alterarPercentual(forma.id, $event)"
+              ></nz-input-number>
+              <span>%</span>
+            </div>
+          </div>
+
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [disabled]="!houveAlteracao(forma) || salvandoId() !== null"
+            [nzLoading]="salvandoId() === forma.id"
+            (click)="salvarPercentual(forma)"
+          >
+            <span nz-icon nzType="save" nzTheme="outline"></span>
+            Salvar percentual
+          </button>
+        </article>
+      }
+    </section>
+  } @else {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Nenhuma forma de pagamento encontrada."></nz-empty>
+    </section>
+  }
+</nz-spin>

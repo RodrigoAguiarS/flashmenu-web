@@ -1,0 +1,107 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Meus pedidos</h1>
+    <p>Acompanhe seus pedidos realizados.</p>
+  </div>
+
+  <a nz-button routerLink="/catalogo">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Comprar novamente
+  </a>
+</section>
+
+<nz-spin [nzSpinning]="carregando()">
+  @if (possuiPedidos()) {
+    <section class="lista-pedidos" aria-label="Meus pedidos">
+      @for (pedido of pedidos(); track pedido.id) {
+        <article class="pedido-card">
+          <header class="pedido-topo">
+            <div>
+              <strong>Pedido #{{ pedido.id }}</strong>
+              <span>{{ pedido.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+
+            <div class="pedido-tags">
+              <nz-tag [nzColor]="corTipo(pedido.tipo)">{{ tipoTexto(pedido.tipo) }}</nz-tag>
+              <nz-tag [nzColor]="corStatus(pedido.status)">{{ statusTexto(pedido.status) }}</nz-tag>
+            </div>
+          </header>
+
+          <div class="pedido-resumo">
+            <span>
+              <small>Itens</small>
+              {{ pedido.itens.length }}
+            </span>
+            <span>
+              <small>Subtotal</small>
+              {{ pedido.subtotal | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+            <strong>
+              <small>Total</small>
+              {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
+            </strong>
+          </div>
+
+          <section class="pagamento-card" aria-label="Pagamento do pedido">
+            <div class="pagamento-topo">
+              <div>
+                <small>Forma de pagamento</small>
+                <strong>{{ pedido.formaPagamento.nome }}</strong>
+              </div>
+
+              @if (pedido.pagamento) {
+                <nz-tag [nzColor]="corStatusPagamento(pedido.pagamento.status)">
+                  {{ statusPagamentoTexto(pedido.pagamento.status) }}
+                </nz-tag>
+              }
+            </div>
+
+            <div class="pagamento-valores">
+              <span>
+                <small>Acréscimo</small>
+                {{ pedido.percentualAcrescimo }}%
+              </span>
+              <span>
+                <small>Valor do acréscimo</small>
+                {{ pedido.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
+              </span>
+              @if (pedido.pagamento) {
+                <strong>
+                  <small>Valor pago</small>
+                  {{ pedido.pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}
+                </strong>
+              }
+            </div>
+
+            @if (pedido.pagamento?.dataPagamento) {
+              <small class="pagamento-data">Pago em {{ pedido.pagamento?.dataPagamento | date:'dd/MM/yyyy HH:mm' }}</small>
+            } @else {
+              <small class="pagamento-data">Pagamento criado em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
+            }
+          </section>
+
+          <nz-collapse nzGhost>
+            <nz-collapse-panel nzHeader="Ver itens do pedido">
+              <div class="itens-pedido">
+                @for (item of pedido.itens; track item.id) {
+                  <div class="item-pedido">
+                    <div>
+                      <strong>{{ item.produtoNome }}</strong>
+                      <span>{{ item.quantidade }} x {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</span>
+                    </div>
+                    <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  </div>
+                }
+              </div>
+            </nz-collapse-panel>
+          </nz-collapse>
+        </article>
+      }
+    </section>
+  } @else {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Voce ainda nao possui pedidos."></nz-empty>
+      <a nz-button nzType="primary" routerLink="/catalogo">Ver produtos</a>
+    </section>
+  }
+</nz-spin>

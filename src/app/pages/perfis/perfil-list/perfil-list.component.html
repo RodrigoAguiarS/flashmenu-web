@@ -1,0 +1,133 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Perfis</h1>
+    <p>Gerencie grupos de permissao e acesso ao sistema.</p>
+  </div>
+
+  <a nz-button nzType="primary" routerLink="/perfis/novo">
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    Novo perfil
+  </a>
+</section>
+
+<section class="filtros cartao-sistema" aria-label="Filtros de perfis">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="20">
+        <nz-form-item>
+          <nz-form-label nzFor="descricao">Descricao</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="descricao" formControlName="descricao" placeholder="Buscar por descricao" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="4" class="acao-filtro">
+        <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhum perfil encontrado."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="perfis()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzTableLayout="fixed"
+    [nzScroll]="{ x: '760px' }"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th>Descricao</th>
+        <th nzWidth="170px">Permissoes</th>
+        <th nzWidth="170px" nzAlign="right">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (perfil of perfis(); track perfil.id) {
+        <tr>
+          <td>{{ perfil.descricao }}</td>
+          <td>{{ perfil.permissoes.length }}</td>
+          <td class="acoes-linha">
+            <button
+              nz-button
+              nzType="text"
+              type="button"
+              nz-tooltip
+              nzTooltipTitle="Visualizar"
+              aria-label="Visualizar perfil"
+              (click)="visualizar(perfil)"
+            >
+              <span nz-icon nzType="eye" nzTheme="outline"></span>
+            </button>
+
+            <a
+              nz-button
+              nzType="text"
+              [routerLink]="['/perfis', perfil.id, 'editar']"
+              nz-tooltip
+              nzTooltipTitle="Editar"
+              aria-label="Editar perfil"
+            >
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </a>
+
+            <button
+              nz-button
+              nzType="text"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja excluir este perfil?"
+              nzOkText="Excluir"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === perfil.id"
+              nz-tooltip
+              nzTooltipTitle="Excluir"
+              aria-label="Excluir perfil"
+              (nzOnConfirm)="excluir(perfil)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>
+
+<nz-drawer
+  [nzVisible]="drawerAberto()"
+  nzTitle="Detalhes do perfil"
+  nzPlacement="right"
+  [nzWidth]="420"
+  (nzOnClose)="fecharDrawer()"
+>
+  <ng-container *nzDrawerContent>
+    @if (perfilSelecionado(); as perfil) {
+      <nz-descriptions [nzColumn]="1" nzBordered>
+        <nz-descriptions-item nzTitle="Descricao">{{ perfil.descricao }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Permissoes">
+          <div class="lista-tags">
+            @for (permissao of perfil.permissoes; track permissao.id) {
+              <nz-tag>{{ permissao.authority }}</nz-tag>
+            }
+          </div>
+        </nz-descriptions-item>
+      </nz-descriptions>
+    }
+  </ng-container>
+</nz-drawer>
+

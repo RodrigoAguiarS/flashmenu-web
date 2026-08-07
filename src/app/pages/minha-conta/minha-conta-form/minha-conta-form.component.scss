@@ -1,0 +1,86 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.formulario-conta {
+  padding: 14px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.formulario-senha {
+  margin-top: 16px;
+}
+
+.formulario-senha h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.formulario-senha p {
+  margin: 0 0 16px;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-form {
+  margin-bottom: 16px;
+}
+
+.alerta-form ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.acoes-form {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.acoes-form button {
+  width: 100%;
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .formulario-conta {
+    padding: 20px;
+  }
+
+  .acoes-form {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .acoes-form button {
+    width: auto;
+  }
+}

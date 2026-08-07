@@ -1,0 +1,142 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Carrinho</h1>
+    <p>Revise os produtos antes de finalizar o pedido.</p>
+  </div>
+
+  <a nz-button routerLink="/catalogo">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Continuar comprando
+  </a>
+</section>
+
+@if (carrinhoService.vazio()) {
+  <section class="estado-vazio cartao-sistema">
+    <nz-empty nzNotFoundContent="Seu carrinho esta vazio."></nz-empty>
+    <a nz-button nzType="primary" routerLink="/catalogo">Ver produtos</a>
+  </section>
+} @else {
+  <section class="layout-carrinho">
+    <section class="itens-carrinho" aria-label="Itens do carrinho">
+      @for (item of carrinhoService.itens(); track item.produto.id) {
+        <nz-card class="item-carrinho">
+          <article class="item-layout">
+            @if (imagemPrincipal(item.produto); as imagem) {
+              <img
+                class="produto-imagem"
+                [src]="imagem"
+                [alt]="item.produto.nome"
+                (error)="marcarImagemInvalida(item.produto.id)"
+              />
+            } @else {
+              <div class="produto-sem-imagem" aria-hidden="true">
+                <span nz-icon nzType="picture" nzTheme="outline"></span>
+              </div>
+            }
+
+            <div class="item-conteudo">
+              <div class="item-topo">
+                <div class="produto-info">
+                  <strong>{{ item.produto.nome }}</strong>
+                  <nz-tag>{{ item.produto.categoria.nome }}</nz-tag>
+                </div>
+
+                <button
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  nzShape="circle"
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja remover este produto?"
+                  nzOkText="Remover"
+                  nzCancelText="Cancelar"
+                  aria-label="Remover produto"
+                  (nzOnConfirm)="remover(item)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </div>
+
+              <div class="item-valores">
+                <span>
+                  <small>Preco</small>
+                  {{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}
+                </span>
+                <strong>
+                  <small>Subtotal</small>
+                  {{ subtotal(item) | currency:'BRL':'symbol':'1.2-2' }}
+                </strong>
+              </div>
+
+              <div class="quantidade" aria-label="Quantidade">
+                <button
+                  nz-button
+                  nzShape="circle"
+                  type="button"
+                  aria-label="Diminuir quantidade"
+                  (click)="decrementar(item)"
+                >
+                  <span nz-icon nzType="minus" nzTheme="outline"></span>
+                </button>
+
+                <nz-input-number
+                  [ngModel]="item.quantidade"
+                  [nzMin]="1"
+                  [nzMax]="estoqueMaximo(item.produto)"
+                  [nzStep]="1"
+                  (ngModelChange)="alterarQuantidade(item, $event)"
+                ></nz-input-number>
+
+                <button
+                  nz-button
+                  nzShape="circle"
+                  type="button"
+                  aria-label="Aumentar quantidade"
+                  (click)="incrementar(item)"
+                >
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </nz-card>
+      }
+    </section>
+
+    <nz-card class="resumo" nzTitle="Resumo">
+      <div class="linha-resumo">
+        <span>Itens</span>
+        <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
+      </div>
+
+      <div class="linha-resumo">
+        <span>Subtotal</span>
+        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <nz-divider></nz-divider>
+
+      <div class="linha-resumo total">
+        <span>Total</span>
+        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <button nz-button nzType="primary" type="button" (click)="finalizar()">
+        Finalizar pedido
+      </button>
+
+      <button
+        nz-button
+        type="button"
+        nz-popconfirm
+        nzPopconfirmTitle="Deseja limpar o carrinho?"
+        nzOkText="Limpar"
+        nzCancelText="Cancelar"
+        (nzOnConfirm)="limpar()"
+      >
+        Limpar carrinho
+      </button>
+    </nz-card>
+  </section>
+}

@@ -1,0 +1,70 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Permissoes</h1>
+    <p>Consulte as authorities disponibilizadas pelo backend para compor perfis.</p>
+  </div>
+</section>
+
+<section class="filtros cartao-sistema" aria-label="Filtros de permissoes">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="8">
+        <nz-form-item>
+          <nz-form-label nzFor="codigo">Codigo</nz-form-label>
+          <nz-form-control>
+            <nz-input-number id="codigo" formControlName="codigo" [nzMin]="1" [nzStep]="1" nzPlaceHolder="Codigo"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="authority">Authority</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="authority" formControlName="authority" placeholder="Buscar por authority" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="4" class="acao-filtro">
+        <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhuma permissao encontrada."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="permissoes()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzTableLayout="fixed"
+    [nzScroll]="{ x: '720px' }"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="120px">Codigo</th>
+        <th>Authority</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (permissao of permissoes(); track permissao.id) {
+        <tr>
+          <td>{{ permissao.codigo }}</td>
+          <td>{{ permissao.authority }}</td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>

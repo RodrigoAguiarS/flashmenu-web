@@ -1,0 +1,104 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Meus dados</h1>
+    <p>Atualize suas informacoes de contato.</p>
+  </div>
+
+  <a nz-button routerLink="/catalogo">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Voltar
+  </a>
+</section>
+
+<nz-spin [nzSpinning]="carregando()">
+  <form class="formulario-conta" nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+    @if (mensagemErro()) {
+      <nz-alert class="alerta-form" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+    }
+
+    @if (errosValidacao().length) {
+      <ng-template #descricaoErros>
+        <ul>
+          @for (erro of errosValidacao(); track erro) {
+            <li>{{ erro }}</li>
+          }
+        </ul>
+      </ng-template>
+
+      <nz-alert
+        class="alerta-form"
+        nzType="error"
+        nzMessage="Verifique os campos abaixo."
+        [nzDescription]="descricaoErros"
+        nzShowIcon
+      ></nz-alert>
+    }
+
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+          <nz-form-control nzErrorTip="Informe seu nome." [nzValidateStatus]="formulario.controls.nome">
+            <input nz-input id="nome" formControlName="nome" autocomplete="name" placeholder="Seu nome" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
+          <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="formulario.controls.login">
+            <input nz-input id="login" type="email" formControlName="login" autocomplete="email" placeholder="voce@email.com" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
+          <nz-form-control nzErrorTip="Informe um telefone valido." [nzValidateStatus]="formulario.controls.telefone">
+            <input nz-input id="telefone" formControlName="telefone" autocomplete="tel" placeholder="(84) 99999-9999" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="acoes-form">
+      <button nz-button type="button" routerLink="/catalogo">Cancelar</button>
+      <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando()">
+        Salvar dados
+      </button>
+    </div>
+  </form>
+
+  <form class="formulario-conta formulario-senha" nz-form nzLayout="vertical" [formGroup]="formularioSenha" (ngSubmit)="alterarSenha()">
+    <h2>Alterar senha</h2>
+    <p>Use uma senha com pelo menos 6 caracteres.</p>
+
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="novaSenha" nzRequired>Nova senha</nz-form-label>
+          <nz-form-control nzErrorTip="Informe uma senha com pelo menos 6 caracteres." [nzValidateStatus]="formularioSenha.controls.novaSenha">
+            <input nz-input id="novaSenha" type="password" formControlName="novaSenha" autocomplete="new-password" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12">
+        <nz-form-item>
+          <nz-form-label nzFor="confirmarSenha" nzRequired>Confirmar senha</nz-form-label>
+          <nz-form-control nzErrorTip="Confirme a nova senha." [nzValidateStatus]="formularioSenha.controls.confirmarSenha">
+            <input nz-input id="confirmarSenha" type="password" formControlName="confirmarSenha" autocomplete="new-password" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="acoes-form">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="alterandoSenha()" [disabled]="alterandoSenha()">
+        Alterar senha
+      </button>
+    </div>
+  </form>
+</nz-spin>

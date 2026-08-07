@@ -4,19 +4,25 @@
 }
 
 .cabecalho-app {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 24px;
-  height: 64px;
-  padding: 0 24px;
+  gap: 10px 12px;
+  height: auto;
+  padding: 10px 12px;
+  line-height: 1;
   background: var(--cor-superficie);
   border-bottom: 1px solid var(--cor-borda);
+  overflow: visible;
 }
 
 .marca-app {
-  min-width: 180px;
+  min-width: 0;
+  overflow: hidden;
   font-size: 18px;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .simbolo-app {
@@ -25,45 +31,166 @@
 }
 
 .navegacao-principal {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
   min-width: 0;
-  border-bottom: 0;
+  overflow: visible;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  color: var(--cor-texto-suave);
+  border-radius: 8px;
+  line-height: 1;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.ativo {
+  color: var(--cor-primaria);
+  background: rgba(45, 140, 240, 0.1);
+}
+
+.nav-link.ativo {
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--cor-primaria);
+}
+
+.nav-link .anticon {
+  font-size: 16px;
+}
+
+.nav-link nz-badge,
+.nav-link .ant-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.nav-link .ant-badge .anticon,
+.nav-link .ant-badge-status-text {
+  color: inherit;
+}
+
+.nav-link .ant-badge-count {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  color: #fff;
+  background: var(--cor-primaria);
+  border-color: var(--cor-superficie);
+  box-shadow: 0 0 0 1px var(--cor-superficie);
+  font-size: 10px;
+  line-height: 17px;
 }
 
 .acoes-cabecalho {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.acao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  line-height: 1;
+}
+
+.acao-icone .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.acao-icone nz-badge,
+.acao-icone .ant-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acao-icone.ant-btn-primary,
+.acao-icone.ant-btn-primary:hover,
+.acao-icone.ant-btn-primary:focus {
+  color: #fff;
+}
+
+.acao-icone.ant-btn-primary .anticon {
+  color: #fff;
 }
 
 .conteudo-app {
-  padding: 24px;
+  padding: 16px 16px calc(116px + env(safe-area-inset-bottom));
 }
 
-@media (max-width: 900px) {
-  .navegacao-principal {
-    display: none;
+.rodape-app {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: var(--cor-superficie);
+  border-top: 1px solid var(--cor-borda);
+}
+
+@media (min-width: 900px) {
+  .cabecalho-app {
+    grid-template-columns: auto auto;
+    gap: 24px;
+    height: 64px;
+    padding: 0 24px;
   }
 
   .marca-app {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-@media (max-width: 560px) {
-  .cabecalho-app {
-    height: auto;
-    flex-wrap: wrap;
-    padding: 12px 16px;
+    min-width: 180px;
   }
 
-  .acoes-cabecalho {
-    width: 100%;
-    justify-content: flex-end;
+  .navegacao-principal {
+    justify-content: center;
+    flex-wrap: nowrap;
   }
 
   .conteudo-app {
-    padding: 16px;
+    padding: 24px 24px 84px;
+  }
+
+  .rodape-app {
+    padding: 10px 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .marca-app span:last-child {
+    display: none;
+  }
+
+  .navegacao-principal {
+    gap: 4px;
+  }
+
+  .nav-link {
+    flex: 1 1 calc(33.333% - 4px);
+    justify-content: center;
+    padding: 0 6px;
+  }
+
+  .nav-link span:last-child {
+    font-size: 12px;
   }
 }

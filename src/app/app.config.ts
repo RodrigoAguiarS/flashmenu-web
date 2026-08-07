@@ -5,13 +5,34 @@ import { ApplicationConfig, LOCALE_ID, inject, provideAppInitializer, provideBro
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import {
+  AppstoreOutline,
+  ArrowLeftOutline,
+  CheckCircleOutline,
+  CloseCircleOutline,
+  CreditCardOutline,
+  DeleteOutline,
   EyeInvisibleOutline,
   EyeOutline,
+  FilterOutline,
+  KeyOutline,
+  LoginOutline,
   LockOutline,
   LogoutOutline,
   MailOutline,
   MoonOutline,
-  SunOutline
+  MinusOutline,
+  PictureOutline,
+  PlusOutline,
+  SafetyCertificateOutline,
+  SaveOutline,
+  SearchOutline,
+  ShopOutline,
+  ShoppingCartOutline,
+  SunOutline,
+  TeamOutline,
+  UnorderedListOutline,
+  UserOutline,
+  UserAddOutline
 } from '@ant-design/icons-angular/icons';
 import { provideNzI18n, pt_BR } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
@@ -29,7 +50,36 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     provideNzI18n(pt_BR),
-    provideNzIcons([EyeInvisibleOutline, EyeOutline, LockOutline, LogoutOutline, MailOutline, MoonOutline, SunOutline]),
+    provideNzIcons([
+      AppstoreOutline,
+      ArrowLeftOutline,
+      CheckCircleOutline,
+      CloseCircleOutline,
+      CreditCardOutline,
+      DeleteOutline,
+      EyeInvisibleOutline,
+      EyeOutline,
+      FilterOutline,
+      KeyOutline,
+      LoginOutline,
+      LockOutline,
+      LogoutOutline,
+      MailOutline,
+      MoonOutline,
+      MinusOutline,
+      PictureOutline,
+      PlusOutline,
+      SafetyCertificateOutline,
+      SaveOutline,
+      SearchOutline,
+      ShopOutline,
+      ShoppingCartOutline,
+      SunOutline,
+      TeamOutline,
+      UnorderedListOutline,
+      UserOutline,
+      UserAddOutline
+    ]),
     provideAppInitializer(() => inject(ThemeService).inicializarTema()),
     { provide: LOCALE_ID, useValue: 'pt-BR' }
   ]

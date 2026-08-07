@@ -1,0 +1,288 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.cabecalho-pagina p,
+.produto-tags small,
+.venda-topo span,
+.item-info span,
+.resumo-venda span {
+  color: var(--cor-texto-suave);
+}
+
+.alerta-pdv {
+  margin-bottom: 12px;
+}
+
+.layout-pdv {
+  display: grid;
+  gap: 14px;
+}
+
+.filtros {
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.filtros nz-form-item {
+  margin-bottom: 10px;
+}
+
+.acao-filtro {
+  display: flex;
+  align-items: flex-end;
+}
+
+.acao-filtro button,
+.finalizar {
+  width: 100%;
+}
+
+.grade-produtos {
+  display: grid;
+  gap: 10px;
+}
+
+.produto-card,
+.painel-venda {
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.produto-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px;
+}
+
+.produto-imagem,
+.produto-sem-imagem,
+.item-imagem,
+.item-sem-imagem {
+  display: grid;
+  place-items: center;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produto-imagem,
+.produto-sem-imagem {
+  width: 72px;
+  height: 72px;
+}
+
+.item-imagem,
+.item-sem-imagem {
+  width: 48px;
+  height: 48px;
+}
+
+.produto-sem-imagem,
+.item-sem-imagem {
+  color: var(--cor-texto-suave);
+}
+
+.produto-info,
+.venda-topo,
+.item-venda,
+.resumo-venda > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.produto-info {
+  min-width: 0;
+}
+
+.produto-info > div,
+.item-info,
+.venda-topo > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.produto-info strong,
+.item-info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.produto-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.produto-tags nz-tag {
+  margin: 0;
+}
+
+.botao-adicionar,
+.botao-adicionar:hover,
+.botao-adicionar:focus {
+  flex: 0 0 auto;
+  color: #fff;
+}
+
+.botao-adicionar .anticon {
+  color: #fff;
+}
+
+.paginacao {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.painel-venda {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.venda-topo {
+  align-items: center;
+}
+
+.itens-venda {
+  display: grid;
+  gap: 10px;
+  max-height: 45vh;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.item-venda {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-venda:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.item-subtotal {
+  grid-column: 2;
+  justify-self: end;
+}
+
+.item-controles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.item-controles button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+.item-controles nz-input-number {
+  width: 70px;
+}
+
+.venda-vazia,
+.estado-vazio {
+  display: grid;
+  place-items: center;
+  padding: 24px 12px;
+}
+
+.resumo-venda {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.resumo-venda > div {
+  align-items: center;
+}
+
+.resumo-venda .total {
+  font-size: 18px;
+}
+
+.resumo-venda ::ng-deep .ant-divider {
+  margin: 4px 0;
+  border-color: var(--cor-borda);
+}
+
+@media (min-width: 880px) {
+  .cabecalho-pagina {
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .layout-pdv {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    align-items: start;
+  }
+
+  .painel-venda {
+    position: sticky;
+    top: 16px;
+  }
+
+  .filtros nz-form-item {
+    margin-bottom: 0;
+  }
+
+  .grade-produtos {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .cabecalho-pagina {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .produto-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .produto-imagem,
+  .produto-sem-imagem {
+    width: 64px;
+    height: 64px;
+  }
+
+  .itens-venda {
+    max-height: none;
+  }
+}

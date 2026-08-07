@@ -1,0 +1,160 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.lista-pedidos {
+  display: grid;
+  gap: 12px;
+}
+
+.pedido-card {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.pedido-topo,
+.pedido-resumo,
+.item-pedido {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pedido-topo {
+  align-items: flex-start;
+}
+
+.pedido-tags {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 52%;
+}
+
+.pedido-tags nz-tag {
+  margin: 0;
+}
+
+.pedido-topo div,
+.pedido-resumo span,
+.pedido-resumo strong,
+.item-pedido div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pedido-topo span,
+.pedido-resumo small,
+.item-pedido span,
+.pagamento-card small {
+  color: var(--cor-texto-suave);
+}
+
+.pedido-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 10px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.pagamento-card {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--cor-campo) 86%, var(--cor-primaria));
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.pagamento-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pagamento-topo div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pagamento-valores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pagamento-valores span,
+.pagamento-valores strong {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pagamento-data {
+  display: block;
+}
+
+.itens-pedido {
+  display: grid;
+  gap: 8px;
+}
+
+.item-pedido {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-pedido:last-child {
+  border-bottom: 0;
+}
+
+.estado-vazio {
+  display: grid;
+  gap: 16px;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .lista-pedidos {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+
+}

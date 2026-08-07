@@ -1,0 +1,282 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.atalho-carrinho {
+  width: 100%;
+}
+
+.filtros,
+.estado-vazio {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.filtros nz-form-item {
+  margin-bottom: 12px;
+}
+
+.acao-filtro {
+  display: flex;
+  align-items: flex-end;
+}
+
+.acao-filtro button {
+  width: 100%;
+}
+
+.grade-produtos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.produto-card {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.produto-card ::ng-deep .ant-card-body {
+  padding: 0;
+}
+
+.produto-layout {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.produto-imagem,
+.produto-sem-imagem {
+  width: 82px;
+  height: 82px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produto-sem-imagem,
+.detalhe-sem-imagem {
+  display: grid;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+}
+
+.produto-sem-imagem span,
+.detalhe-sem-imagem span {
+  font-size: 28px;
+}
+
+.produto-conteudo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 10px;
+}
+
+.produto-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.produto-conteudo h2 {
+  margin: 0 0 4px;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.produto-conteudo p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.produto-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.produto-rodape strong {
+  flex: 0 0 auto;
+  font-size: 15px;
+}
+
+.produto-acoes {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.produto-acoes .botao-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  line-height: 1;
+}
+
+.produto-acoes .botao-card .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.produto-acoes .botao-adicionar,
+.produto-acoes .botao-adicionar:hover,
+.produto-acoes .botao-adicionar:focus {
+  color: #fff;
+}
+
+.produto-acoes .botao-adicionar .anticon {
+  color: #fff;
+}
+
+.paginacao {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.detalhe-produto {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detalhe-imagem,
+.detalhe-sem-imagem {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.detalhe-produto h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.detalhe-produto p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.detalhe-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detalhe-info strong {
+  font-size: 22px;
+}
+
+.quantidade-label {
+  font-weight: 600;
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    align-items: flex-end;
+    flex-direction: row;
+    margin-bottom: 24px;
+  }
+
+  .atalho-carrinho {
+    width: auto;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .filtros nz-form-item {
+    margin-bottom: 0;
+  }
+
+  .grade-produtos {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .produto-layout {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .produto-imagem,
+  .produto-sem-imagem {
+    width: 104px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 420px) {
+  .produto-layout {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .produto-imagem,
+  .produto-sem-imagem {
+    width: 78px;
+    height: 78px;
+  }
+
+  .produto-rodape {
+    align-items: center;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .produto-acoes {
+    justify-content: flex-end;
+  }
+
+  .produto-acoes .botao-card {
+    flex: 0 0 auto;
+  }
+}

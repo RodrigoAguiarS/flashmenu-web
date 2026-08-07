@@ -1,0 +1,126 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Detalhe da venda</h1>
+    <p>Informacoes completas do pedido, pagamento e itens.</p>
+  </div>
+
+  <a nz-button routerLink="/pedidos/gerenciar">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Voltar
+  </a>
+</section>
+
+<nz-spin [nzSpinning]="carregando()">
+  @if (pedido(); as pedidoDetalhe) {
+    <section class="detalhe-layout" aria-label="Detalhe da venda">
+      <article class="painel-detalhe destaque">
+        <header class="painel-topo">
+          <div>
+            <span>Pedido</span>
+            <strong>#{{ pedidoDetalhe.id }}</strong>
+          </div>
+
+          <div class="pedido-tags">
+            <nz-tag [nzColor]="corTipo(pedidoDetalhe.tipo)">{{ tipoTexto(pedidoDetalhe.tipo) }}</nz-tag>
+            <nz-tag [nzColor]="corStatus(pedidoDetalhe.status)">{{ statusTexto(pedidoDetalhe.status) }}</nz-tag>
+          </div>
+        </header>
+
+        <nz-descriptions nzSize="small" [nzColumn]="1">
+          <nz-descriptions-item nzTitle="Criado em">
+            {{ pedidoDetalhe.dataCriacao | date:'dd/MM/yyyy HH:mm' }}
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Itens">
+            {{ pedidoDetalhe.itens.length }}
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Total">
+            <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </nz-descriptions-item>
+        </nz-descriptions>
+      </article>
+
+      <article class="painel-detalhe">
+        <header class="secao-topo">
+          <span nz-icon nzType="credit-card" nzTheme="outline"></span>
+          <h2>Pagamento</h2>
+        </header>
+
+        <div class="pagamento-resumo">
+          <div>
+            <small>Forma</small>
+            <strong>{{ pedidoDetalhe.formaPagamento.nome }}</strong>
+          </div>
+          <div>
+            <small>Status</small>
+            @if (pedidoDetalhe.pagamento) {
+              <nz-tag [nzColor]="corStatusPagamento(pedidoDetalhe.pagamento.status)">
+                {{ statusPagamentoTexto(pedidoDetalhe.pagamento.status) }}
+              </nz-tag>
+            } @else {
+              <nz-tag>Nao criado</nz-tag>
+            }
+          </div>
+          <div>
+            <small>Valor pago</small>
+            <strong>{{ (pedidoDetalhe.pagamento?.valor ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+          <div>
+            <small>Criado em</small>
+            <span>{{ pedidoDetalhe.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div>
+            <small>Pago em</small>
+            @if (pedidoDetalhe.pagamento?.dataPagamento) {
+              <span>{{ pedidoDetalhe.pagamento?.dataPagamento | date:'dd/MM/yyyy HH:mm' }}</span>
+            } @else {
+              <span>-</span>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="painel-detalhe">
+        <header class="secao-topo">
+          <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+          <h2>Itens</h2>
+        </header>
+
+        <div class="itens-pedido">
+          @for (item of pedidoDetalhe.itens; track item.id) {
+            <div class="item-pedido">
+              <div>
+                <strong>{{ item.produtoNome }}</strong>
+                <span>{{ item.quantidade }} x {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</span>
+              </div>
+              <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="painel-detalhe resumo-financeiro">
+        <header class="secao-topo">
+          <span nz-icon nzType="shop" nzTheme="outline"></span>
+          <h2>Resumo financeiro</h2>
+        </header>
+
+        <div class="linha-resumo">
+          <span>Subtotal</span>
+          <strong>{{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="linha-resumo">
+          <span>Acrescimo {{ pedidoDetalhe.percentualAcrescimo }}%</span>
+          <strong>{{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="linha-resumo total">
+          <span>Total</span>
+          <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </article>
+    </section>
+  } @else if (!carregando()) {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Pedido nao encontrado."></nz-empty>
+    </section>
+  }
+</nz-spin>

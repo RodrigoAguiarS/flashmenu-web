@@ -1,0 +1,106 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.lista-formas {
+  display: grid;
+  gap: 12px;
+}
+
+.forma-card {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.forma-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.forma-topo div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.forma-topo span,
+.percentual-atual span,
+.editor-percentual label {
+  color: var(--cor-texto-suave);
+}
+
+.percentual-atual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.percentual-atual strong {
+  font-size: 20px;
+}
+
+.editor-percentual {
+  display: grid;
+  gap: 6px;
+}
+
+.campo-percentual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campo-percentual nz-input-number {
+  width: 140px;
+}
+
+.forma-card button {
+  width: 100%;
+}
+
+.estado-vazio {
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+@media (min-width: 700px) {
+  .cabecalho-pagina {
+    margin-bottom: 24px;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 28px;
+  }
+
+  .lista-formas {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
