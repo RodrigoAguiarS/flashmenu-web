@@ -58,13 +58,15 @@
         <section class="grade-produtos" aria-label="Lista de produtos">
           @for (produto of produtos(); track produto.id) {
             <article class="produto-card">
-              @if (imagemPrincipal(produto); as imagem) {
-                <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
-              } @else {
-                <div class="produto-sem-imagem" aria-hidden="true">
-                  <span nz-icon nzType="picture" nzTheme="outline"></span>
-                </div>
-              }
+              <div class="produto-midia">
+                @if (imagemPrincipal(produto); as imagem) {
+                  <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(imagem)" />
+                } @else {
+                  <div class="produto-sem-imagem" aria-hidden="true">
+                    <span nz-icon nzType="picture" nzTheme="outline"></span>
+                  </div>
+                }
+              </div>
 
               <div class="produto-info">
                 <div>
@@ -73,23 +75,27 @@
                     <small>{{ estoqueTexto(produto) }}</small>
                   </div>
                   <strong>{{ produto.nome }}</strong>
-                  <span>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                  <p>{{ produto.descricao }}</p>
                 </div>
 
-                <button
-                  class="botao-adicionar"
-                  nz-button
-                  nzType="primary"
-                  nzShape="circle"
-                  type="button"
-                  [disabled]="!podeAdicionar(produto)"
-                  nz-tooltip
-                  nzTooltipTitle="Adicionar"
-                  aria-label="Adicionar produto a venda"
-                  (click)="adicionarProduto(produto)"
-                >
-                  <span nz-icon nzType="plus" nzTheme="outline"></span>
-                </button>
+                <div class="produto-rodape">
+                  <span>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+
+                  <button
+                    class="botao-adicionar"
+                    nz-button
+                    nzType="primary"
+                    nzShape="circle"
+                    type="button"
+                    [disabled]="!podeAdicionar(produto)"
+                    nz-tooltip
+                    nzTooltipTitle="Adicionar"
+                    aria-label="Adicionar produto a venda"
+                    (click)="adicionarProduto(produto)"
+                  >
+                    <span nz-icon nzType="plus" nzTheme="outline"></span>
+                  </button>
+                </div>
               </div>
             </article>
           }
@@ -144,17 +150,25 @@
       <div class="itens-venda">
         @for (item of pdvService.itens(); track item.produto.id) {
           <article class="item-venda">
-            @if (imagemPrincipal(item.produto); as imagem) {
-              <img class="item-imagem" [src]="imagem" [alt]="item.produto.nome" (error)="marcarImagemInvalida(item.produto.id)" />
-            } @else {
-              <div class="item-sem-imagem" aria-hidden="true">
-                <span nz-icon nzType="picture" nzTheme="outline"></span>
-              </div>
-            }
+            <div class="item-midia">
+              @if (imagemPrincipal(item.produto); as imagem) {
+                <img class="item-imagem" [src]="imagem" [alt]="item.produto.nome" (error)="marcarImagemInvalida(imagem)" />
+              } @else {
+                <div class="item-sem-imagem" aria-hidden="true">
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </div>
+              }
+            </div>
 
             <div class="item-info">
-              <strong>{{ item.produto.nome }}</strong>
-              <span>{{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+              <div class="item-cabecalho">
+                <div>
+                  <strong>{{ item.produto.nome }}</strong>
+                  <span>{{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                </div>
+
+                <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
 
               <div class="item-controles">
                 <button nz-button nzShape="circle" type="button" aria-label="Diminuir quantidade" (click)="decrementar(item)">
@@ -186,8 +200,6 @@
                 </button>
               </div>
             </div>
-
-            <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
           </article>
         }
       </div>

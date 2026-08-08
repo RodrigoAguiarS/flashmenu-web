@@ -1,7 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -15,7 +15,7 @@ import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/p
 import { PedidoService } from '../../../core/services/pedido.service';
 
 @Component({
-  selector: 'app-pedido-list',
+  selector: 'app-pedido-detail',
   standalone: true,
   imports: [
     CurrencyPipe,
@@ -27,21 +27,21 @@ import { PedidoService } from '../../../core/services/pedido.service';
     NzSpinModule,
     NzTagModule
   ],
-  templateUrl: './pedido-list.component.html',
-  styleUrl: './pedido-list.component.scss',
+  templateUrl: './pedido-detail.component.html',
+  styleUrl: './pedido-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PedidoListComponent implements OnInit {
-  private readonly router = inject(Router);
+export class PedidoDetailComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly pedidoService = inject(PedidoService);
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
-  protected readonly pedidos = signal<PedidoResponse[]>([]);
-  protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
+  protected readonly pedido = signal<PedidoResponse | null>(null);
+  protected readonly possuiPedido = computed(() => this.pedido() !== null);
 
   ngOnInit(): void {
-    this.carregarPedidos();
+    this.carregarPedido();
   }
 
   protected corStatus(status: StatusPedido): string {
@@ -82,18 +82,20 @@ export class PedidoListComponent implements OnInit {
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
-  protected abrirDetalhe(id: number, event?: Event): void {
-    event?.stopPropagation();
-    void this.router.navigate(['/pedidos', id]);
-  }
+  private carregarPedido(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
-  private carregarPedidos(): void {
+    if (!Number.isFinite(id) || id <= 0) {
+      this.message.error('Pedido invalido.');
+      return;
+    }
+
     this.carregando.set(true);
 
-    this.pedidoService.listarMeusPedidos().pipe(
+    this.pedidoService.buscarMeuPedido(id).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
-      next: (pedidos) => this.pedidos.set(pedidos),
+      next: (pedido) => this.pedido.set(pedido),
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }
@@ -106,10 +108,10 @@ export class PedidoListComponent implements OnInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      return body.message || body.error || 'Nao foi possivel carregar seus pedidos.';
+      return body.message || body.error || 'Nao foi possivel carregar o pedido.';
     }
 
-    return 'Nao foi possivel carregar seus pedidos.';
+    return 'Nao foi possivel carregar o pedido.';
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {

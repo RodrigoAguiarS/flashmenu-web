@@ -158,3 +158,13 @@
     grid-row: 1 / span 2;
   }
 }
+
+@media (max-width: 520px) {
+  .pagamento-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .item-pedido {
+    flex-direction: column;
+  }
+}

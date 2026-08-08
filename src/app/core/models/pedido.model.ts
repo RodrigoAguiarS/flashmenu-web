@@ -1,7 +1,6 @@
 import { FormaPagamentoResponse } from './forma-pagamento.model';
 
-export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'CANCELADO' | string;
-export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'CANCELADO' | string;
+export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'PAGO' | 'CANCELADO' | string;
 export type TipoPedido = 'DELIVERY' | 'PDV' | string;
 
 export interface ItemPedidoRequest {
@@ -42,7 +41,6 @@ export interface PagamentoResponse {
   id: number;
   formaPagamento: FormaPagamentoResponse;
   valor: number;
-  status: StatusPagamento;
   dataCriacao: string;
   dataPagamento: string | null;
 }

@@ -6,11 +6,21 @@ export interface ProdutoResponse {
   descricao: string;
   categoria: CategoriaResponse;
   valorVenda: number;
+  imagemUrl: string | null;
   arquivosUrl: string[];
   valorFornecedor: number;
   quantidadeEstoque: number;
   criadoEm: string;
   atualizadoEm: string;
+}
+
+export interface ProdutoRequest {
+  nome: string;
+  descricao: string;
+  categoriaId: number;
+  valorFornecedor: number;
+  arquivosUrl: string[];
+  quantidadeEstoque: number;
 }
 
 export interface ProdutoFiltros {
@@ -24,4 +34,3 @@ export interface ProdutoFiltros {
   quantidadeEstoque?: number;
   categoriaId?: number;
 }
-

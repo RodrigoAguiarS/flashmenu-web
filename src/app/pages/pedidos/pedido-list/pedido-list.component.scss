@@ -30,11 +30,20 @@
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pedido-card:hover,
+.pedido-card:focus-visible {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--cor-primaria) 16%, transparent);
+  outline: 0;
+  transform: translateY(-1px);
 }
 
 .pedido-topo,
-.pedido-resumo,
-.item-pedido {
+.pedido-resumo {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -59,8 +68,7 @@
 
 .pedido-topo div,
 .pedido-resumo span,
-.pedido-resumo strong,
-.item-pedido div {
+.pedido-resumo strong {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -68,7 +76,6 @@
 
 .pedido-topo span,
 .pedido-resumo small,
-.item-pedido span,
 .pagamento-card small {
   color: var(--cor-texto-suave);
 }
@@ -93,7 +100,7 @@
 
 .pagamento-topo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
@@ -104,35 +111,8 @@
   min-width: 0;
 }
 
-.pagamento-valores {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.pagamento-valores span,
-.pagamento-valores strong {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
 .pagamento-data {
   display: block;
-}
-
-.itens-pedido {
-  display: grid;
-  gap: 8px;
-}
-
-.item-pedido {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--cor-borda);
-}
-
-.item-pedido:last-child {
-  border-bottom: 0;
 }
 
 .estado-vazio {
@@ -157,4 +137,15 @@
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   }
 
+}
+
+@media (max-width: 520px) {
+  .pedido-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .pagamento-topo {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

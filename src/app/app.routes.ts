@@ -59,12 +59,40 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'pedidos/:id',
+    canActivate: [authGuard],
+    data: { permissoes: ['pedido.listar'] },
+    loadComponent: () =>
+      import('./pages/pedidos/pedido-detail/pedido-detail.component').then((component) => component.PedidoDetailComponent)
+  },
+  {
     path: 'minha-conta',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/minha-conta/minha-conta-form/minha-conta-form.component').then(
         (component) => component.MinhaContaFormComponent
       )
+  },
+  {
+    path: 'produtos',
+    canActivate: [authGuard],
+    data: { permissoes: ['produto.listar'] },
+    loadComponent: () =>
+      import('./pages/produtos/produto-list/produto-list.component').then((component) => component.ProdutoListComponent)
+  },
+  {
+    path: 'produtos/novo',
+    canActivate: [authGuard],
+    data: { permissoes: ['produto.criar'] },
+    loadComponent: () =>
+      import('./pages/produtos/produto-form/produto-form.component').then((component) => component.ProdutoFormComponent)
+  },
+  {
+    path: 'produtos/:id/editar',
+    canActivate: [authGuard],
+    data: { permissoes: ['produto.editar'] },
+    loadComponent: () =>
+      import('./pages/produtos/produto-form/produto-form.component').then((component) => component.ProdutoFormComponent)
   },
   {
     path: 'dashboard',

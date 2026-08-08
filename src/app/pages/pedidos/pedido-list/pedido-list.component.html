@@ -14,7 +14,15 @@
   @if (possuiPedidos()) {
     <section class="lista-pedidos" aria-label="Meus pedidos">
       @for (pedido of pedidos(); track pedido.id) {
-        <article class="pedido-card">
+        <article
+          class="pedido-card"
+          role="link"
+          tabindex="0"
+          [attr.aria-label]="'Ver detalhes do pedido ' + pedido.id"
+          (click)="abrirDetalhe(pedido.id)"
+          (keydown.enter)="abrirDetalhe(pedido.id)"
+          (keydown.space)="abrirDetalhe(pedido.id, $event)"
+        >
           <header class="pedido-topo">
             <div>
               <strong>Pedido #{{ pedido.id }}</strong>
@@ -32,14 +40,14 @@
               <small>Itens</small>
               {{ pedido.itens.length }}
             </span>
-            <span>
-              <small>Subtotal</small>
-              {{ pedido.subtotal | currency:'BRL':'symbol':'1.2-2' }}
-            </span>
             <strong>
               <small>Total</small>
               {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
             </strong>
+            <span>
+              <small>Pagamento</small>
+              {{ pedido.formaPagamento.nome }}
+            </span>
           </div>
 
           <section class="pagamento-card" aria-label="Pagamento do pedido">
@@ -49,52 +57,14 @@
                 <strong>{{ pedido.formaPagamento.nome }}</strong>
               </div>
 
-              @if (pedido.pagamento) {
-                <nz-tag [nzColor]="corStatusPagamento(pedido.pagamento.status)">
-                  {{ statusPagamentoTexto(pedido.pagamento.status) }}
-                </nz-tag>
-              }
+              <button nz-button nzType="primary" type="button" (click)="abrirDetalhe(pedido.id, $event)">
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+                Ver detalhes
+              </button>
             </div>
 
-            <div class="pagamento-valores">
-              <span>
-                <small>Acréscimo</small>
-                {{ pedido.percentualAcrescimo }}%
-              </span>
-              <span>
-                <small>Valor do acréscimo</small>
-                {{ pedido.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
-              </span>
-              @if (pedido.pagamento) {
-                <strong>
-                  <small>Valor pago</small>
-                  {{ pedido.pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}
-                </strong>
-              }
-            </div>
-
-            @if (pedido.pagamento?.dataPagamento) {
-              <small class="pagamento-data">Pago em {{ pedido.pagamento?.dataPagamento | date:'dd/MM/yyyy HH:mm' }}</small>
-            } @else {
-              <small class="pagamento-data">Pagamento criado em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
-            }
+            <small class="pagamento-data">Pagamento criado em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
           </section>
-
-          <nz-collapse nzGhost>
-            <nz-collapse-panel nzHeader="Ver itens do pedido">
-              <div class="itens-pedido">
-                @for (item of pedido.itens; track item.id) {
-                  <div class="item-pedido">
-                    <div>
-                      <strong>{{ item.produtoNome }}</strong>
-                      <span>{{ item.quantidade }} x {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</span>
-                    </div>
-                    <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
-                  </div>
-                }
-              </div>
-            </nz-collapse-panel>
-          </nz-collapse>
         </article>
       }
     </section>

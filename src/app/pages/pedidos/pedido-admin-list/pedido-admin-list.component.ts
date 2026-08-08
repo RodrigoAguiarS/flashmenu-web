@@ -18,7 +18,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { PedidoResponse, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 
@@ -64,7 +64,7 @@ export class PedidoAdminListComponent implements OnInit {
   protected readonly podeAlterarStatus = computed(() => this.authService.possuiPermissao('pedido.alterar-status'));
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao('pedido.cancelar'));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao('pagamento.confirmar'));
-  protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_PAGAMENTO', 'PAGO', 'CANCELADO'];
+  protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_CONFIRMACAO', 'PAGO', 'CANCELADO'];
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
 
   protected readonly filtros = this.fb.group({
@@ -133,9 +133,19 @@ export class PedidoAdminListComponent implements OnInit {
     return this.podeCancelarPedido() && pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
   }
 
+  protected pedidoBloqueado(pedido: PedidoResponse): boolean {
+    return pedido.status === 'CANCELADO';
+  }
+
+  protected podeSalvarStatus(pedido: PedidoResponse): boolean {
+    return !this.pedidoBloqueado(pedido)
+      && this.statusSelecionados()[pedido.id] !== pedido.status
+      && this.processandoId() === null;
+  }
+
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
-      AGUARDANDO_PAGAMENTO: 'processing',
+      AGUARDANDO_CONFIRMACAO: 'processing',
       PAGO: 'success',
       CANCELADO: 'error'
     };
@@ -145,27 +155,7 @@ export class PedidoAdminListComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
-      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
-      PAGO: 'Pago',
-      CANCELADO: 'Cancelado'
-    };
-
-    return labels[status] ?? status;
-  }
-
-  protected corStatusPagamento(status: StatusPagamento): string {
-    const cores: Record<string, string> = {
-      PENDENTE: 'warning',
-      PAGO: 'success',
-      CANCELADO: 'error'
-    };
-
-    return cores[status] ?? 'default';
-  }
-
-  protected statusPagamentoTexto(status: StatusPagamento): string {
-    const labels: Record<string, string> = {
-      PENDENTE: 'Pendente',
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       PAGO: 'Pago',
       CANCELADO: 'Cancelado'
     };

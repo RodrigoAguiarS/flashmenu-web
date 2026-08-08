@@ -1,13 +1,12 @@
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -16,30 +15,29 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
-import { StandardError, ValidationError } from '../../core/models/api-error.model';
-import { CategoriaResponse } from '../../core/models/categoria.model';
-import { ProdutoResponse } from '../../core/models/produto.model';
-import { CarrinhoService } from '../../core/services/carrinho.service';
-import { CategoriaService } from '../../core/services/categoria.service';
-import { ProdutoService } from '../../core/services/produto.service';
+import { StandardError, ValidationError } from '../../../core/models/api-error.model';
+import { CategoriaResponse } from '../../../core/models/categoria.model';
+import { ProdutoResponse } from '../../../core/models/produto.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { CategoriaService } from '../../../core/services/categoria.service';
+import { ProdutoService } from '../../../core/services/produto.service';
 
 @Component({
-  selector: 'app-catalogo',
+  selector: 'app-produto-list',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    FormsModule,
     CurrencyPipe,
+    DatePipe,
+    ReactiveFormsModule,
     RouterLink,
-    NzBadgeModule,
     NzButtonModule,
-    NzCardModule,
+    NzDescriptionsModule,
     NzDrawerModule,
     NzEmptyModule,
     NzFormModule,
@@ -47,40 +45,43 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
-    NzPaginationModule,
+    NzPopconfirmModule,
     NzSelectModule,
-    NzSpinModule,
+    NzTableModule,
     NzTagModule,
     NzTooltipModule
   ],
-  templateUrl: './catalogo.component.html',
-  styleUrl: './catalogo.component.scss',
+  templateUrl: './produto-list.component.html',
+  styleUrl: './produto-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CatalogoComponent implements OnInit {
+export class ProdutoListComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
-  private readonly carrinhoService = inject(CarrinhoService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly produtoSelecionado = signal<ProdutoResponse | null>(null);
-  protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
+  protected readonly imagensInvalidas = signal<Set<number>>(new Set());
   protected readonly drawerAberto = signal(false);
-  protected readonly quantidadeDetalhe = signal(1);
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
+  protected readonly excluindoId = signal<number | null>(null);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
-  protected readonly pageSize = signal(12);
-  protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
+  protected readonly pageSize = signal(10);
+  protected readonly podeCriarProduto = this.authService.possuiPermissao('produto.criar');
+  protected readonly podeEditarProduto = this.authService.possuiPermissao('produto.editar');
+  protected readonly podeExcluirProduto = this.authService.possuiPermissao('produto.deletar');
 
   protected readonly filtros = this.fb.group({
     nome: [''],
-    categoriaId: this.fb.control<number | null>(null)
+    categoriaId: this.fb.control<number | null>(null),
+    quantidadeEstoque: this.fb.control<number | null>(null)
   });
 
   ngOnInit(): void {
@@ -104,59 +105,42 @@ export class CatalogoComponent implements OnInit {
     this.carregarProdutos();
   }
 
+  alterarTamanhoPagina(pageSize: number): void {
+    this.pageSize.set(pageSize);
+    this.pageIndex.set(1);
+    this.carregarProdutos();
+  }
+
   limparFiltros(): void {
     this.filtros.reset({
       nome: '',
-      categoriaId: null
+      categoriaId: null,
+      quantidadeEstoque: null
     });
   }
 
-  abrirDetalhes(produto: ProdutoResponse): void {
+  visualizar(produto: ProdutoResponse): void {
     this.produtoSelecionado.set(produto);
-    this.quantidadeDetalhe.set(1);
     this.drawerAberto.set(true);
   }
 
-  fecharDetalhes(): void {
+  fecharDrawer(): void {
     this.drawerAberto.set(false);
     this.produtoSelecionado.set(null);
-    this.quantidadeDetalhe.set(1);
   }
 
-  adicionarProduto(produto: ProdutoResponse, quantidade = 1): void {
-    if (!this.carrinhoService.possuiEstoque(produto)) {
-      this.message.warning('Produto sem estoque disponivel.');
-      return;
-    }
+  excluir(produto: ProdutoResponse): void {
+    this.excluindoId.set(produto.id);
 
-    if (!this.carrinhoService.adicionar(produto, quantidade)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
-      return;
-    }
-
-    this.message.success('Produto adicionado ao carrinho.');
-  }
-
-  alterarQuantidadeDetalhe(quantidade: number | null): void {
-    const produto = this.produtoSelecionado();
-    const valor = Math.max(1, Math.trunc(quantidade ?? 1));
-    const estoque = produto ? this.carrinhoService.quantidadeDisponivel(produto) : null;
-
-    this.quantidadeDetalhe.set(estoque === null ? valor : Math.min(valor, estoque));
-  }
-
-  adicionarProdutoSelecionado(): void {
-    const produto = this.produtoSelecionado();
-
-    if (!produto) {
-      return;
-    }
-
-    this.adicionarProduto(produto, this.quantidadeDetalhe());
-  }
-
-  marcarImagemInvalida(produtoId: number): void {
-    this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+    this.produtoService.excluir(produto.id).pipe(
+      finalize(() => this.excluindoId.set(null))
+    ).subscribe({
+      next: () => {
+        this.message.success('Produto excluido com sucesso.');
+        this.carregarProdutos();
+      },
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   protected imagemPrincipal(produto: ProdutoResponse): string | null {
@@ -167,26 +151,16 @@ export class CatalogoComponent implements OnInit {
     return produto.imagemUrl ?? produto.arquivosUrl?.[0] ?? null;
   }
 
+  protected marcarImagemInvalida(produtoId: number): void {
+    this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+  }
+
+  protected estoqueColor(produto: ProdutoResponse): string {
+    return produto.quantidadeEstoque > 0 ? 'success' : 'default';
+  }
+
   protected estoqueTexto(produto: ProdutoResponse): string {
-    const estoque = this.carrinhoService.quantidadeDisponivel(produto);
-
-    if (estoque === null) {
-      return 'Disponivel';
-    }
-
-    return estoque > 0 ? `${estoque} em estoque` : 'Sem estoque';
-  }
-
-  protected preco(produto: ProdutoResponse): number {
-    return this.carrinhoService.obterPreco(produto);
-  }
-
-  protected estoqueMaximo(produto: ProdutoResponse): number {
-    return this.carrinhoService.quantidadeDisponivel(produto) ?? 999;
-  }
-
-  protected podeAdicionar(produto: ProdutoResponse): boolean {
-    return this.carrinhoService.possuiEstoque(produto);
+    return produto.quantidadeEstoque > 0 ? `${produto.quantidadeEstoque} un.` : 'Sem estoque';
   }
 
   private carregarProdutos(): void {
@@ -196,9 +170,10 @@ export class CatalogoComponent implements OnInit {
     this.produtoService.listar({
       page: this.pageIndex() - 1,
       size: this.pageSize(),
-      sort: 'nome',
+      sort: 'id',
       nome: filtros.nome?.trim() || undefined,
-      categoriaId: filtros.categoriaId ?? undefined
+      categoriaId: filtros.categoriaId ?? undefined,
+      quantidadeEstoque: filtros.quantidadeEstoque ?? undefined
     }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
@@ -220,7 +195,7 @@ export class CatalogoComponent implements OnInit {
     this.categoriaService.listar({ page: 0, size: 100, sort: 'nome' }).pipe(
       finalize(() => this.carregandoCategorias.set(false))
     ).subscribe({
-      next: (page) => this.categorias.set(page.content),
+      next: (page) => this.categorias.set(page.content.filter((categoria) => categoria.ativo)),
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }
@@ -233,10 +208,10 @@ export class CatalogoComponent implements OnInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      return body.message || body.error || 'Nao foi possivel carregar o catalogo.';
+      return body.message || body.error || 'Nao foi possivel concluir a operacao.';
     }
 
-    return 'Nao foi possivel carregar o catalogo.';
+    return 'Nao foi possivel concluir a operacao.';
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {

@@ -1,0 +1,221 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Produtos</h1>
+    <p>Gerencie cadastro, estoque, precos e imagens dos produtos.</p>
+  </div>
+
+  @if (podeCriarProduto) {
+    <a nz-button nzType="primary" routerLink="/produtos/novo">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Novo produto
+    </a>
+  }
+</section>
+
+<section class="filtros cartao-sistema" aria-label="Filtros de produtos">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="12" nzLg="8">
+        <nz-form-item>
+          <nz-form-label nzFor="nome">Produto</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12" nzLg="8">
+        <nz-form-item>
+          <nz-form-label nzFor="categoriaId">Categoria</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              id="categoriaId"
+              formControlName="categoriaId"
+              nzAllowClear
+              nzPlaceHolder="Todas as categorias"
+              [nzLoading]="carregandoCategorias()"
+            >
+              @for (categoria of categorias(); track categoria.id) {
+                <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="12" nzLg="5">
+        <nz-form-item>
+          <nz-form-label nzFor="quantidadeEstoque">Estoque</nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              id="quantidadeEstoque"
+              formControlName="quantidadeEstoque"
+              [nzMin]="0"
+              [nzStep]="1"
+              nzPlaceHolder="Quantidade"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzLg="3" class="acao-filtro">
+        <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="produtos()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzTableLayout="fixed"
+    [nzScroll]="{ x: '1080px' }"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="320px">Produto</th>
+        <th nzWidth="180px">Categoria</th>
+        <th nzWidth="140px">Fornecedor</th>
+        <th nzWidth="140px">Venda</th>
+        <th nzWidth="140px">Estoque</th>
+        <th nzWidth="170px">Atualizado em</th>
+        <th nzWidth="160px" nzAlign="right">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (produto of produtos(); track produto.id) {
+        <tr>
+          <td>
+            <div class="produto-celula">
+              @if (imagemPrincipal(produto); as imagem) {
+                <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+              } @else {
+                <div class="produto-sem-imagem" aria-hidden="true">
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </div>
+              }
+
+              <div>
+                <strong>{{ produto.nome }}</strong>
+                <span>{{ produto.descricao }}</span>
+              </div>
+            </div>
+          </td>
+          <td>{{ produto.categoria.nome }}</td>
+          <td>{{ produto.valorFornecedor | currency:'BRL':'symbol':'1.2-2' }}</td>
+          <td>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</td>
+          <td>
+            <nz-tag [nzColor]="estoqueColor(produto)">{{ estoqueTexto(produto) }}</nz-tag>
+          </td>
+          <td>{{ produto.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="acoes-linha">
+            <div class="acoes-grupo">
+              <button
+                class="acao-botao"
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Visualizar"
+                aria-label="Visualizar produto"
+                (click)="visualizar(produto)"
+              >
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </button>
+
+              @if (podeEditarProduto) {
+                <a
+                  class="acao-botao"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  [routerLink]="['/produtos', produto.id, 'editar']"
+                  nz-tooltip
+                  nzTooltipTitle="Editar"
+                  aria-label="Editar produto"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </a>
+              }
+
+              @if (podeExcluirProduto) {
+                <button
+                  class="acao-botao acao-botao-perigo"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja excluir este produto?"
+                  nzOkText="Excluir"
+                  nzCancelText="Cancelar"
+                  [nzLoading]="excluindoId() === produto.id"
+                  nz-tooltip
+                  nzTooltipTitle="Excluir"
+                  aria-label="Excluir produto"
+                  (nzOnConfirm)="excluir(produto)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>
+
+<nz-drawer
+  [nzVisible]="drawerAberto()"
+  nzTitle="Detalhes do produto"
+  nzPlacement="right"
+  [nzWidth]="460"
+  (nzOnClose)="fecharDrawer()"
+>
+  <ng-container *nzDrawerContent>
+    @if (produtoSelecionado(); as produto) {
+      <div class="detalhe-produto">
+        @if (imagemPrincipal(produto); as imagem) {
+          <img class="detalhe-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+        } @else {
+          <div class="detalhe-sem-imagem" aria-hidden="true">
+            <span nz-icon nzType="picture" nzTheme="outline"></span>
+          </div>
+        }
+
+        <nz-descriptions [nzColumn]="1" nzBordered>
+          <nz-descriptions-item nzTitle="Nome">{{ produto.nome }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Descricao">{{ produto.descricao }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Categoria">{{ produto.categoria.nome }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Valor fornecedor">
+            {{ produto.valorFornecedor | currency:'BRL':'symbol':'1.2-2' }}
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Valor venda">
+            {{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Estoque">
+            <nz-tag [nzColor]="estoqueColor(produto)">{{ estoqueTexto(produto) }}</nz-tag>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Criado em">{{ produto.criadoEm | date:'dd/MM/yyyy HH:mm' }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Atualizado em">{{ produto.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}</nz-descriptions-item>
+        </nz-descriptions>
+      </div>
+    }
+  </ng-container>
+</nz-drawer>

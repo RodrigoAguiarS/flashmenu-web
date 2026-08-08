@@ -29,12 +29,27 @@ export class PdvService {
       return false;
     }
 
+    const produtoAtualizado = this.paraProdutoCarrinho(produto);
     const proximosItens = itemExistente
-      ? itens.map((item) => item.produto.id === produto.id ? { ...item, quantidade: novaQuantidade } : item)
+      ? itens.map((item) => item.produto.id === produto.id ? { produto: produtoAtualizado, quantidade: novaQuantidade } : item)
       : [...itens, { produto: this.paraProdutoCarrinho(produto), quantidade: quantidadeNormalizada }];
 
     this.atualizarItens(proximosItens);
     return true;
+  }
+
+  sincronizarProdutos(produtos: ProdutoResponse[]): void {
+    if (!produtos.length || this.vazio()) {
+      return;
+    }
+
+    const produtosPorId = new Map(produtos.map((produto) => [produto.id, this.paraProdutoCarrinho(produto)]));
+    const itensSincronizados = this.itensVenda().map((item) => {
+      const produtoAtualizado = produtosPorId.get(item.produto.id);
+      return produtoAtualizado ? { ...item, produto: produtoAtualizado } : item;
+    });
+
+    this.atualizarItens(itensSincronizados);
   }
 
   definirQuantidade(produtoId: number, quantidade: number): boolean {
@@ -101,6 +116,7 @@ export class PdvService {
       descricao: produto.descricao,
       categoria: produto.categoria,
       valorVenda: produto.valorVenda,
+      imagemUrl: produto.imagemUrl,
       arquivosUrl: produto.arquivosUrl,
       quantidadeEstoque: produto.quantidadeEstoque
     };

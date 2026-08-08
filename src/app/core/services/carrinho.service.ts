@@ -101,6 +101,7 @@ export class CarrinhoService {
       descricao: produto.descricao,
       categoria: produto.categoria,
       valorVenda: produto.valorVenda,
+      imagemUrl: produto.imagemUrl,
       arquivosUrl: produto.arquivosUrl,
       quantidadeEstoque: produto.quantidadeEstoque
     };

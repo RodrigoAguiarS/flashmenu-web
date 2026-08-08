@@ -147,7 +147,7 @@ export class CheckoutComponent implements OnInit {
       return null;
     }
 
-    return produto.arquivosUrl?.[0] ?? null;
+    return produto.imagemUrl ?? produto.arquivosUrl?.[0] ?? null;
   }
 
   protected marcarImagemInvalida(produtoId: number): void {

@@ -6,6 +6,7 @@ export interface ProdutoCarrinho {
   descricao: string;
   categoria: CategoriaResponse;
   valorVenda: number;
+  imagemUrl: string | null;
   arquivosUrl: string[];
   quantidadeEstoque: number;
 }

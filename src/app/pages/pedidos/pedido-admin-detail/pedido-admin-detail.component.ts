@@ -4,7 +4,6 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -12,7 +11,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { PedidoResponse, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { PedidoService } from '../../../core/services/pedido.service';
 
 @Component({
@@ -23,7 +22,6 @@ import { PedidoService } from '../../../core/services/pedido.service';
     DatePipe,
     RouterLink,
     NzButtonModule,
-    NzDescriptionsModule,
     NzEmptyModule,
     NzIconModule,
     NzSpinModule,
@@ -48,7 +46,7 @@ export class PedidoAdminDetailComponent implements OnInit {
 
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
-      AGUARDANDO_PAGAMENTO: 'processing',
+      AGUARDANDO_CONFIRMACAO: 'processing',
       PAGO: 'success',
       CANCELADO: 'error'
     };
@@ -58,27 +56,7 @@ export class PedidoAdminDetailComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
-      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
-      PAGO: 'Pago',
-      CANCELADO: 'Cancelado'
-    };
-
-    return labels[status] ?? status;
-  }
-
-  protected corStatusPagamento(status: StatusPagamento): string {
-    const cores: Record<string, string> = {
-      PENDENTE: 'warning',
-      PAGO: 'success',
-      CANCELADO: 'error'
-    };
-
-    return cores[status] ?? 'default';
-  }
-
-  protected statusPagamentoTexto(status: StatusPagamento): string {
-    const labels: Record<string, string> = {
-      PENDENTE: 'Pendente',
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       PAGO: 'Pago',
       CANCELADO: 'Cancelado'
     };

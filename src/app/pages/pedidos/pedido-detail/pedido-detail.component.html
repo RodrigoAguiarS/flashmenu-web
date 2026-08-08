@@ -1,10 +1,10 @@
 <section class="cabecalho-pagina">
   <div>
-    <h1>Detalhe da venda</h1>
-    <p>Informacoes completas do pedido, pagamento e itens.</p>
+    <h1>Detalhes do pedido</h1>
+    <p>Confira os produtos, pagamento e valores do seu pedido.</p>
   </div>
 
-  <a nz-button routerLink="/pedidos/gerenciar">
+  <a nz-button routerLink="/pedidos">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
     Voltar
   </a>
@@ -12,7 +12,7 @@
 
 <nz-spin [nzSpinning]="carregando()">
   @if (pedido(); as pedidoDetalhe) {
-    <section class="detalhe-layout" aria-label="Detalhe da venda">
+    <section class="detalhe-layout" aria-label="Detalhes do pedido">
       <article class="painel-detalhe destaque">
         <header class="painel-topo">
           <div>
@@ -58,7 +58,7 @@
       <article class="painel-detalhe">
         <header class="secao-topo">
           <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
-          <h2>Itens</h2>
+          <h2>Produtos</h2>
         </header>
 
         <div class="itens-pedido">

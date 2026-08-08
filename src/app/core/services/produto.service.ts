@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { PageResponse } from '../models/page.model';
-import { ProdutoFiltros, ProdutoResponse } from '../models/produto.model';
+import { ProdutoFiltros, ProdutoRequest, ProdutoResponse } from '../models/produto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +21,44 @@ export class ProdutoService {
 
   buscarPorId(id: number): Observable<ProdutoResponse> {
     return this.http.get<ProdutoResponse>(`${this.baseUrl}/buscarProdutoPorId/${id}`);
+  }
+
+  cadastrar(request: ProdutoRequest, imagem?: File | null): Observable<ProdutoResponse> {
+    if (imagem) {
+      return this.http.post<ProdutoResponse>(`${this.baseUrl}/criarProdutoComImagem`, this.criarFormData(request, imagem));
+    }
+
+    return this.http.post<ProdutoResponse>(`${this.baseUrl}/criarProduto`, request);
+  }
+
+  atualizar(id: number, request: ProdutoRequest, imagem?: File | null): Observable<ProdutoResponse> {
+    if (imagem) {
+      return this.http.put<ProdutoResponse>(
+        `${this.baseUrl}/atualizarProdutoComImagem/${id}`,
+        this.criarFormData(request, imagem)
+      );
+    }
+
+    return this.http.put<ProdutoResponse>(`${this.baseUrl}/atualizarProduto/${id}`, request);
+  }
+
+  alterarImagem(id: number, imagem: File): Observable<ProdutoResponse> {
+    const formData = new FormData();
+    formData.append('imagem', imagem);
+
+    return this.http.put<ProdutoResponse>(`${this.baseUrl}/${id}/imagem`, formData);
+  }
+
+  excluir(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/deletarProduto/${id}`);
+  }
+
+  private criarFormData(request: ProdutoRequest, imagem: File): FormData {
+    const formData = new FormData();
+    formData.append('produto', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    formData.append('imagem', imagem);
+
+    return formData;
   }
 
   private criarParametros(filtros: ProdutoFiltros): HttpParams {
@@ -47,4 +85,3 @@ export class ProdutoService {
     return params;
   }
 }
-

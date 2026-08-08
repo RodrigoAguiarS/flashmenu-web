@@ -1,0 +1,99 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.imagem-produto small {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.formulario {
+  padding: 20px;
+}
+
+.alerta-formulario {
+  margin-bottom: 16px;
+}
+
+.alerta-formulario ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.formulario-layout {
+  display: grid;
+  gap: 20px;
+}
+
+.campos-produto nz-input-number {
+  width: 100%;
+}
+
+.imagem-produto {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.preview-imagem,
+.preview-vazio {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+}
+
+.preview-imagem {
+  object-fit: cover;
+}
+
+.preview-vazio {
+  display: grid;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+}
+
+.preview-vazio .anticon {
+  font-size: 30px;
+}
+
+.upload-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+@media (min-width: 900px) {
+  .formulario-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    align-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .cabecalho-pagina,
+  .acoes-formulario,
+  .upload-acoes {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

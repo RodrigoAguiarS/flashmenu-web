@@ -16,12 +16,6 @@
           <span>Forma de pagamento</span>
           <strong>{{ pedido.formaPagamento.nome }}</strong>
         </div>
-
-        @if (pedido.pagamento) {
-          <nz-tag [nzColor]="corStatusPagamento(pedido.pagamento.status)">
-            {{ statusPagamentoTexto(pedido.pagamento.status) }}
-          </nz-tag>
-        }
       </div>
 
       <div class="grade-valores">

@@ -76,7 +76,7 @@ export class PdvComponent implements OnInit {
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
   protected readonly formaPagamentoId = signal<number | null>(null);
-  protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
+  protected readonly imagensInvalidas = signal<ReadonlySet<string>>(new Set<string>());
   protected readonly carregandoProdutos = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly carregandoPagamento = signal(false);
@@ -84,7 +84,7 @@ export class PdvComponent implements OnInit {
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
-  protected readonly pageSize = signal(10);
+  protected readonly pageSize = signal(12);
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
   protected readonly formaPagamentoSelecionada = computed(() => {
     const formaPagamentoId = this.formaPagamentoId();
@@ -209,15 +209,12 @@ export class PdvComponent implements OnInit {
   }
 
   protected imagemPrincipal(produto: ProdutoResponse | ProdutoCarrinho): string | null {
-    if (this.imagensInvalidas().has(produto.id)) {
-      return null;
-    }
-
-    return produto.arquivosUrl?.[0] ?? null;
+    const imagensInvalidas = this.imagensInvalidas();
+    return this.urlsImagem(produto).find((url) => !imagensInvalidas.has(url)) ?? null;
   }
 
-  protected marcarImagemInvalida(produtoId: number): void {
-    this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+  protected marcarImagemInvalida(url: string): void {
+    this.imagensInvalidas.update((urls) => new Set(urls).add(url));
   }
 
   protected estoqueTexto(produto: ProdutoResponse): string {
@@ -261,6 +258,7 @@ export class PdvComponent implements OnInit {
     ).subscribe({
       next: (page) => {
         this.produtos.set(page.content);
+        this.pdvService.sincronizarProdutos(page.content);
         this.total.set(page.totalElements);
       },
       error: (error: HttpErrorResponse) => {
@@ -277,7 +275,7 @@ export class PdvComponent implements OnInit {
     this.categoriaService.listar({ page: 0, size: 100, sort: 'nome' }).pipe(
       finalize(() => this.carregandoCategorias.set(false))
     ).subscribe({
-      next: (page) => this.categorias.set(page.content),
+      next: (page) => this.categorias.set(page.content.filter((categoria) => categoria.ativo)),
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }
@@ -320,5 +318,11 @@ export class PdvComponent implements OnInit {
 
   private ehErroPadrao(value: unknown): value is StandardError {
     return !!value && typeof value === 'object' && 'message' in value;
+  }
+
+  private urlsImagem(produto: ProdutoResponse | ProdutoCarrinho): string[] {
+    return [produto.imagemUrl, ...(produto.arquivosUrl ?? [])]
+      .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+      .map((url) => url.trim());
   }
 }

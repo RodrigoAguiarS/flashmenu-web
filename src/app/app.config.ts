@@ -11,6 +11,7 @@ import {
   CloseCircleOutline,
   CreditCardOutline,
   DeleteOutline,
+  EditOutline,
   EyeInvisibleOutline,
   EyeOutline,
   FilterOutline,
@@ -31,6 +32,7 @@ import {
   SunOutline,
   TeamOutline,
   UnorderedListOutline,
+  UploadOutline,
   UserOutline,
   UserAddOutline
 } from '@ant-design/icons-angular/icons';
@@ -57,6 +59,7 @@ export const appConfig: ApplicationConfig = {
       CloseCircleOutline,
       CreditCardOutline,
       DeleteOutline,
+      EditOutline,
       EyeInvisibleOutline,
       EyeOutline,
       FilterOutline,
@@ -77,6 +80,7 @@ export const appConfig: ApplicationConfig = {
       SunOutline,
       TeamOutline,
       UnorderedListOutline,
+      UploadOutline,
       UserOutline,
       UserAddOutline
     ]),
