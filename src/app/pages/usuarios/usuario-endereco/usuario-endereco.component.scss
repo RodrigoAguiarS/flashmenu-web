@@ -1,0 +1,151 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.cabecalho-listagem p,
+.endereco-card span,
+.endereco-meta {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-endereco {
+  margin-bottom: 16px;
+}
+
+.layout-endereco {
+  display: grid;
+  gap: 16px;
+}
+
+.lista-enderecos,
+.form-endereco {
+  max-width: 100%;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cabecalho-listagem nz-tag {
+  flex: 0 0 auto;
+}
+
+.cards-endereco {
+  display: grid;
+  gap: 12px;
+}
+
+.endereco-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.endereco-card.principal {
+  border-color: color-mix(in srgb, var(--cor-primaria) 42%, var(--cor-borda));
+  box-shadow: inset 3px 0 0 var(--cor-primaria);
+}
+
+.endereco-card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.endereco-card header div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.endereco-card strong,
+.endereco-card span {
+  overflow-wrap: anywhere;
+}
+
+.endereco-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 12px;
+}
+
+.endereco-card footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.form-endereco nz-form-item {
+  margin-bottom: 14px;
+}
+
+.switch-principal {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cor-texto);
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+@media (min-width: 980px) {
+  .layout-endereco {
+    grid-template-columns: minmax(320px, 0.45fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .lista-enderecos,
+  .form-endereco {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cabecalho-pagina,
+  .cabecalho-listagem,
+  .endereco-card header,
+  .acoes-formulario {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-pagina a,
+  .acoes-formulario button {
+    width: 100%;
+  }
+}

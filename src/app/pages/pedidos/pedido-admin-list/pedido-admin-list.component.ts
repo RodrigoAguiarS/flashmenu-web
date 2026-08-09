@@ -17,6 +17,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -61,9 +62,9 @@ export class PedidoAdminListComponent implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly statusSelecionados = signal<Record<number, StatusPedido>>({});
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
-  protected readonly podeAlterarStatus = computed(() => this.authService.possuiPermissao('pedido.alterar-status'));
-  protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao('pedido.cancelar'));
-  protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao('pagamento.confirmar'));
+  protected readonly podeAlterarStatus = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
+  protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
+  protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
   protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_CONFIRMACAO', 'PAGO', 'CANCELADO'];
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
 

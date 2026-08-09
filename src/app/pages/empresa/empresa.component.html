@@ -1,0 +1,186 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Empresa</h1>
+    <p>Configure os dados comerciais usados pelos usuarios do sistema.</p>
+  </div>
+
+  <button nz-button type="button" [disabled]="carregando()" (click)="recarregar()">
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Atualizar
+  </button>
+</section>
+
+@if (mensagemErro()) {
+  <nz-alert class="alerta-empresa" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+@if (errosValidacao().length) {
+  <ng-template #descricaoValidacao>
+    <ul>
+      @for (erro of errosValidacao(); track erro) {
+        <li>{{ erro }}</li>
+      }
+    </ul>
+  </ng-template>
+
+  <nz-alert
+    class="alerta-empresa"
+    nzType="warning"
+    nzMessage="Revise os campos informados"
+    [nzDescription]="descricaoValidacao"
+    nzShowIcon
+  ></nz-alert>
+}
+
+@if (!podeSalvar()) {
+  <nz-alert
+    class="alerta-empresa"
+    nzType="warning"
+    nzMessage="Seu usuario pode consultar esta tela, mas nao possui permissao para salvar alteracoes."
+    nzShowIcon
+  ></nz-alert>
+}
+
+<nz-spin [nzSpinning]="carregando()">
+  <section class="layout-empresa">
+    <form class="formulario-empresa cartao-sistema" nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="salvar()">
+      <header class="cabecalho-card">
+        <div>
+          <h2>{{ modoTela() }}</h2>
+          <p>
+            @if (empresaExiste()) {
+              Atualize os dados da empresa ja cadastrada.
+            } @else {
+              Cadastre a empresa antes de criar novos usuarios.
+            }
+          </p>
+        </div>
+
+        <nz-tag [nzColor]="empresaExiste() ? 'success' : 'warning'">
+          {{ empresaExiste() ? 'Configurada' : 'Pendente' }}
+        </nz-tag>
+      </header>
+
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24" nzMd="12">
+          <nz-form-item>
+            <nz-form-label nzFor="nomeFantasia" nzRequired>Nome fantasia</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe o nome fantasia com ate 120 caracteres."
+              [nzValidateStatus]="form.controls.nomeFantasia"
+            >
+              <input nz-input id="nomeFantasia" formControlName="nomeFantasia" placeholder="FlashMenu" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="12">
+          <nz-form-item>
+            <nz-form-label nzFor="razaoSocial" nzRequired>Razao social</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe a razao social com ate 150 caracteres."
+              [nzValidateStatus]="form.controls.razaoSocial"
+            >
+              <input nz-input id="razaoSocial" formControlName="razaoSocial" placeholder="FlashMenu Tecnologia Ltda" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="cnpj" nzRequired>CNPJ</nz-form-label>
+            <nz-form-control nzErrorTip="Informe um CNPJ valido." [nzValidateStatus]="form.controls.cnpj">
+              <input nz-input id="cnpj" formControlName="cnpj" appDocumentoMask="cnpj" placeholder="12.345.678/0001-90" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="email">E-mail</nz-form-label>
+            <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="form.controls.email">
+              <input nz-input id="email" type="email" formControlName="email" placeholder="contato@empresa.com" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="telefone">Telefone</nz-form-label>
+            <nz-form-control nzErrorTip="Informe um telefone valido." [nzValidateStatus]="form.controls.telefone">
+              <input nz-input id="telefone" formControlName="telefone" appDocumentoMask="telefone" placeholder="(84) 99999-9999" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      <div class="acoes-formulario">
+        <button nz-button nzType="primary" type="submit" [disabled]="!podeSalvar()" [nzLoading]="salvando()">
+          <span nz-icon nzType="save" nzTheme="outline"></span>
+          {{ textoBotao() }}
+        </button>
+      </div>
+    </form>
+
+    <aside class="painel-lateral">
+      <section class="resumo-empresa cartao-sistema" aria-label="Resumo da empresa">
+        <header class="cabecalho-card">
+          <div>
+            <h2>Resumo</h2>
+            <p>Dados atualmente registrados.</p>
+          </div>
+        </header>
+
+        @if (empresa(); as empresaDados) {
+          <div class="linha-dado">
+            <span>Nome fantasia</span>
+            <strong>{{ empresaDados.nomeFantasia }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>Razao social</span>
+            <strong>{{ empresaDados.razaoSocial }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>CNPJ</span>
+            <strong>{{ empresaDados.cnpj | cnpj }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>E-mail</span>
+            <strong>{{ empresaDados.email || '-' }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>Telefone</span>
+            <strong>{{ empresaDados.telefone | telefone }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>Status</span>
+            <nz-tag [nzColor]="empresaDados.ativo ? 'success' : 'default'">
+              {{ empresaDados.ativo ? 'Ativa' : 'Inativa' }}
+            </nz-tag>
+          </div>
+
+          <div class="linha-dado">
+            <span>Criado em</span>
+            <strong>{{ empresaDados.criadoEm | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+
+          <div class="linha-dado">
+            <span>Atualizado em</span>
+            <strong>{{ empresaDados.atualizadoEm ? (empresaDados.atualizadoEm | date:'dd/MM/yyyy HH:mm') : '-' }}</strong>
+          </div>
+        } @else {
+          <div class="estado-pendente">
+            <span nz-icon nzType="shop" nzTheme="outline"></span>
+            <strong>Empresa nao cadastrada</strong>
+            <p>Cadastre a empresa para vincular novos usuarios ao registro comercial.</p>
+          </div>
+        }
+      </section>
+    </aside>
+  </section>
+</nz-spin>

@@ -4,12 +4,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PermissaoResponse } from '../../../core/models/permissao.model';
@@ -20,12 +23,15 @@ import { PermissaoService } from '../../../core/services/permissao.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    NzButtonModule,
     NzEmptyModule,
     NzFormModule,
     NzGridModule,
+    NzIconModule,
     NzInputModule,
     NzInputNumberModule,
-    NzTableModule
+    NzTableModule,
+    NzTagModule
   ],
   templateUrl: './permissao-list.component.html',
   styleUrl: './permissao-list.component.scss',

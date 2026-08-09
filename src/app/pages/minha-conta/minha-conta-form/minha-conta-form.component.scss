@@ -13,9 +13,35 @@
   font-weight: 700;
 }
 
-.cabecalho-pagina p {
+.cabecalho-pagina p,
+.cabecalho-secao p,
+.endereco-card span,
+.endereco-card small {
   margin: 0;
   color: var(--cor-texto-suave);
+}
+
+.botao-voltar {
+  display: inline-grid;
+  place-items: center;
+  align-self: flex-start;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+}
+
+.conta-layout {
+  display: grid;
+  gap: 12px;
+}
+
+.abas-conta {
+  display: block;
 }
 
 .formulario-conta {
@@ -25,19 +51,93 @@
   border-radius: 8px;
 }
 
-.formulario-senha {
-  margin-top: 16px;
-}
-
-.formulario-senha h2 {
+.cabecalho-secao h2,
+.form-endereco h3 {
   margin: 0 0 4px;
   font-size: 18px;
   font-weight: 700;
 }
 
-.formulario-senha p {
-  margin: 0 0 16px;
-  color: var(--cor-texto-suave);
+.cabecalho-secao {
+  margin-bottom: 16px;
+}
+
+.cabecalho-enderecos {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cabecalho-enderecos button {
+  width: 100%;
+}
+
+.lista-enderecos {
+  display: grid;
+  gap: 12px;
+}
+
+.endereco-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.endereco-card.principal {
+  border-color: color-mix(in srgb, var(--cor-primaria) 42%, var(--cor-borda));
+  box-shadow: inset 3px 0 0 var(--cor-primaria);
+}
+
+.endereco-card-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.endereco-card-topo nz-tag {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.endereco-card strong,
+.endereco-card span,
+.endereco-card small {
+  overflow-wrap: anywhere;
+}
+
+.endereco-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.form-endereco {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.form-endereco h3 {
+  margin-bottom: 14px;
+}
+
+.form-endereco nz-form-item {
+  margin-bottom: 14px;
+}
+
+.switch-principal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  color: var(--cor-texto);
 }
 
 .alerta-form {
@@ -51,13 +151,40 @@
 
 .acoes-form {
   display: flex;
-  flex-direction: column-reverse;
-  gap: 10px;
-  margin-top: 8px;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .acoes-form button {
-  width: 100%;
+  width: auto;
+  min-width: 96px;
+  min-height: 36px;
+  padding-inline: 14px;
+  border-radius: 8px;
+}
+
+:host ::ng-deep .abas-conta .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+:host ::ng-deep .abas-conta .ant-tabs-nav-wrap {
+  justify-content: center;
+}
+
+:host ::ng-deep .abas-conta .ant-tabs-tab {
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+:host ::ng-deep .ant-input {
+  min-height: 40px;
+}
+
+:host ::ng-deep .ant-form-item {
+  margin-bottom: 14px;
 }
 
 @media (min-width: 700px) {
@@ -71,16 +198,59 @@
     font-size: 28px;
   }
 
+  .conta-layout {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
   .formulario-conta {
     padding: 20px;
   }
 
-  .acoes-form {
+  .cabecalho-enderecos {
+    align-items: flex-start;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 
-  .acoes-form button {
+  .cabecalho-enderecos button {
     width: auto;
+  }
+
+}
+
+@media (max-width: 560px) {
+  .cabecalho-pagina {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .cabecalho-pagina > div {
+    min-width: 0;
+  }
+
+  .botao-voltar {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .endereco-card-topo {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .endereco-card-topo nz-tag {
+    width: fit-content;
+  }
+
+  :host ::ng-deep .abas-conta .ant-tabs-nav-list {
+    width: 100%;
+  }
+
+  :host ::ng-deep .abas-conta .ant-tabs-tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding-inline: 8px;
   }
 }

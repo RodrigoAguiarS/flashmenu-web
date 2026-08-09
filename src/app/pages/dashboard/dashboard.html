@@ -1,35 +1,201 @@
 <section class="cabecalho-pagina">
   <div>
-    <h1>Produtos</h1>
-    <p>Resumo operacional do catalogo e estoque.</p>
+    <h1>Dashboard</h1>
+    <p>Acompanhe pedidos, faturamento, produtos vendidos e alertas de estoque.</p>
   </div>
 </section>
 
-<section class="indicadores" aria-label="Indicadores">
-  <nz-statistic nzTitle="Produtos cadastrados" [nzValue]="128" />
-  <nz-statistic nzTitle="Categorias" [nzValue]="14" />
-  <nz-statistic nzTitle="Estoque baixo" [nzValue]="7" />
+@if (mensagemErro()) {
+  <nz-alert class="alerta-dashboard" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+<section class="filtros cartao-sistema" aria-label="Filtros do dashboard">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros" (ngSubmit)="filtrar()">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="6">
+        <nz-form-item>
+          <nz-form-label nzFor="dataInicio" nzRequired>Data inicial</nz-form-label>
+          <nz-form-control nzErrorTip="Informe a data inicial." [nzValidateStatus]="filtros.controls.dataInicio">
+            <input nz-input id="dataInicio" type="date" formControlName="dataInicio" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="6">
+        <nz-form-item>
+          <nz-form-label nzFor="dataFim" nzRequired>Data final</nz-form-label>
+          <nz-form-control nzErrorTip="Informe a data final." [nzValidateStatus]="filtros.controls.dataFim">
+            <input nz-input id="dataFim" type="date" formControlName="dataFim" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="5">
+        <nz-form-item>
+          <nz-form-label nzFor="limiteProdutos">Mais vendidos</nz-form-label>
+          <nz-form-control nzErrorTip="Use um limite entre 1 e 100." [nzValidateStatus]="filtros.controls.limiteProdutos">
+            <nz-input-number id="limiteProdutos" formControlName="limiteProdutos" [nzMin]="1" [nzMax]="100" [nzStep]="1"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="5">
+        <nz-form-item>
+          <nz-form-label nzFor="limiteEstoque">Limite estoque</nz-form-label>
+          <nz-form-control nzErrorTip="Use um limite igual ou maior que zero." [nzValidateStatus]="filtros.controls.limiteEstoque">
+            <nz-input-number id="limiteEstoque" formControlName="limiteEstoque" [nzMin]="0" [nzStep]="1"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="2" class="acao-filtro">
+        <button nz-button nzType="primary" type="submit" [nzLoading]="carregando()" aria-label="Atualizar dashboard">
+          <span nz-icon nzType="search" nzTheme="outline"></span>
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
-  <h2>Ultimas atualizacoes</h2>
+<nz-spin [nzSpinning]="carregando()">
+  @if (resumo(); as resumoDados) {
+    <section class="indicadores" aria-label="Indicadores do periodo">
+      <article class="indicador principal">
+        <span>Faturamento</span>
+        <strong>{{ resumoDados.faturamentoBruto | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </article>
+      <article class="indicador">
+        <span>Pedidos pagos</span>
+        <strong>{{ resumoDados.pedidosPagos | number:'1.0-0' }}</strong>
+      </article>
+      <article class="indicador">
+        <span>Aguardando confirmacao</span>
+        <strong>{{ resumoDados.pedidosAguardandoConfirmacao | number:'1.0-0' }}</strong>
+      </article>
+      <article class="indicador">
+        <span>Cancelados</span>
+        <strong>{{ resumoDados.pedidosCancelados | number:'1.0-0' }}</strong>
+      </article>
+      <article class="indicador">
+        <span>Ticket medio</span>
+        <strong>{{ resumoDados.ticketMedio | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </article>
+      <article class="indicador">
+        <span>Itens vendidos</span>
+        <strong>{{ resumoDados.quantidadeItensVendidos | number:'1.0-0' }}</strong>
+      </article>
+    </section>
+  }
 
-  <nz-table #produtosTable [nzData]="produtos" [nzFrontPagination]="false">
-    <thead>
-      <tr>
-        <th>Produto</th>
-        <th>Categoria</th>
-        <th>Estoque</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (produto of produtosTable.data; track produto.nome) {
-        <tr>
-          <td>{{ produto.nome }}</td>
-          <td>{{ produto.categoria }}</td>
-          <td>{{ produto.estoque }}</td>
-        </tr>
+  <section class="dashboard-grid">
+    <article class="painel-dashboard painel-vendas">
+      <header>
+        <h2>Vendas por dia</h2>
+        <nz-tag>{{ vendasPorDia().length }} dias</nz-tag>
+      </header>
+
+      @if (possuiVendasPorDia()) {
+        <div class="lista-barras">
+          @for (venda of vendasPorDia(); track venda.data) {
+            <div class="linha-barra">
+              <span>{{ venda.data | date:'dd/MM' }}</span>
+              <div class="barra">
+                <i [style.width.%]="percentual(venda.faturamento, maiorFaturamentoDia())"></i>
+              </div>
+              <strong>{{ venda.faturamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              <small>{{ venda.totalPedidos }} pedidos</small>
+            </div>
+          }
+        </div>
+      } @else {
+        <nz-empty nzNotFoundContent="Sem vendas no periodo."></nz-empty>
       }
-    </tbody>
-  </nz-table>
-</section>
+    </article>
+
+    <article class="painel-dashboard painel-produtos">
+      <header>
+        <h2>Produtos mais vendidos</h2>
+      </header>
+
+      @if (possuiProdutosMaisVendidos()) {
+        <nz-table [nzData]="produtosMaisVendidos()" [nzFrontPagination]="false" nzSize="small">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th nzAlign="right">Qtd.</th>
+              <th nzAlign="right">Faturamento</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (produto of produtosMaisVendidos(); track produto.produtoId) {
+              <tr>
+                <td>
+                  <div class="produto-ranking">
+                    <strong>{{ produto.produtoNome }}</strong>
+                    <span [style.width.%]="percentual(produto.quantidadeVendida, maiorQuantidadeVendida())"></span>
+                  </div>
+                </td>
+                <td nzAlign="right">{{ produto.quantidadeVendida | number:'1.0-0' }}</td>
+                <td nzAlign="right">{{ produto.faturamento | currency:'BRL':'symbol':'1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </nz-table>
+      } @else {
+        <nz-empty nzNotFoundContent="Nenhum produto vendido no periodo."></nz-empty>
+      }
+    </article>
+
+    <article class="painel-dashboard painel-pagamentos">
+      <header>
+        <h2>Formas de pagamento</h2>
+      </header>
+
+      @if (possuiFormasPagamento()) {
+        <div class="lista-pagamentos">
+          @for (forma of vendasPorFormaPagamento(); track forma.formaPagamentoId) {
+            <div>
+              <span>{{ forma.nome }}</span>
+              <strong>{{ forma.faturamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              <small>{{ forma.totalPedidos }} pedidos · acrescimos {{ forma.valorAcrescimos | currency:'BRL':'symbol':'1.2-2' }}</small>
+              <i [style.width.%]="percentual(forma.faturamento, maiorFaturamentoFormaPagamento())"></i>
+            </div>
+          }
+        </div>
+      } @else {
+        <nz-empty nzNotFoundContent="Sem pagamentos no periodo."></nz-empty>
+      }
+    </article>
+
+    <article class="painel-dashboard painel-estoque">
+      <header>
+        <h2>Estoque baixo</h2>
+      </header>
+
+      @if (possuiEstoqueBaixo()) {
+        <nz-table [nzData]="produtosEstoqueBaixo()" [nzFrontPagination]="false" nzSize="small">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th nzAlign="right">Estoque</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (produto of produtosEstoqueBaixo(); track produto.produtoId) {
+              <tr>
+                <td>{{ produto.produtoNome }}</td>
+                <td nzAlign="right">
+                  <nz-tag [nzColor]="produto.quantidadeEstoque === 0 ? 'error' : 'warning'">
+                    {{ produto.quantidadeEstoque }} un.
+                  </nz-tag>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </nz-table>
+      } @else {
+        <nz-empty nzNotFoundContent="Nenhum produto com estoque baixo."></nz-empty>
+      }
+    </article>
+  </section>
+</nz-spin>

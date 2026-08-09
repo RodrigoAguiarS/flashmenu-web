@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -19,11 +19,14 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PerfilResponse } from '../../../core/models/perfil.model';
 import { UsuarioResponse } from '../../../core/models/usuario.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
+import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 
 type StatusFiltro = boolean | null;
 
@@ -33,6 +36,7 @@ type StatusFiltro = boolean | null;
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    TelefonePipe,
     NzButtonModule,
     NzDescriptionsModule,
     NzDrawerModule,
@@ -53,6 +57,7 @@ type StatusFiltro = boolean | null;
 })
 export class UsuarioListComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly perfilService = inject(PerfilService);
   private readonly message = inject(NzMessageService);
@@ -68,6 +73,9 @@ export class UsuarioListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly podeCriarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_CRIAR));
+  protected readonly podeEditarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_EDITAR));
+  protected readonly podeExcluirUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_DELETAR));
 
   protected readonly filtros = this.fb.group({
     nome: [''],

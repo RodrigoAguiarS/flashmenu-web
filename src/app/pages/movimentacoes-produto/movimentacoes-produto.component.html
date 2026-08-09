@@ -1,0 +1,261 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Movimentacoes de estoque</h1>
+    <p>Registre entradas, ajustes e acompanhe o historico de cada produto.</p>
+  </div>
+</section>
+
+@if (mensagemErro()) {
+  <nz-alert class="alerta-estoque" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+@if (!podeCriarMovimentacao()) {
+  <nz-alert
+    class="alerta-estoque"
+    nzType="warning"
+    nzMessage="Seu usuario pode consultar movimentacoes, mas nao possui permissao para alterar estoque."
+    nzShowIcon
+  ></nz-alert>
+}
+
+<section class="filtros cartao-sistema" aria-label="Filtros de movimentacoes de estoque">
+  <form nz-form nzLayout="vertical" [formGroup]="filtroForm">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzLg="16">
+        <nz-form-item>
+          <nz-form-label nzFor="produtoId" nzRequired>Produto</nz-form-label>
+          <nz-form-control
+            nzErrorTip="Selecione um produto para consultar ou movimentar estoque."
+            [nzValidateStatus]="filtroForm.controls.produtoId"
+          >
+            <nz-select
+              id="produtoId"
+              formControlName="produtoId"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="Selecione o produto"
+              [nzLoading]="carregandoProdutos()"
+            >
+              @for (produto of produtos(); track produto.id) {
+                <nz-option
+                  [nzValue]="produto.id"
+                  [nzLabel]="produto.nome + ' - estoque ' + produto.quantidadeEstoque"
+                ></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzLg="8">
+        <nz-form-item>
+          <nz-form-label nzFor="tipo">Tipo</nz-form-label>
+          <nz-form-control>
+            <nz-select id="tipo" formControlName="tipo" nzAllowClear nzPlaceHolder="Todos os tipos">
+              @for (tipo of tiposMovimentacao; track tipo) {
+                <nz-option [nzValue]="tipo" [nzLabel]="tipoTexto(tipo)"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+@if (produtoSelecionado(); as produto) {
+  <section class="resumo-produto cartao-sistema" aria-label="Resumo do produto selecionado">
+    <div>
+      <span>Produto selecionado</span>
+      <strong>{{ produto.nome }}</strong>
+    </div>
+    <div>
+      <span>Categoria</span>
+      <strong>{{ produto.categoria.nome }}</strong>
+    </div>
+    <div>
+      <span>Estoque atual</span>
+      <nz-tag [nzColor]="produto.quantidadeEstoque > 0 ? 'success' : 'default'">
+        {{ produto.quantidadeEstoque }} un.
+      </nz-tag>
+    </div>
+  </section>
+}
+
+<section class="layout-movimentacao">
+  <form
+    class="cartao-sistema card-operacao"
+    nz-form
+    nzLayout="vertical"
+    [formGroup]="entradaForm"
+    (ngSubmit)="registrarEntrada()"
+  >
+    <header class="cabecalho-card">
+      <div>
+        <h2>Entrada</h2>
+        <p>Use para adicionar novas unidades ao estoque.</p>
+      </div>
+      <nz-tag nzColor="success">Soma estoque</nz-tag>
+    </header>
+
+    <nz-form-item>
+      <nz-form-label nzFor="quantidadeEntrada" nzRequired>Quantidade</nz-form-label>
+      <nz-form-control nzErrorTip="Informe uma quantidade maior que zero." [nzValidateStatus]="entradaForm.controls.quantidade">
+        <nz-input-number
+          id="quantidadeEntrada"
+          formControlName="quantidade"
+          [nzMin]="1"
+          [nzStep]="1"
+          nzPlaceHolder="Quantidade recebida"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label nzFor="observacaoEntrada">Observacao</nz-form-label>
+      <nz-form-control nzErrorTip="Use ate 255 caracteres." [nzValidateStatus]="entradaForm.controls.observacao">
+        <textarea
+          nz-input
+          id="observacaoEntrada"
+          formControlName="observacao"
+          rows="3"
+          maxlength="255"
+          placeholder="Ex.: Compra de fornecedor"
+        ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <button
+      nz-button
+      nzType="primary"
+      type="submit"
+      [disabled]="!possuiProdutoSelecionado() || !podeCriarMovimentacao()"
+      [nzLoading]="salvandoEntrada()"
+    >
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Registrar entrada
+    </button>
+  </form>
+
+  <form
+    class="cartao-sistema card-operacao"
+    nz-form
+    nzLayout="vertical"
+    [formGroup]="ajusteForm"
+    (ngSubmit)="registrarAjuste()"
+  >
+    <header class="cabecalho-card">
+      <div>
+        <h2>Ajuste</h2>
+        <p>Use para corrigir o saldo final do produto.</p>
+      </div>
+      <nz-tag nzColor="warning">Define saldo</nz-tag>
+    </header>
+
+    <nz-form-item>
+      <nz-form-label nzFor="quantidadeAjuste" nzRequired>Novo estoque</nz-form-label>
+      <nz-form-control nzErrorTip="Informe um saldo maior ou igual a zero." [nzValidateStatus]="ajusteForm.controls.quantidadeEstoque">
+        <nz-input-number
+          id="quantidadeAjuste"
+          formControlName="quantidadeEstoque"
+          [nzMin]="0"
+          [nzStep]="1"
+          nzPlaceHolder="Saldo corrigido"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label nzFor="observacaoAjuste">Observacao</nz-form-label>
+      <nz-form-control nzErrorTip="Use ate 255 caracteres." [nzValidateStatus]="ajusteForm.controls.observacao">
+        <textarea
+          nz-input
+          id="observacaoAjuste"
+          formControlName="observacao"
+          rows="3"
+          maxlength="255"
+          placeholder="Ex.: Conferencia manual do estoque"
+        ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <button
+      nz-button
+      nzType="primary"
+      type="submit"
+      [disabled]="!possuiProdutoSelecionado() || !podeCriarMovimentacao()"
+      [nzLoading]="salvandoAjuste()"
+    >
+      <span nz-icon nzType="save" nzTheme="outline"></span>
+      Registrar ajuste
+    </button>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Historico de movimentacoes</h2>
+      <p>Entradas, saidas por pedidos, estornos e ajustes registrados.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+  </header>
+
+  <ng-template #estadoVazio>
+    @if (possuiProdutoSelecionado()) {
+      <nz-empty nzNotFoundContent="Nenhuma movimentacao encontrada para o produto."></nz-empty>
+    } @else {
+      <nz-empty nzNotFoundContent="Selecione um produto para listar as movimentacoes."></nz-empty>
+    }
+  </ng-template>
+
+  <nz-table
+    [nzData]="movimentacoes()"
+    [nzLoading]="carregandoMovimentacoes()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzSize="middle"
+    nzTableLayout="fixed"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="160px">Data</th>
+        <th nzWidth="120px">Tipo</th>
+        <th nzWidth="120px">Quantidade</th>
+        <th nzWidth="180px">Saldo</th>
+        <th nzWidth="120px">Pedido</th>
+        <th>Observacao</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (movimentacao of movimentacoes(); track movimentacao.id) {
+        <tr>
+          <td>{{ movimentacao.criadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <nz-tag [nzColor]="tipoCor(movimentacao.tipo)">{{ tipoTexto(movimentacao.tipo) }}</nz-tag>
+          </td>
+          <td>
+            <strong>{{ movimentacao.quantidade }}</strong>
+            <span class="diferenca-saldo">{{ diferencaSaldo(movimentacao) }}</span>
+          </td>
+          <td>
+            <div class="saldo-celula">
+              <span>{{ movimentacao.saldoAnterior }} un.</span>
+              <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+              <strong>{{ movimentacao.saldoPosterior }} un.</strong>
+            </div>
+          </td>
+          <td>{{ movimentacao.pedidoId || '-' }}</td>
+          <td class="observacao-celula">{{ movimentacao.observacao || '-' }}</td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>

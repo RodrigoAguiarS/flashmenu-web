@@ -11,8 +11,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { FormaPagamentoResponse, TipoFormaPagamento } from '../../../core/models/forma-pagamento.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { FormaPagamentoService } from '../../../core/services/forma-pagamento.service';
 
 @Component({
@@ -33,6 +35,7 @@ import { FormaPagamentoService } from '../../../core/services/forma-pagamento.se
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormaPagamentoListComponent implements OnInit {
+  private readonly authService = inject(AuthService);
   private readonly formaPagamentoService = inject(FormaPagamentoService);
   private readonly message = inject(NzMessageService);
 
@@ -41,6 +44,7 @@ export class FormaPagamentoListComponent implements OnInit {
   protected readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
   protected readonly percentuais = signal<Record<number, number>>({});
   protected readonly possuiFormasPagamento = computed(() => this.formasPagamento().length > 0);
+  protected readonly podeEditarFormaPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.FORMA_PAGAMENTO_EDITAR));
 
   ngOnInit(): void {
     this.carregarFormasPagamento();

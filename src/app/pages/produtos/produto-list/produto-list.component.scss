@@ -13,7 +13,9 @@
 }
 
 .cabecalho-pagina p,
-.produto-celula span {
+.produto-celula span,
+.valores-celula span,
+.cabecalho-listagem p {
   margin: 0;
   color: var(--cor-texto-suave);
 }
@@ -41,7 +43,27 @@
 }
 
 .secao-tabela {
+  max-width: 100%;
+  overflow: hidden;
   padding: 20px;
+}
+
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cabecalho-listagem nz-tag {
+  flex: 0 0 auto;
 }
 
 .produto-celula {
@@ -60,6 +82,18 @@
 
 .produto-celula strong,
 .produto-celula span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.valores-celula {
+  display: grid;
+  gap: 2px;
+}
+
+.valores-celula strong,
+.valores-celula span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -144,6 +178,21 @@
   object-fit: cover;
 }
 
+:host ::ng-deep .secao-tabela .ant-table {
+  overflow: hidden;
+}
+
+:host ::ng-deep .secao-tabela .ant-table-cell {
+  vertical-align: middle;
+}
+
+:host ::ng-deep .secao-tabela .ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .cabecalho-pagina {
     align-items: stretch;
@@ -156,5 +205,10 @@
 
   .filtros nz-form-item {
     margin-bottom: 16px;
+  }
+
+  .cabecalho-listagem {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

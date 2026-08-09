@@ -67,7 +67,7 @@
               nzErrorTip="Informe um telefone valido."
               [nzValidateStatus]="formulario.controls.telefone"
             >
-              <input nz-input id="telefone" formControlName="telefone" placeholder="84987654321" />
+              <input nz-input id="telefone" formControlName="telefone" appDocumentoMask="telefone" placeholder="(84) 98765-4321" />
             </nz-form-control>
           </nz-form-item>
         </nz-col>
@@ -155,6 +155,92 @@
         }
       </nz-row>
 
+      @if (!editando()) {
+        <section class="secao-endereco" formGroupName="endereco" aria-label="Endereco inicial do usuario">
+          <header>
+            <h2>Endereco inicial</h2>
+            <p>O endereco sera enviado junto com o cadastro do usuario.</p>
+          </header>
+
+          <nz-row [nzGutter]="16">
+            <nz-col nzXs="24" nzMd="8">
+              <nz-form-item>
+                <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
+                <nz-form-control
+                  [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
+                  nzErrorTip="Informe um CEP valido."
+                  [nzValidateStatus]="formulario.controls.endereco.controls.cep"
+                >
+                  <input nz-input id="cep" formControlName="cep" placeholder="59000-000" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="16">
+              <nz-form-item>
+                <nz-form-label nzFor="logradouro" nzRequired>Logradouro</nz-form-label>
+                <nz-form-control
+                  nzErrorTip="Informe o logradouro."
+                  [nzValidateStatus]="formulario.controls.endereco.controls.logradouro"
+                >
+                  <input nz-input id="logradouro" formControlName="logradouro" placeholder="Rua, avenida, travessa" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="8">
+              <nz-form-item>
+                <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
+                <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="formulario.controls.endereco.controls.numero">
+                  <input nz-input id="numero" formControlName="numero" placeholder="100" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="16">
+              <nz-form-item>
+                <nz-form-label nzFor="complemento">Complemento</nz-form-label>
+                <nz-form-control [nzValidateStatus]="formulario.controls.endereco.controls.complemento">
+                  <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referencia" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="10">
+              <nz-form-item>
+                <nz-form-label nzFor="bairro" nzRequired>Bairro</nz-form-label>
+                <nz-form-control nzErrorTip="Informe o bairro." [nzValidateStatus]="formulario.controls.endereco.controls.bairro">
+                  <input nz-input id="bairro" formControlName="bairro" placeholder="Centro" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="10">
+              <nz-form-item>
+                <nz-form-label nzFor="cidade" nzRequired>Cidade</nz-form-label>
+                <nz-form-control nzErrorTip="Informe a cidade." [nzValidateStatus]="formulario.controls.endereco.controls.cidade">
+                  <input nz-input id="cidade" formControlName="cidade" placeholder="Natal" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="4">
+              <nz-form-item>
+                <nz-form-label nzFor="estado" nzRequired>UF</nz-form-label>
+                <nz-form-control nzErrorTip="Informe a UF com 2 letras." [nzValidateStatus]="formulario.controls.endereco.controls.estado">
+                  <input nz-input id="estado" formControlName="estado" placeholder="RN" maxlength="2" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+          </nz-row>
+
+          <label class="switch-principal">
+            <nz-switch formControlName="principal"></nz-switch>
+            <span>Definir como endereco principal</span>
+          </label>
+        </section>
+      }
+
       <div class="acoes-formulario">
         <a nz-button routerLink="/usuarios">Cancelar</a>
         <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando() || carregando()">
@@ -164,4 +250,3 @@
     </form>
   </nz-spin>
 </section>
-

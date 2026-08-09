@@ -2,7 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -12,7 +12,9 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { ProdutoResponse } from '../../../core/models/produto.model';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { ProdutoService } from '../../../core/services/produto.service';
 
 @Component({
   selector: 'app-pedido-detail',
@@ -34,10 +36,13 @@ import { PedidoService } from '../../../core/services/pedido.service';
 export class PedidoDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly pedidoService = inject(PedidoService);
+  private readonly produtoService = inject(ProdutoService);
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
   protected readonly pedido = signal<PedidoResponse | null>(null);
+  protected readonly produtos = signal<Record<number, ProdutoResponse>>({});
+  protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly possuiPedido = computed(() => this.pedido() !== null);
 
   ngOnInit(): void {
@@ -56,7 +61,7 @@ export class PedidoDetailComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
-      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       PAGO: 'Pago',
       CANCELADO: 'Cancelado'
     };
@@ -82,6 +87,22 @@ export class PedidoDetailComponent implements OnInit {
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
+  protected produtoDetalhe(produtoId: number): ProdutoResponse | null {
+    return this.produtos()[produtoId] ?? null;
+  }
+
+  protected imagemPrincipal(produto: ProdutoResponse): string | null {
+    if (this.imagensInvalidas().has(produto.id)) {
+      return null;
+    }
+
+    return produto.imagemUrl ?? produto.arquivosUrl?.[0] ?? null;
+  }
+
+  protected marcarImagemInvalida(produtoId: number): void {
+    this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+  }
+
   private carregarPedido(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
@@ -93,11 +114,43 @@ export class PedidoDetailComponent implements OnInit {
     this.carregando.set(true);
 
     this.pedidoService.buscarMeuPedido(id).pipe(
+      switchMap((pedido) =>
+        this.carregarProdutosPedido(pedido).pipe(
+          map((produtos) => ({ pedido, produtos }))
+        )
+      ),
       finalize(() => this.carregando.set(false))
     ).subscribe({
-      next: (pedido) => this.pedido.set(pedido),
+      next: ({ pedido, produtos }) => {
+        this.pedido.set(pedido);
+        this.produtos.set(produtos);
+      },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
+  }
+
+  private carregarProdutosPedido(pedido: PedidoResponse) {
+    const produtoIds = [...new Set(pedido.itens.map((item) => item.produtoId))];
+
+    if (!produtoIds.length) {
+      return of({});
+    }
+
+    return forkJoin(
+      produtoIds.map((produtoId) =>
+        this.produtoService.buscarPorId(produtoId).pipe(catchError(() => of(null)))
+      )
+    ).pipe(
+      map((produtos) =>
+        produtos.reduce<Record<number, ProdutoResponse>>((acc, produto) => {
+          if (produto) {
+            acc[produto.id] = produto;
+          }
+
+          return acc;
+        }, {})
+      )
+    );
   }
 
   private extrairMensagemErro(error: HttpErrorResponse): string {

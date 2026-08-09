@@ -1,0 +1,154 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.cabecalho-card p,
+.cabecalho-listagem p,
+.resumo-produto span,
+.diferenca-saldo {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-estoque {
+  margin-bottom: 16px;
+}
+
+.filtros,
+.resumo-produto,
+.card-operacao,
+.secao-tabela {
+  padding: 20px;
+}
+
+.filtros {
+  margin-bottom: 16px;
+}
+
+.filtros nz-form-item,
+.card-operacao nz-form-item {
+  margin-bottom: 14px;
+}
+
+.resumo-produto {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.resumo-produto > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resumo-produto strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layout-movimentacao {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card-operacao {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-operacao nz-input-number,
+.card-operacao button {
+  width: 100%;
+}
+
+.cabecalho-card,
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-card h2,
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.secao-tabela {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.diferenca-saldo {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.saldo-celula {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.saldo-celula .anticon {
+  color: var(--cor-texto-suave);
+  transform: rotate(180deg);
+}
+
+.observacao-celula {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .secao-tabela .ant-table {
+  overflow: hidden;
+}
+
+:host ::ng-deep .secao-tabela .ant-table-cell {
+  vertical-align: middle;
+}
+
+:host ::ng-deep .secao-tabela .ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .layout-movimentacao,
+  .resumo-produto {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .cabecalho-pagina,
+  .cabecalho-card,
+  .cabecalho-listagem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

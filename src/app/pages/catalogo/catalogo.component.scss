@@ -1,10 +1,9 @@
 .cabecalho-pagina {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .cabecalho-pagina h1 {
@@ -20,55 +19,85 @@
 }
 
 .atalho-carrinho {
-  width: 100%;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 999px;
 }
 
-.filtros,
+.atalho-carrinho .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+}
+
 .estado-vazio {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   padding: 12px;
   border-radius: 8px;
 }
 
-.filtros nz-form-item {
+.filtros {
   margin-bottom: 12px;
 }
 
-.acao-filtro {
-  display: flex;
-  align-items: flex-end;
+.busca-catalogo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
 }
 
-.acao-filtro button {
-  width: 100%;
+.campo-busca {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.filtros nz-form-item {
+  margin-bottom: 0;
+}
+
+.filtros ::ng-deep .ant-input,
+.filtros ::ng-deep .ant-select-selector {
+  min-height: 40px;
+  background: var(--cor-superficie);
+  border-radius: 8px;
+}
+
+.botao-limpar {
+  min-height: 40px;
+  color: var(--cor-texto-suave);
 }
 
 .grade-produtos {
   display: grid;
   grid-template-columns: 1fr;
+  align-items: stretch;
   gap: 10px;
 }
 
-.produto-card {
-  overflow: hidden;
-  border-radius: 8px;
-}
-
 .produto-card ::ng-deep .ant-card-body {
+  height: 100%;
   padding: 0;
 }
 
 .produto-layout {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-columns: 78px minmax(0, 1fr);
   gap: 10px;
+  height: 100%;
+  min-height: 126px;
   padding: 10px;
 }
 
 .produto-imagem,
 .produto-sem-imagem {
-  width: 82px;
-  height: 82px;
+  width: 78px;
+  height: 78px;
   border-radius: 8px;
   object-fit: cover;
 }
@@ -82,17 +111,17 @@
   border: 1px solid var(--cor-borda);
 }
 
-.produto-sem-imagem span,
-.detalhe-sem-imagem span {
-  font-size: 28px;
-}
-
 .produto-conteudo {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   gap: 10px;
+}
+
+.produto-conteudo > div:first-child {
+  display: grid;
+  align-content: start;
+  min-width: 0;
 }
 
 .produto-meta {
@@ -100,17 +129,48 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 5px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
+}
+
+.produto-meta nz-tag {
+  max-width: 110px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.estoque-chip {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.estoque-chip::before {
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  background: #52c41a;
+  border-radius: 999px;
+  content: '';
+}
+
+.estoque-chip.sem-estoque::before {
+  background: var(--cor-texto-suave);
 }
 
 .produto-conteudo h2 {
-  margin: 0 0 4px;
+  display: -webkit-box;
+  min-height: 20px;
+  margin: 0 0 6px;
   overflow: hidden;
   font-size: 15px;
   font-weight: 700;
   line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .produto-conteudo p {
@@ -127,48 +187,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-}
-
-.produto-rodape strong {
-  flex: 0 0 auto;
-  font-size: 15px;
+  gap: 8px;
 }
 
 .produto-acoes {
   display: flex;
-  flex: 0 0 auto;
   justify-content: flex-end;
   gap: 6px;
-  min-width: 0;
 }
 
 .produto-acoes .botao-card {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  line-height: 1;
-}
-
-.produto-acoes .botao-card .anticon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.produto-acoes .botao-adicionar,
-.produto-acoes .botao-adicionar:hover,
-.produto-acoes .botao-adicionar:focus {
-  color: #fff;
-}
-
-.produto-acoes .botao-adicionar .anticon {
-  color: #fff;
 }
 
 .paginacao {
@@ -180,21 +211,20 @@
 .detalhe-produto {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .detalhe-imagem,
 .detalhe-sem-imagem {
   width: 100%;
-  height: 220px;
+  height: 190px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.detalhe-produto h2 {
+.detalhe-categoria {
+  align-self: flex-start;
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
 }
 
 .detalhe-produto p {
@@ -205,26 +235,24 @@
 .detalhe-info {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.detalhe-info strong {
-  font-size: 22px;
+  padding: 10px 0;
+  border-block: 1px solid var(--cor-borda);
 }
 
 .quantidade-label {
   font-weight: 600;
 }
 
+.detalhe-produto nz-input-number,
+.detalhe-produto button {
+  width: 100%;
+}
+
+
 @media (min-width: 700px) {
   .cabecalho-pagina {
     align-items: flex-end;
-    flex-direction: row;
     margin-bottom: 24px;
-  }
-
-  .atalho-carrinho {
-    width: auto;
   }
 
   .cabecalho-pagina h1 {
@@ -235,6 +263,15 @@
     margin-bottom: 0;
   }
 
+  .busca-catalogo {
+    grid-template-columns: minmax(260px, 1fr) minmax(220px, 320px) auto;
+    align-items: center;
+  }
+
+  .campo-busca {
+    grid-column: auto;
+  }
+
   .grade-produtos {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
@@ -243,6 +280,7 @@
   .produto-layout {
     grid-template-columns: 104px minmax(0, 1fr);
     gap: 14px;
+    min-height: 168px;
     padding: 14px;
   }
 
@@ -255,28 +293,24 @@
 
 @media (max-width: 420px) {
   .produto-layout {
-    grid-template-columns: 78px minmax(0, 1fr);
+    grid-template-columns: 74px minmax(0, 1fr);
     gap: 10px;
+    min-height: 124px;
     padding: 10px;
   }
 
   .produto-imagem,
   .produto-sem-imagem {
-    width: 78px;
-    height: 78px;
+    width: 74px;
+    height: 74px;
   }
 
-  .produto-rodape {
-    align-items: center;
-    flex-direction: row;
-    gap: 6px;
+  .produto-conteudo h2 {
+    font-size: 14px;
   }
 
-  .produto-acoes {
-    justify-content: flex-end;
-  }
-
-  .produto-acoes .botao-card {
-    flex: 0 0 auto;
+  .produto-conteudo p,
+  .estoque-chip {
+    font-size: 11px;
   }
 }

@@ -4,10 +4,12 @@
     <p>Gerencie grupos de permissao e acesso ao sistema.</p>
   </div>
 
-  <a nz-button nzType="primary" routerLink="/perfis/novo">
-    <span nz-icon nzType="plus" nzTheme="outline"></span>
-    Novo perfil
-  </a>
+  @if (podeCriarPerfil()) {
+    <a nz-button nzType="primary" routerLink="/perfis/novo">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Novo perfil
+    </a>
+  }
 </section>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de perfis">
@@ -30,6 +32,15 @@
 </section>
 
 <section class="secao-tabela cartao-sistema">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Perfis encontrados</h2>
+      <p>Lista paginada de grupos de acesso cadastrados.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+  </header>
+
   <ng-template #estadoVazio>
     <nz-empty nzNotFoundContent="Nenhum perfil encontrado."></nz-empty>
   </ng-template>
@@ -43,8 +54,8 @@
     [nzPageSize]="pageSize()"
     [nzShowSizeChanger]="true"
     [nzNoResult]="estadoVazio"
+    nzSize="middle"
     nzTableLayout="fixed"
-    [nzScroll]="{ x: '760px' }"
     (nzPageIndexChange)="alterarPagina($event)"
     (nzPageSizeChange)="alterarTamanhoPagina($event)"
   >
@@ -73,34 +84,38 @@
               <span nz-icon nzType="eye" nzTheme="outline"></span>
             </button>
 
-            <a
-              nz-button
-              nzType="text"
-              [routerLink]="['/perfis', perfil.id, 'editar']"
-              nz-tooltip
-              nzTooltipTitle="Editar"
-              aria-label="Editar perfil"
-            >
-              <span nz-icon nzType="edit" nzTheme="outline"></span>
-            </a>
+            @if (podeEditarPerfil()) {
+              <a
+                nz-button
+                nzType="text"
+                [routerLink]="['/perfis', perfil.id, 'editar']"
+                nz-tooltip
+                nzTooltipTitle="Editar"
+                aria-label="Editar perfil"
+              >
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </a>
+            }
 
-            <button
-              nz-button
-              nzType="text"
-              nzDanger
-              type="button"
-              nz-popconfirm
-              nzPopconfirmTitle="Deseja excluir este perfil?"
-              nzOkText="Excluir"
-              nzCancelText="Cancelar"
-              [nzLoading]="excluindoId() === perfil.id"
-              nz-tooltip
-              nzTooltipTitle="Excluir"
-              aria-label="Excluir perfil"
-              (nzOnConfirm)="excluir(perfil)"
-            >
-              <span nz-icon nzType="delete" nzTheme="outline"></span>
-            </button>
+            @if (podeExcluirPerfil()) {
+              <button
+                nz-button
+                nzType="text"
+                nzDanger
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja excluir este perfil?"
+                nzOkText="Excluir"
+                nzCancelText="Cancelar"
+                [nzLoading]="excluindoId() === perfil.id"
+                nz-tooltip
+                nzTooltipTitle="Excluir"
+                aria-label="Excluir perfil"
+                (nzOnConfirm)="excluir(perfil)"
+              >
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            }
           </td>
         </tr>
       }
@@ -130,4 +145,3 @@
     }
   </ng-container>
 </nz-drawer>
-

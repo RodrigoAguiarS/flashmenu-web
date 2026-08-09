@@ -4,14 +4,13 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { ClienteCheckoutRequest, ClienteIdentificacaoResponse, LoginRequest, LoginResponse } from '../models/auth.model';
 import { UsuarioResponse } from '../models/usuario.model';
+import { PERMISSOES } from '../auth/permissoes';
 
 const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
 const TOKEN_TYPE_KEY = 'flashmenu_token_type';
 const USUARIO_KEY = 'flashmenu_usuario';
-const ADMIN_AUTHORITY = 'administrador.criar';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -31,12 +30,37 @@ export class AuthService {
     );
   }
 
+  buscarClientePorTelefone(telefone: string): Observable<ClienteIdentificacaoResponse> {
+    return this.http.get<ClienteIdentificacaoResponse>(`${environment.apiUrl}/auth/clientes/por-telefone`, {
+      params: {
+        telefone
+      }
+    });
+  }
+
+  cadastrarClienteCheckout(request: ClienteCheckoutRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/clientes`, request).pipe(
+      tap((response) => this.persistirSessao(response))
+    );
+  }
+
   sair(): void {
+    this.limparSessao();
+    void this.router.navigate(['/login']);
+  }
+
+  encerrarSessaoExpirada(returnUrl?: string): void {
+    this.limparSessao();
+    void this.router.navigate(['/login'], {
+      queryParams: returnUrl ? { returnUrl } : undefined
+    });
+  }
+
+  limparSessao(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(TOKEN_TYPE_KEY);
     localStorage.removeItem(USUARIO_KEY);
     this.usuarioAtual.set(null);
-    void this.router.navigate(['/login']);
   }
 
   usuarioLogado(): Observable<UsuarioResponse> {
@@ -67,16 +91,16 @@ export class AuthService {
 
   possuiPermissao(authority: string): boolean {
     const permissoes = this.permissoes();
-    return permissoes.has(ADMIN_AUTHORITY) || permissoes.has(authority);
+    return permissoes.has(PERMISSOES.ADMIN) || permissoes.has(authority);
   }
 
-  possuiAlgumaPermissao(authorities: string[]): boolean {
+  possuiAlgumaPermissao(authorities: readonly string[]): boolean {
     if (authorities.length === 0) {
       return true;
     }
 
     const permissoes = this.permissoes();
-    if (permissoes.has(ADMIN_AUTHORITY)) {
+    if (permissoes.has(PERMISSOES.ADMIN)) {
       return true;
     }
 

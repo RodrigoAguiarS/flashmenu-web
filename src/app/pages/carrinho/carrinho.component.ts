@@ -13,7 +13,6 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
-import { AuthService } from '../../core/services/auth.service';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 
 @Component({
@@ -38,7 +37,6 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
 })
 export class CarrinhoComponent {
   protected readonly carrinhoService = inject(CarrinhoService);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
@@ -77,16 +75,7 @@ export class CarrinhoComponent {
       return;
     }
 
-    if (this.authService.estaAutenticado()) {
-      void this.router.navigate(['/checkout']);
-      return;
-    }
-
-    void this.router.navigate(['/login'], {
-      queryParams: {
-        returnUrl: '/checkout'
-      }
-    });
+    void this.router.navigate(['/checkout']);
   }
 
   protected imagemPrincipal(produto: ProdutoCarrinho): string | null {

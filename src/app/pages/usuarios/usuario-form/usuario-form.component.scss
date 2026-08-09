@@ -12,7 +12,8 @@
   font-weight: 700;
 }
 
-.cabecalho-pagina p {
+.cabecalho-pagina p,
+.secao-endereco p {
   margin: 0;
   color: var(--cor-texto-suave);
 }
@@ -42,6 +43,31 @@
   cursor: pointer;
 }
 
+.secao-endereco {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.secao-endereco header {
+  margin-bottom: 8px;
+}
+
+.secao-endereco h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.switch-principal {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cor-texto);
+}
+
 .acoes-formulario {
   display: flex;
   justify-content: flex-end;
@@ -56,4 +82,3 @@
     flex-direction: column;
   }
 }
-

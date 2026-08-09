@@ -1,0 +1,184 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.cabecalho-card p,
+.resumo-calculo span,
+.simulador label,
+.linha-simulacao span,
+.total-simulacao span,
+.metadados span {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-configuracao {
+  margin-bottom: 16px;
+}
+
+.layout-configuracao {
+  display: grid;
+  gap: 16px;
+}
+
+.formulario-configuracao,
+.simulador,
+.metadados {
+  padding: 16px;
+}
+
+.cabecalho-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-card h2,
+.metadados h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.formulario-configuracao nz-input-number,
+.simulador nz-input-number {
+  width: 100%;
+}
+
+.resumo-calculo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.resumo-calculo article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.resumo-calculo strong {
+  font-size: 20px;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.painel-lateral {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.simulador {
+  display: grid;
+  gap: 12px;
+}
+
+.simulador .cabecalho-card {
+  margin-bottom: 0;
+}
+
+.simulador label {
+  font-weight: 600;
+}
+
+.linha-simulacao,
+.total-simulacao,
+.metadados > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.linha-simulacao,
+.metadados > div {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.linha-simulacao.positivo strong {
+  color: #16a34a;
+}
+
+.linha-simulacao.negativo strong {
+  color: #dc2626;
+}
+
+.total-simulacao {
+  margin-top: 4px;
+  padding: 14px;
+  color: var(--cor-texto);
+  background: color-mix(in srgb, var(--cor-superficie) 86%, var(--cor-primaria));
+  border: 1px solid color-mix(in srgb, var(--cor-primaria) 35%, var(--cor-borda));
+  border-radius: 8px;
+}
+
+.total-simulacao strong {
+  font-size: 24px;
+}
+
+.metadados {
+  display: grid;
+  gap: 4px;
+}
+
+.metadados h2 {
+  margin-bottom: 8px;
+}
+
+.metadados > div:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 980px) {
+  .layout-configuracao {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.42fr);
+    align-items: start;
+  }
+
+  .formulario-configuracao,
+  .simulador,
+  .metadados {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cabecalho-pagina,
+  .cabecalho-card,
+  .acoes-formulario {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-pagina button,
+  .acoes-formulario button {
+    width: 100%;
+  }
+
+  .formulario-configuracao nz-form-item {
+    margin-bottom: 14px;
+  }
+}

@@ -1,0 +1,305 @@
+<section class="identificacao-cliente" aria-label="Identificacao do cliente">
+  <header>
+    <h2>Identifique-se para continuar</h2>
+    <p>Informe seu telefone para buscar ou criar seu cadastro.</p>
+  </header>
+
+  @if (mensagemErro()) {
+    <nz-alert class="alerta-identificacao" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+  }
+
+  @if (mensagemIdentificacao()) {
+    <nz-alert
+      class="alerta-identificacao"
+      [nzType]="clienteEncontrado() === true ? 'success' : clienteEncontrado() === false ? 'info' : 'warning'"
+      [nzMessage]="mensagemIdentificacao()"
+      nzShowIcon
+    ></nz-alert>
+  }
+
+  <form nz-form nzLayout="vertical" [formGroup]="identificacaoForm" (ngSubmit)="identificarCliente()">
+    <nz-form-item>
+      <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
+      <nz-form-control
+        [nzExtra]="buscandoTelefone() ? 'Buscando cadastro...' : ''"
+        nzErrorTip="Informe um telefone valido."
+        [nzValidateStatus]="identificacaoForm.controls.telefone"
+      >
+        <input
+          nz-input
+          id="telefone"
+          inputmode="tel"
+          autocomplete="tel"
+          formControlName="telefone"
+          appDocumentoMask="telefone"
+          placeholder="(84) 98765-4321"
+        />
+      </nz-form-control>
+    </nz-form-item>
+
+    @if (clienteEncontrado() === true) {
+      <nz-row [nzGutter]="12">
+        <nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzFor="nomeEncontrado">Nome</nz-form-label>
+            <nz-form-control>
+              <input nz-input id="nomeEncontrado" formControlName="nome" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzFor="loginEncontrado">E-mail</nz-form-label>
+            <nz-form-control>
+              <input nz-input id="loginEncontrado" type="email" formControlName="login" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      @if (enderecoEncontrado()) {
+        <section class="checkout-endereco" formGroupName="endereco" aria-label="Endereco encontrado do cliente">
+          <header>
+            <h3>Endereco</h3>
+          </header>
+
+          <nz-row [nzGutter]="12">
+            <nz-col [nzXs]="24" [nzMd]="8">
+              <nz-form-item>
+                <nz-form-label nzFor="cepEncontrado">CEP</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="cepEncontrado" formControlName="cep" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="24" [nzMd]="16">
+              <nz-form-item>
+                <nz-form-label nzFor="logradouroEncontrado">Rua</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="logradouroEncontrado" formControlName="logradouro" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="24" [nzMd]="8">
+              <nz-form-item>
+                <nz-form-label nzFor="numeroEncontrado">Numero</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="numeroEncontrado" formControlName="numero" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="24" [nzMd]="16">
+              <nz-form-item>
+                <nz-form-label nzFor="complementoEncontrado">Complemento</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="complementoEncontrado" formControlName="complemento" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="24" [nzMd]="10">
+              <nz-form-item>
+                <nz-form-label nzFor="bairroEncontrado">Bairro</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="bairroEncontrado" formControlName="bairro" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="16" [nzMd]="10">
+              <nz-form-item>
+                <nz-form-label nzFor="cidadeEncontrada">Cidade</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="cidadeEncontrada" formControlName="cidade" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col [nzXs]="8" [nzMd]="4">
+              <nz-form-item>
+                <nz-form-label nzFor="estadoEncontrado">UF</nz-form-label>
+                <nz-form-control>
+                  <input nz-input id="estadoEncontrado" formControlName="estado" readonly />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+          </nz-row>
+        </section>
+      }
+
+      <nz-form-item>
+        <nz-form-label nzFor="senha" nzRequired>Senha</nz-form-label>
+        <nz-form-control nzErrorTip="Informe sua senha." [nzValidateStatus]="identificacaoForm.controls.senha">
+          <nz-input-wrapper>
+            <span nzInputPrefix nz-icon nzType="lock" nzTheme="outline"></span>
+            <input
+              nz-input
+              id="senha"
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              autocomplete="current-password"
+              formControlName="senha"
+              placeholder="Sua senha"
+            />
+
+            <button
+              nzInputSuffix
+              class="botao-senha"
+              type="button"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+              (click)="alternarVisibilidadeSenha()"
+            >
+              <span nz-icon [nzType]="senhaVisivel() ? 'eye-invisible' : 'eye'" nzTheme="outline"></span>
+            </button>
+          </nz-input-wrapper>
+        </nz-form-control>
+      </nz-form-item>
+    }
+
+    @if (clienteEncontrado() === false) {
+      <nz-row [nzGutter]="12">
+        <nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe um nome entre 3 e 120 caracteres."
+              [nzValidateStatus]="identificacaoForm.controls.nome"
+            >
+              <input nz-input id="nome" autocomplete="name" formControlName="nome" placeholder="Nome completo" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
+            <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="identificacaoForm.controls.login">
+              <input nz-input id="login" type="email" autocomplete="email" formControlName="login" placeholder="voce@email.com" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      <nz-form-item>
+        <nz-form-label nzFor="senhaCadastro" nzRequired>Senha</nz-form-label>
+        <nz-form-control
+          nzErrorTip="Informe uma senha com pelo menos 6 caracteres."
+          [nzValidateStatus]="identificacaoForm.controls.senha"
+        >
+          <nz-input-wrapper>
+            <span nzInputPrefix nz-icon nzType="lock" nzTheme="outline"></span>
+            <input
+              nz-input
+              id="senhaCadastro"
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              autocomplete="new-password"
+              formControlName="senha"
+              placeholder="Crie uma senha"
+            />
+
+            <button
+              nzInputSuffix
+              class="botao-senha"
+              type="button"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+              (click)="alternarVisibilidadeSenha()"
+            >
+              <span nz-icon [nzType]="senhaVisivel() ? 'eye-invisible' : 'eye'" nzTheme="outline"></span>
+            </button>
+          </nz-input-wrapper>
+        </nz-form-control>
+      </nz-form-item>
+
+      <section class="checkout-endereco" formGroupName="endereco" aria-label="Endereco do cliente">
+        <header>
+          <h3>Endereco</h3>
+        </header>
+
+        <nz-row [nzGutter]="12">
+          <nz-col [nzXs]="24" [nzMd]="8">
+            <nz-form-item>
+              <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
+              <nz-form-control
+                [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
+                nzErrorTip="Informe um CEP valido."
+                [nzValidateStatus]="identificacaoForm.controls.endereco.controls.cep"
+              >
+                <input nz-input id="cep" inputmode="numeric" formControlName="cep" placeholder="59000-000" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="24" [nzMd]="16">
+            <nz-form-item>
+              <nz-form-label nzFor="logradouro" nzRequired>Rua</nz-form-label>
+              <nz-form-control nzErrorTip="Informe a rua." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.logradouro">
+                <input nz-input id="logradouro" formControlName="logradouro" readonly />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="24" [nzMd]="8">
+            <nz-form-item>
+              <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
+              <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.numero">
+                <input nz-input id="numero" formControlName="numero" placeholder="100" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="24" [nzMd]="16">
+            <nz-form-item>
+              <nz-form-label nzFor="complemento">Complemento</nz-form-label>
+              <nz-form-control [nzValidateStatus]="identificacaoForm.controls.endereco.controls.complemento">
+                <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referencia" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="24" [nzMd]="10">
+            <nz-form-item>
+              <nz-form-label nzFor="bairro" nzRequired>Bairro</nz-form-label>
+              <nz-form-control nzErrorTip="Informe o bairro." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.bairro">
+                <input nz-input id="bairro" formControlName="bairro" readonly />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="16" [nzMd]="10">
+            <nz-form-item>
+              <nz-form-label nzFor="cidade" nzRequired>Cidade</nz-form-label>
+              <nz-form-control nzErrorTip="Informe a cidade." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.cidade">
+                <input nz-input id="cidade" formControlName="cidade" readonly />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col [nzXs]="8" [nzMd]="4">
+            <nz-form-item>
+              <nz-form-label nzFor="estado" nzRequired>UF</nz-form-label>
+              <nz-form-control nzErrorTip="Informe a UF." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.estado">
+                <input nz-input id="estado" formControlName="estado" maxlength="2" readonly />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+        </nz-row>
+      </section>
+    }
+
+    @if (clienteEncontrado() !== null) {
+      <button
+        class="botao-identificar"
+        nz-button
+        nzType="primary"
+        type="submit"
+        [nzLoading]="identificando()"
+        [disabled]="identificando() || buscandoTelefone()"
+      >
+        {{ clienteEncontrado() ? 'Entrar e continuar' : 'Cadastrar e continuar' }}
+      </button>
+    }
+  </form>
+</section>

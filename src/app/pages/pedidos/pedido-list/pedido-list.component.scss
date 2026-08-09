@@ -1,8 +1,7 @@
 .cabecalho-pagina {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -18,14 +17,27 @@
   color: var(--cor-texto-suave);
 }
 
+.botao-voltar {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+}
+
 .lista-pedidos {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .pedido-card {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   padding: 12px;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
@@ -42,15 +54,11 @@
   transform: translateY(-1px);
 }
 
-.pedido-topo,
-.pedido-resumo {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .pedido-topo {
+  display: flex;
   align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .pedido-tags {
@@ -58,8 +66,8 @@
   flex: 0 0 auto;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 6px;
-  max-width: 52%;
+  gap: 4px;
+  max-width: 48%;
 }
 
 .pedido-tags nz-tag {
@@ -70,49 +78,44 @@
 .pedido-resumo span,
 .pedido-resumo strong {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
 .pedido-topo span,
 .pedido-resumo small,
-.pagamento-card small {
+.pedido-rodape small {
   color: var(--cor-texto-suave);
 }
 
 .pedido-resumo {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  padding: 10px;
+  gap: 8px;
+  padding: 8px 0;
   background: var(--cor-campo);
-  border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+  border-block: 1px solid var(--cor-borda);
 }
 
-.pagamento-card {
-  display: grid;
-  gap: 10px;
-  padding: 10px;
-  background: color-mix(in srgb, var(--cor-campo) 86%, var(--cor-primaria));
-  border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+.pedido-resumo span,
+.pedido-resumo strong {
+  font-size: 13px;
 }
 
-.pagamento-topo {
+.pedido-rodape {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
-.pagamento-topo div {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.pagamento-data {
-  display: block;
+.botao-detalhes {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-primaria) 28%, transparent);
 }
 
 .estado-vazio {
@@ -125,7 +128,6 @@
 @media (min-width: 700px) {
   .cabecalho-pagina {
     align-items: flex-end;
-    flex-direction: row;
     margin-bottom: 24px;
   }
 
@@ -136,16 +138,13 @@
   .lista-pedidos {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   }
-
 }
 
 @media (max-width: 520px) {
-  .pedido-resumo {
-    grid-template-columns: 1fr;
-  }
-
-  .pagamento-topo {
-    align-items: stretch;
-    flex-direction: column;
+  .pedido-tags nz-tag {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

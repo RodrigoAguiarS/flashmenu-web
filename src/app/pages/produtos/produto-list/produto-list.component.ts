@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -21,6 +21,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { CategoriaResponse } from '../../../core/models/categoria.model';
 import { ProdutoResponse } from '../../../core/models/produto.model';
@@ -74,9 +75,9 @@ export class ProdutoListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
-  protected readonly podeCriarProduto = this.authService.possuiPermissao('produto.criar');
-  protected readonly podeEditarProduto = this.authService.possuiPermissao('produto.editar');
-  protected readonly podeExcluirProduto = this.authService.possuiPermissao('produto.deletar');
+  protected readonly podeCriarProduto = computed(() => this.authService.possuiPermissao(PERMISSOES.PRODUTO_CRIAR));
+  protected readonly podeEditarProduto = computed(() => this.authService.possuiPermissao(PERMISSOES.PRODUTO_EDITAR));
+  protected readonly podeExcluirProduto = computed(() => this.authService.possuiPermissao(PERMISSOES.PRODUTO_DELETAR));
 
   protected readonly filtros = this.fb.group({
     nome: [''],

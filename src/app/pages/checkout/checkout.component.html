@@ -4,9 +4,8 @@
     <p>Revise seu pedido e confirme a finalizacao.</p>
   </div>
 
-  <a nz-button routerLink="/carrinho">
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/carrinho" aria-label="Voltar ao carrinho">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-    Voltar ao carrinho
   </a>
 </section>
 
@@ -16,72 +15,62 @@
     <a nz-button nzType="primary" routerLink="/catalogo">Ver produtos</a>
   </section>
 } @else {
-  <nz-spin [nzSpinning]="carregando()">
+  <nz-spin [nzSpinning]="checkout.carregando()">
     <section class="layout-checkout">
       <section class="revisao" aria-label="Revisao do pedido">
-        @if (mensagemErro()) {
-          <nz-alert class="alerta-checkout" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+        @if (checkout.mensagemErro()) {
+          <nz-alert class="alerta-checkout" nzType="error" [nzMessage]="checkout.mensagemErro()" nzShowIcon></nz-alert>
         }
 
-        <h2>Itens do pedido</h2>
+        @if (!checkout.usuario()) {
+          <app-identificacao-cliente />
+        }
 
-        <div class="itens-pedido">
-          @for (item of carrinhoService.itens(); track item.produto.id) {
-            <article class="item-pedido">
-              @if (imagemPrincipal(item.produto); as imagem) {
-                <img
-                  class="produto-imagem"
-                  [src]="imagem"
-                  [alt]="item.produto.nome"
-                  (error)="marcarImagemInvalida(item.produto.id)"
-                />
-              } @else {
-                <div class="produto-sem-imagem" aria-hidden="true">
-                  <span nz-icon nzType="picture" nzTheme="outline"></span>
-                </div>
+        <nz-collapse nzGhost>
+          <nz-collapse-panel [nzHeader]="'Itens do pedido (' + carrinhoService.quantidadeTotal() + ')'">
+            <div class="itens-pedido">
+              @for (item of carrinhoService.itens(); track item.produto.id) {
+                <article class="item-pedido">
+                  @if (imagemPrincipal(item.produto); as imagem) {
+                    <img
+                      class="produto-imagem"
+                      [src]="imagem"
+                      [alt]="item.produto.nome"
+                      (error)="marcarImagemInvalida(item.produto.id)"
+                    />
+                  } @else {
+                    <div class="produto-sem-imagem" aria-hidden="true">
+                      <span nz-icon nzType="picture" nzTheme="outline"></span>
+                    </div>
+                  }
+
+                  <div class="item-pedido-info">
+                    <div>
+                      <strong>{{ item.produto.nome }}</strong>
+                      <small>{{ item.produto.categoria.nome }} - {{ item.produto.descricao }}</small>
+                      <span>{{ item.quantidade }} x {{ item.produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</span>
+                    </div>
+                    <strong>{{ subtotalItem(item.produto.valorVenda, item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  </div>
+                </article>
               }
+            </div>
+          </nz-collapse-panel>
 
-              <div class="item-pedido-info">
-                <div>
-                  <strong>{{ item.produto.nome }}</strong>
-                  <span>{{ item.quantidade }} x {{ item.produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</span>
-                </div>
-                <strong>{{ subtotalItem(item.produto.valorVenda, item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          <nz-collapse-panel nzHeader="Cliente">
+            @if (checkout.usuario(); as usuarioAtual) {
+              <div class="cliente-resumo">
+                <span>{{ usuarioAtual.nome }}</span>
+                <small>{{ usuarioAtual.email }}</small>
+                <small>{{ usuarioAtual.telefone | telefone }}</small>
               </div>
-            </article>
-          }
-        </div>
-
-        <h2>Cliente</h2>
-
-        @if (usuario(); as usuarioAtual) {
-          <div class="cliente-resumo">
-            <span>{{ usuarioAtual.nome }}</span>
-            <small>{{ usuarioAtual.email }}</small>
-            <small>{{ usuarioAtual.telefone || '-' }}</small>
-          </div>
-        }
+            }
+          </nz-collapse-panel>
+        </nz-collapse>
       </section>
 
       <nz-card class="resumo" nzTitle="Finalizacao">
-        <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="finalizarPedido()">
-          <nz-form-item>
-            <nz-form-label nzFor="formaPagamentoId" nzRequired>Forma de pagamento</nz-form-label>
-            <nz-form-control
-              nzErrorTip="Selecione uma forma de pagamento."
-              [nzValidateStatus]="formulario.controls.formaPagamentoId"
-            >
-              <nz-select id="formaPagamentoId" formControlName="formaPagamentoId" nzPlaceHolder="Selecione">
-                @for (forma of formasPagamento(); track forma.id) {
-                  <nz-option
-                    [nzValue]="forma.id"
-                    [nzLabel]="forma.percentualAcrescimo ? forma.nome + ' +' + forma.percentualAcrescimo + '%' : forma.nome"
-                  ></nz-option>
-                }
-              </nz-select>
-            </nz-form-control>
-          </nz-form-item>
-
+        <form nz-form nzLayout="vertical" [formGroup]="checkout.formulario" (ngSubmit)="finalizarPedido()">
           <div class="linha-resumo">
             <span>Itens</span>
             <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
@@ -92,35 +81,60 @@
             <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
           </div>
 
-          @if (formaPagamentoSelecionada(); as formaPagamento) {
-            <div class="pagamento-resumo">
-              <div>
+          <nz-form-item class="campo-pagamento">
+            <nz-form-label nzFor="formaPagamentoId" nzRequired>Forma de pagamento</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Selecione uma forma de pagamento."
+              [nzValidateStatus]="checkout.formulario.controls.formaPagamentoId"
+            >
+              <nz-select id="formaPagamentoId" formControlName="formaPagamentoId" nzPlaceHolder="Selecione">
+                @for (forma of checkout.formasPagamento(); track forma.id) {
+                  <nz-option
+                    [nzValue]="forma.id"
+                    [nzLabel]="forma.percentualAcrescimo ? forma.nome + ' +' + forma.percentualAcrescimo + '%' : forma.nome"
+                  ></nz-option>
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <div class="pagamento-resumo">
+            @if (checkout.formaPagamentoSelecionada(); as formaPagamento) {
+              <div class="linha-resumo">
                 <span>Forma de pagamento</span>
                 <strong>{{ formaPagamento.nome }}</strong>
               </div>
-
+            } @else {
               <div class="linha-resumo">
-                <span>Acréscimo</span>
-                <strong>{{ percentualAcrescimo() }}%</strong>
+                <span>Forma de pagamento</span>
+                <strong>Nao selecionada</strong>
               </div>
+            }
 
-              <div class="linha-resumo">
-                <span>Valor do acréscimo</span>
-                <strong>{{ valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-              </div>
+            <div class="linha-resumo">
+              <span>Acrescimo</span>
+              <strong>{{ checkout.percentualAcrescimo() }}%</strong>
             </div>
-          }
+
+            <div class="linha-resumo">
+              <span>Valor do acrescimo</span>
+              <strong>{{ checkout.valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
 
           <nz-divider></nz-divider>
 
           <div class="linha-resumo total">
             <span>Total previsto</span>
-            <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
           </div>
 
-          <button nz-button nzType="primary" type="submit" [nzLoading]="finalizando()" [disabled]="finalizando()">
-            Confirmar pedido
-          </button>
+          <div class="acoes-checkout">
+            <a nz-button routerLink="/carrinho">Voltar</a>
+            <button nz-button nzType="primary" type="submit" [nzLoading]="checkout.finalizando()" [disabled]="checkout.finalizando() || !checkout.usuario()">
+              Confirmar
+            </button>
+          </div>
         </form>
       </nz-card>
     </section>

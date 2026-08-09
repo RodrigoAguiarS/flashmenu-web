@@ -22,15 +22,15 @@
 }
 
 .theme-dark {
-  --cor-fundo: #111827;
-  --cor-superficie: #17212f;
-  --cor-campo: #0f172a;
-  --cor-texto: #f8fafc;
-  --cor-texto-suave: #b6c2d2;
-  --cor-borda: #334155;
-  --cor-primaria: #2f9cf4;
+  --cor-fundo: #0b1220;
+  --cor-superficie: #121b2a;
+  --cor-campo: #0d1626;
+  --cor-texto: #f4f7fb;
+  --cor-texto-suave: #a9b6c8;
+  --cor-borda: #263448;
+  --cor-primaria: #3aa0ff;
   --cor-perigo: #ff6b6b;
-  --sombra-painel: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --sombra-painel: 0 12px 34px rgba(0, 0, 0, 0.22);
 
   --color-bg: var(--cor-fundo);
   --color-surface: var(--cor-superficie);
@@ -68,6 +68,54 @@ body {
 
 a {
   color: inherit;
+}
+
+.identificacao-cliente {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.identificacao-cliente h2,
+.checkout-endereco h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.identificacao-cliente p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
+
+.botao-senha {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  color: var(--cor-texto-suave);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.checkout-endereco {
+  display: grid;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.botao-identificar {
+  width: 100%;
+  min-height: 38px;
+  border-radius: 8px;
 }
 
 .marca {
@@ -121,6 +169,7 @@ a {
 .theme-dark .ant-layout,
 .theme-dark .ant-menu,
 .theme-dark .ant-card,
+.theme-dark .ant-tabs,
 .theme-dark .ant-table,
 .theme-dark .ant-table-container,
 .theme-dark .ant-table-thead > tr > th,
@@ -132,7 +181,21 @@ a {
   background: var(--cor-superficie);
 }
 
+.theme-dark .cartao-sistema,
+.theme-dark .formulario-conta,
+.theme-dark .formulario-conta h1,
+.theme-dark .formulario-conta h2,
+.theme-dark .formulario-conta h3,
+.theme-dark .formulario-conta p,
+.theme-dark .cartao-sistema h1,
+.theme-dark .cartao-sistema h2,
+.theme-dark .cartao-sistema h3,
+.theme-dark .cartao-sistema p {
+  color: var(--cor-texto);
+}
+
 .theme-dark .ant-card,
+.theme-dark .cartao-sistema,
 .theme-dark .ant-drawer-header,
 .theme-dark .ant-drawer-content,
 .theme-dark .ant-input,
@@ -151,6 +214,12 @@ a {
 .theme-dark .ant-select:not(.ant-select-customize-input) .ant-select-selector {
   color: var(--cor-texto);
   background: var(--cor-campo);
+}
+
+.theme-dark .ant-input[readonly],
+.theme-dark textarea.ant-input[readonly] {
+  color: var(--cor-texto-suave);
+  background: #111c2e;
 }
 
 .theme-dark .ant-input:hover,
@@ -368,6 +437,25 @@ a {
   color: var(--cor-texto);
 }
 
+.theme-dark .ant-tabs-nav::before {
+  border-bottom-color: var(--cor-borda);
+}
+
+.theme-dark .ant-tabs-tab,
+.theme-dark .ant-tabs-tab-btn {
+  color: var(--cor-texto-suave);
+}
+
+.theme-dark .ant-tabs-tab:hover,
+.theme-dark .ant-tabs-tab:hover .ant-tabs-tab-btn,
+.theme-dark .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--cor-primaria);
+}
+
+.theme-dark .ant-tabs-ink-bar {
+  background: var(--cor-primaria);
+}
+
 .theme-dark h1,
 .theme-dark h2,
 .theme-dark h3,
@@ -380,14 +468,14 @@ a {
 
 .theme-dark .ant-btn-default {
   color: var(--cor-texto);
-  background: var(--cor-superficie);
+  background: #172234;
   border-color: var(--cor-borda);
 }
 
 .theme-dark .ant-btn-default:hover,
 .theme-dark .ant-btn-default:focus {
   color: var(--cor-primaria);
-  background: var(--cor-campo);
+  background: #1b2a40;
   border-color: var(--cor-primaria);
 }
 

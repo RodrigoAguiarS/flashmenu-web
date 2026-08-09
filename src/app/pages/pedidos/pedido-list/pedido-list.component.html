@@ -4,9 +4,8 @@
     <p>Acompanhe seus pedidos realizados.</p>
   </div>
 
-  <a nz-button routerLink="/catalogo">
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Comprar novamente">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-    Comprar novamente
   </a>
 </section>
 
@@ -50,21 +49,21 @@
             </span>
           </div>
 
-          <section class="pagamento-card" aria-label="Pagamento do pedido">
-            <div class="pagamento-topo">
-              <div>
-                <small>Forma de pagamento</small>
-                <strong>{{ pedido.formaPagamento.nome }}</strong>
-              </div>
+          <footer class="pedido-rodape">
+            <small>Pagamento em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
 
-              <button nz-button nzType="primary" type="button" (click)="abrirDetalhe(pedido.id, $event)">
-                <span nz-icon nzType="eye" nzTheme="outline"></span>
-                Ver detalhes
-              </button>
-            </div>
-
-            <small class="pagamento-data">Pagamento criado em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
-          </section>
+            <button
+              class="botao-detalhes"
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              type="button"
+              (click)="abrirDetalhe(pedido.id, $event)"
+              aria-label="Ver detalhes do pedido"
+            >
+              <span nz-icon nzType="eye" nzTheme="outline"></span>
+            </button>
+          </footer>
         </article>
       }
     </section>

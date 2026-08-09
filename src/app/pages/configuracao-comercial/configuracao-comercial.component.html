@@ -1,0 +1,203 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Configuracao comercial</h1>
+    <p>Defina margem, desconto padrao e taxa fixa usados no calculo de venda dos produtos.</p>
+  </div>
+
+  <button nz-button type="button" [disabled]="carregando()" (click)="recarregar()">
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Atualizar
+  </button>
+</section>
+
+@if (mensagemErro()) {
+  <nz-alert class="alerta-configuracao" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+@if (!podeSalvar()) {
+  <nz-alert
+    class="alerta-configuracao"
+    nzType="warning"
+    nzMessage="Seu usuario pode consultar esta tela, mas nao possui permissao para salvar alteracoes."
+    nzShowIcon
+  ></nz-alert>
+}
+
+<nz-spin [nzSpinning]="carregando()">
+  <section class="layout-configuracao">
+    <form class="formulario-configuracao cartao-sistema" nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="salvar()">
+      <header class="cabecalho-card">
+        <div>
+          <h2>{{ modoTela() }}</h2>
+          <p>
+            @if (configuracaoExiste()) {
+              Ajuste os parametros comerciais ja cadastrados.
+            } @else {
+              Cadastre a configuracao comercial inicial.
+            }
+          </p>
+        </div>
+
+        <nz-tag [nzColor]="configuracaoExiste() ? 'success' : 'warning'">
+          {{ configuracaoExiste() ? 'Configurada' : 'Pendente' }}
+        </nz-tag>
+      </header>
+
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="percentualMargemLucro" nzRequired>Margem de lucro</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe uma margem entre 0 e 999,99."
+              [nzValidateStatus]="form.controls.percentualMargemLucro"
+            >
+              <nz-input-number
+                id="percentualMargemLucro"
+                formControlName="percentualMargemLucro"
+                [nzMin]="0"
+                [nzMax]="999.99"
+                [nzStep]="0.1"
+                [nzPrecision]="2"
+                [nzDisabled]="!podeSalvar()"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="percentualDescontoPadrao" nzRequired>Desconto padrao</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe um desconto entre 0 e 100."
+              [nzValidateStatus]="form.controls.percentualDescontoPadrao"
+            >
+              <nz-input-number
+                id="percentualDescontoPadrao"
+                formControlName="percentualDescontoPadrao"
+                [nzMin]="0"
+                [nzMax]="100"
+                [nzStep]="0.1"
+                [nzPrecision]="2"
+                [nzDisabled]="!podeSalvar()"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="valorTaxaFixa" nzRequired>Taxa fixa</nz-form-label>
+            <nz-form-control nzErrorTip="Informe uma taxa igual ou maior que zero." [nzValidateStatus]="form.controls.valorTaxaFixa">
+              <nz-input-number
+                id="valorTaxaFixa"
+                formControlName="valorTaxaFixa"
+                [nzMin]="0"
+                [nzStep]="0.5"
+                [nzPrecision]="2"
+                [nzDisabled]="!podeSalvar()"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      <section class="resumo-calculo" aria-label="Resumo do calculo comercial">
+        <article>
+          <span>Margem aplicada</span>
+          <strong>{{ valoresFormulario().percentualMargemLucro | number:'1.2-2' }}%</strong>
+        </article>
+
+        <article>
+          <span>Desconto padrao</span>
+          <strong>{{ valoresFormulario().percentualDescontoPadrao | number:'1.2-2' }}%</strong>
+        </article>
+
+        <article>
+          <span>Taxa fixa</span>
+          <strong>{{ valoresFormulario().valorTaxaFixa | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </article>
+      </section>
+
+      <div class="acoes-formulario">
+        <button nz-button nzType="primary" type="submit" [disabled]="!podeSalvar()" [nzLoading]="salvando()">
+          <span nz-icon nzType="save" nzTheme="outline"></span>
+          {{ textoBotao() }}
+        </button>
+      </div>
+    </form>
+
+    <aside class="painel-lateral">
+      <section class="simulador cartao-sistema" aria-label="Simulacao de preco">
+        <header class="cabecalho-card">
+          <div>
+            <h2>Simulacao</h2>
+            <p>Veja como a configuracao afeta o valor de venda.</p>
+          </div>
+        </header>
+
+        <label for="valorBaseSimulacao">Valor fornecedor</label>
+        <nz-input-number
+          id="valorBaseSimulacao"
+          [ngModel]="valorBaseSimulacao()"
+          [nzMin]="0"
+          [nzStep]="1"
+          [nzPrecision]="2"
+          (ngModelChange)="alterarValorBase($event)"
+        ></nz-input-number>
+
+        <div class="linha-simulacao">
+          <span>Valor base</span>
+          <strong>{{ valorBaseSimulacao() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="linha-simulacao positivo">
+          <span>Margem</span>
+          <strong>{{ valorMargem() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="linha-simulacao negativo">
+          <span>Desconto</span>
+          <strong>-{{ valorDesconto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="linha-simulacao positivo">
+          <span>Taxa fixa</span>
+          <strong>{{ valoresFormulario().valorTaxaFixa | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="total-simulacao">
+          <span>Valor venda</span>
+          <strong>{{ valorVendaSimulado() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </section>
+
+      @if (configuracao(); as config) {
+        <section class="metadados cartao-sistema" aria-label="Dados da configuracao">
+          <h2>Dados do registro</h2>
+
+          <div>
+            <span>Codigo</span>
+            <strong>#{{ config.id }}</strong>
+          </div>
+
+          <div>
+            <span>Status</span>
+            <nz-tag [nzColor]="config.ativo ? 'success' : 'default'">
+              {{ config.ativo ? 'Ativa' : 'Inativa' }}
+            </nz-tag>
+          </div>
+
+          <div>
+            <span>Criado em</span>
+            <strong>{{ config.criadoEm | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+
+          <div>
+            <span>Atualizado em</span>
+            <strong>{{ config.atualizadoEm ? (config.atualizadoEm | date:'dd/MM/yyyy HH:mm') : '-' }}</strong>
+          </div>
+        </section>
+      }
+    </aside>
+  </section>
+</nz-spin>

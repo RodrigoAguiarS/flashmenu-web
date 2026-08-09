@@ -4,14 +4,13 @@
     <p>Atualize suas informacoes de contato.</p>
   </div>
 
-  <a nz-button routerLink="/catalogo">
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Voltar para catalogo">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-    Voltar
   </a>
 </section>
 
 <nz-spin [nzSpinning]="carregando()">
-  <form class="formulario-conta" nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+  <main class="conta-layout">
     @if (mensagemErro()) {
       <nz-alert class="alerta-form" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
     }
@@ -34,71 +33,227 @@
       ></nz-alert>
     }
 
-    <nz-row [nzGutter]="16">
-      <nz-col nzXs="24" nzMd="12">
-        <nz-form-item>
-          <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
-          <nz-form-control nzErrorTip="Informe seu nome." [nzValidateStatus]="formulario.controls.nome">
-            <input nz-input id="nome" formControlName="nome" autocomplete="name" placeholder="Seu nome" />
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
+    <nz-tabs class="abas-conta" nzSize="large">
+      <nz-tab nzTitle="Dados">
+        <form class="formulario-conta" nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+          <header class="cabecalho-secao">
+            <h2>Dados pessoais</h2>
+            <p>Atualize nome, e-mail e telefone usados no atendimento.</p>
+          </header>
 
-      <nz-col nzXs="24" nzMd="12">
-        <nz-form-item>
-          <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
-          <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="formulario.controls.login">
-            <input nz-input id="login" type="email" formControlName="login" autocomplete="email" placeholder="voce@email.com" />
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
+          <nz-row [nzGutter]="16">
+            <nz-col nzXs="24" nzMd="12">
+              <nz-form-item>
+                <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+                <nz-form-control nzErrorTip="Informe seu nome." [nzValidateStatus]="formulario.controls.nome">
+                  <input nz-input id="nome" formControlName="nome" autocomplete="name" placeholder="Seu nome" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
 
-      <nz-col nzXs="24" nzMd="12">
-        <nz-form-item>
-          <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
-          <nz-form-control nzErrorTip="Informe um telefone valido." [nzValidateStatus]="formulario.controls.telefone">
-            <input nz-input id="telefone" formControlName="telefone" autocomplete="tel" placeholder="(84) 99999-9999" />
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
-    </nz-row>
+            <nz-col nzXs="24" nzMd="12">
+              <nz-form-item>
+                <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
+                <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="formulario.controls.login">
+                  <input nz-input id="login" type="email" formControlName="login" autocomplete="email" placeholder="voce@email.com" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
 
-    <div class="acoes-form">
-      <button nz-button type="button" routerLink="/catalogo">Cancelar</button>
-      <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando()">
-        Salvar dados
-      </button>
-    </div>
-  </form>
+            <nz-col nzXs="24" nzMd="12">
+              <nz-form-item>
+                <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
+                <nz-form-control nzErrorTip="Informe um telefone valido." [nzValidateStatus]="formulario.controls.telefone">
+                  <input
+                    nz-input
+                    id="telefone"
+                    formControlName="telefone"
+                    appDocumentoMask="telefone"
+                    autocomplete="tel"
+                    inputmode="tel"
+                    placeholder="(84) 99999-9999"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+          </nz-row>
 
-  <form class="formulario-conta formulario-senha" nz-form nzLayout="vertical" [formGroup]="formularioSenha" (ngSubmit)="alterarSenha()">
-    <h2>Alterar senha</h2>
-    <p>Use uma senha com pelo menos 6 caracteres.</p>
+          <div class="acoes-form">
+            <button nz-button type="button" routerLink="/catalogo">Cancelar</button>
+            <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando()">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </nz-tab>
 
-    <nz-row [nzGutter]="16">
-      <nz-col nzXs="24" nzMd="12">
-        <nz-form-item>
-          <nz-form-label nzFor="novaSenha" nzRequired>Nova senha</nz-form-label>
-          <nz-form-control nzErrorTip="Informe uma senha com pelo menos 6 caracteres." [nzValidateStatus]="formularioSenha.controls.novaSenha">
-            <input nz-input id="novaSenha" type="password" formControlName="novaSenha" autocomplete="new-password" />
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
+      <nz-tab [nzTitle]="'Enderecos (' + enderecos().length + ')'">
+        <section class="formulario-conta formulario-enderecos" aria-label="Meus enderecos">
+          <header class="cabecalho-secao cabecalho-enderecos">
+            <div>
+              <h2>Enderecos</h2>
+              <p>Gerencie os locais vinculados ao seu usuario.</p>
+            </div>
 
-      <nz-col nzXs="24" nzMd="12">
-        <nz-form-item>
-          <nz-form-label nzFor="confirmarSenha" nzRequired>Confirmar senha</nz-form-label>
-          <nz-form-control nzErrorTip="Confirme a nova senha." [nzValidateStatus]="formularioSenha.controls.confirmarSenha">
-            <input nz-input id="confirmarSenha" type="password" formControlName="confirmarSenha" autocomplete="new-password" />
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
-    </nz-row>
+            @if (enderecos().length && !formularioEnderecoAberto()) {
+              <button nz-button nzType="primary" type="button" (click)="abrirFormularioEndereco()">
+                <span nz-icon nzType="plus" nzTheme="outline"></span>
+                Novo endereco
+              </button>
+            }
+          </header>
 
-    <div class="acoes-form">
-      <button nz-button nzType="primary" type="submit" [nzLoading]="alterandoSenha()" [disabled]="alterandoSenha()">
-        Alterar senha
-      </button>
-    </div>
-  </form>
+          @if (enderecos().length) {
+            <div class="lista-enderecos">
+              @for (endereco of enderecos(); track endereco.id) {
+                <article class="endereco-card" [class.principal]="endereco.principal">
+                  <div class="endereco-card-topo">
+                    <strong>{{ formatarEndereco(endereco) }}</strong>
+
+                    @if (endereco.principal) {
+                      <nz-tag nzColor="success">Principal</nz-tag>
+                    }
+                  </div>
+
+                  <span>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}</span>
+
+                  <div class="endereco-meta">
+                    <small>CEP {{ formatarCep(endereco.cep) }}</small>
+                    <small>{{ endereco.criadoEm | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <nz-empty nzNotFoundContent="Nenhum endereco cadastrado."></nz-empty>
+          }
+
+          @if (!enderecos().length || formularioEnderecoAberto()) {
+            <form class="form-endereco" nz-form nzLayout="vertical" [formGroup]="formularioEndereco" (ngSubmit)="cadastrarEndereco()">
+              <h3>{{ enderecos().length ? 'Novo endereco' : 'Cadastrar endereco' }}</h3>
+
+              <nz-row [nzGutter]="16">
+                <nz-col nzXs="24" nzMd="8">
+                  <nz-form-item>
+                    <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
+                    <nz-form-control
+                      [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
+                      nzErrorTip="Informe um CEP valido."
+                      [nzValidateStatus]="formularioEndereco.controls.cep"
+                    >
+                      <input nz-input id="cep" formControlName="cep" inputmode="numeric" placeholder="59000-000" />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="16">
+                  <nz-form-item>
+                    <nz-form-label nzFor="logradouro" nzRequired>Logradouro</nz-form-label>
+                    <nz-form-control nzErrorTip="Informe o logradouro." [nzValidateStatus]="formularioEndereco.controls.logradouro">
+                      <input nz-input id="logradouro" formControlName="logradouro" placeholder="Rua, avenida, travessa" readonly />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="8">
+                  <nz-form-item>
+                    <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
+                    <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="formularioEndereco.controls.numero">
+                      <input nz-input id="numero" formControlName="numero" inputmode="numeric" placeholder="100" />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="16">
+                  <nz-form-item>
+                    <nz-form-label nzFor="complemento">Complemento</nz-form-label>
+                    <nz-form-control [nzValidateStatus]="formularioEndereco.controls.complemento">
+                      <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referencia" />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="10">
+                  <nz-form-item>
+                    <nz-form-label nzFor="bairro" nzRequired>Bairro</nz-form-label>
+                    <nz-form-control nzErrorTip="Informe o bairro." [nzValidateStatus]="formularioEndereco.controls.bairro">
+                      <input nz-input id="bairro" formControlName="bairro" placeholder="Centro" readonly />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="10">
+                  <nz-form-item>
+                    <nz-form-label nzFor="cidade" nzRequired>Cidade</nz-form-label>
+                    <nz-form-control nzErrorTip="Informe a cidade." [nzValidateStatus]="formularioEndereco.controls.cidade">
+                      <input nz-input id="cidade" formControlName="cidade" placeholder="Natal" readonly />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+
+                <nz-col nzXs="24" nzMd="4">
+                  <nz-form-item>
+                    <nz-form-label nzFor="estado" nzRequired>UF</nz-form-label>
+                    <nz-form-control nzErrorTip="Informe a UF com 2 letras." [nzValidateStatus]="formularioEndereco.controls.estado">
+                      <input nz-input id="estado" formControlName="estado" placeholder="RN" maxlength="2" readonly />
+                    </nz-form-control>
+                  </nz-form-item>
+                </nz-col>
+              </nz-row>
+
+              <label class="switch-principal">
+                <nz-switch formControlName="principal"></nz-switch>
+                <span>Definir como endereco principal</span>
+              </label>
+
+              <div class="acoes-form">
+                @if (enderecos().length) {
+                  <button nz-button type="button" (click)="cancelarEndereco()">Cancelar</button>
+                }
+
+                <button nz-button nzType="primary" type="submit" [nzLoading]="salvandoEndereco()" [disabled]="salvandoEndereco()">
+                  Cadastrar
+                </button>
+              </div>
+            </form>
+          }
+        </section>
+      </nz-tab>
+
+      <nz-tab nzTitle="Senha">
+        <form class="formulario-conta formulario-senha" nz-form nzLayout="vertical" [formGroup]="formularioSenha" (ngSubmit)="alterarSenha()">
+          <header class="cabecalho-secao">
+            <h2>Alterar senha</h2>
+            <p>Use uma senha com pelo menos 6 caracteres.</p>
+          </header>
+
+          <nz-row [nzGutter]="16">
+            <nz-col nzXs="24" nzMd="12">
+              <nz-form-item>
+                <nz-form-label nzFor="novaSenha" nzRequired>Nova senha</nz-form-label>
+                <nz-form-control nzErrorTip="Informe uma senha com pelo menos 6 caracteres." [nzValidateStatus]="formularioSenha.controls.novaSenha">
+                  <input nz-input id="novaSenha" type="password" formControlName="novaSenha" autocomplete="new-password" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+
+            <nz-col nzXs="24" nzMd="12">
+              <nz-form-item>
+                <nz-form-label nzFor="confirmarSenha" nzRequired>Confirmar senha</nz-form-label>
+                <nz-form-control nzErrorTip="Confirme a nova senha." [nzValidateStatus]="formularioSenha.controls.confirmarSenha">
+                  <input nz-input id="confirmarSenha" type="password" formControlName="confirmarSenha" autocomplete="new-password" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-col>
+          </nz-row>
+
+          <div class="acoes-form">
+            <button nz-button nzType="primary" type="submit" [nzLoading]="alterandoSenha()" [disabled]="alterandoSenha()">
+              Confirmar
+            </button>
+          </div>
+        </form>
+      </nz-tab>
+    </nz-tabs>
+  </main>
 </nz-spin>

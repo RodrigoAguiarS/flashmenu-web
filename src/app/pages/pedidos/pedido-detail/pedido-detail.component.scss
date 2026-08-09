@@ -1,7 +1,7 @@
 .cabecalho-pagina {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 12px;
   width: min(100%, 1180px);
   margin-inline: auto;
@@ -17,21 +17,35 @@
 .cabecalho-pagina p,
 .painel-topo span,
 .pagamento-resumo small,
-.item-pedido span {
+.item-pedido span,
+.linha-resumo span {
   color: var(--cor-texto-suave);
+}
+
+.botao-voltar {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
 }
 
 .detalhe-layout {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   width: min(100%, 1180px);
   margin-inline: auto;
 }
 
 .painel-detalhe {
   display: grid;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 12px;
   color: var(--cor-texto);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
@@ -48,7 +62,7 @@
 .linha-resumo {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .painel-topo {
@@ -56,11 +70,9 @@
 }
 
 .painel-topo > div:first-child,
-.resumo-compacto,
-.pagamento-resumo > div,
-.item-pedido > div {
+.resumo-compacto {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -68,11 +80,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 4px;
+  max-width: 52%;
 }
 
 .pedido-tags nz-tag {
+  max-width: 100%;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .secao-topo {
@@ -82,29 +99,93 @@
 
 .secao-topo h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .resumo-compacto {
-  grid-template-columns: repeat(auto-fit, minmax(150px, max-content));
-  gap: 10px 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 13px;
 }
 
 .pagamento-resumo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 10px 14px;
+  gap: 8px;
+}
+
+.pagamento-resumo > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
 }
 
 .itens-pedido {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .item-pedido {
-  align-items: flex-start;
-  padding-bottom: 8px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--cor-borda);
+  font-size: 13px;
+}
+
+.produto-imagem,
+.produto-sem-imagem {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produto-sem-imagem {
+  display: grid;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+}
+
+.item-info {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.produto-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.produto-info > strong,
+.item-info small,
+.item-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.produto-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.produto-meta nz-tag {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.item-info small {
+  color: var(--cor-texto-suave);
 }
 
 .item-pedido:last-child {
@@ -112,8 +193,34 @@
   border-bottom: 0;
 }
 
-.item-pedido > strong {
-  flex: 0 0 auto;
+.item-valores {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.item-valores span {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.item-valores small {
+  color: var(--cor-texto-suave);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.item-valores strong {
+  color: var(--cor-texto);
+  font-size: 12px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .resumo-financeiro {
@@ -122,20 +229,24 @@
 
 .linha-resumo {
   align-items: center;
+  font-size: 13px;
 }
 
 .linha-resumo.total {
-  padding-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--cor-borda);
-  font-size: 18px;
+  font-size: 16px;
 }
 
-.estado-vazio { display: grid; place-items: center; padding: 40px 20px; }
+.estado-vazio {
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+}
 
 @media (min-width: 760px) {
   .cabecalho-pagina {
     align-items: flex-end;
-    flex-direction: row;
     justify-content: space-between;
     margin-bottom: 24px;
   }
@@ -160,11 +271,11 @@
 }
 
 @media (max-width: 520px) {
-  .pagamento-resumo {
+  .resumo-compacto {
     grid-template-columns: 1fr;
   }
 
   .item-pedido {
-    flex-direction: column;
+    grid-template-columns: 44px minmax(0, 1fr);
   }
 }

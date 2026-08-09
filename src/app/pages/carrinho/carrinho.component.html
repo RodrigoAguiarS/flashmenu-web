@@ -4,9 +4,8 @@
     <p>Revise os produtos antes de finalizar o pedido.</p>
   </div>
 
-  <a nz-button routerLink="/catalogo">
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Continuar comprando">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-    Continuar comprando
   </a>
 </section>
 
@@ -41,62 +40,66 @@
                   <nz-tag>{{ item.produto.categoria.nome }}</nz-tag>
                 </div>
 
-                <button
-                  nz-button
-                  nzType="text"
-                  nzDanger
-                  nzShape="circle"
-                  type="button"
-                  nz-popconfirm
-                  nzPopconfirmTitle="Deseja remover este produto?"
-                  nzOkText="Remover"
-                  nzCancelText="Cancelar"
-                  aria-label="Remover produto"
-                  (nzOnConfirm)="remover(item)"
-                >
-                  <span nz-icon nzType="delete" nzTheme="outline"></span>
-                </button>
               </div>
 
-              <div class="item-valores">
-                <span>
-                  <small>Preco</small>
-                  {{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}
-                </span>
-                <strong>
-                  <small>Subtotal</small>
-                  {{ subtotal(item) | currency:'BRL':'symbol':'1.2-2' }}
-                </strong>
-              </div>
+              <div class="item-rodape">
+                <div class="item-valores">
+                  <span>
+                    <small>Preco</small>
+                    {{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}
+                  </span>
+                  <strong>
+                    <small>Subtotal</small>
+                    {{ subtotal(item) | currency:'BRL':'symbol':'1.2-2' }}
+                  </strong>
+                </div>
 
-              <div class="quantidade" aria-label="Quantidade">
-                <button
-                  nz-button
-                  nzShape="circle"
-                  type="button"
-                  aria-label="Diminuir quantidade"
-                  (click)="decrementar(item)"
-                >
-                  <span nz-icon nzType="minus" nzTheme="outline"></span>
-                </button>
+                <div class="quantidade" aria-label="Quantidade">
+                  <button
+                    nz-button
+                    nzShape="circle"
+                    type="button"
+                    aria-label="Diminuir quantidade"
+                    (click)="decrementar(item)"
+                  >
+                    <span nz-icon nzType="minus" nzTheme="outline"></span>
+                  </button>
 
-                <nz-input-number
-                  [ngModel]="item.quantidade"
-                  [nzMin]="1"
-                  [nzMax]="estoqueMaximo(item.produto)"
-                  [nzStep]="1"
-                  (ngModelChange)="alterarQuantidade(item, $event)"
-                ></nz-input-number>
+                  <nz-input-number
+                    [ngModel]="item.quantidade"
+                    [nzMin]="1"
+                    [nzMax]="estoqueMaximo(item.produto)"
+                    [nzStep]="1"
+                    (ngModelChange)="alterarQuantidade(item, $event)"
+                  ></nz-input-number>
 
-                <button
-                  nz-button
-                  nzShape="circle"
-                  type="button"
-                  aria-label="Aumentar quantidade"
-                  (click)="incrementar(item)"
-                >
-                  <span nz-icon nzType="plus" nzTheme="outline"></span>
-                </button>
+                  <button
+                    nz-button
+                    nzShape="circle"
+                    type="button"
+                    aria-label="Aumentar quantidade"
+                    (click)="incrementar(item)"
+                  >
+                    <span nz-icon nzType="plus" nzTheme="outline"></span>
+                  </button>
+
+                  <button
+                    class="botao-remover"
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nzShape="circle"
+                    type="button"
+                    nz-popconfirm
+                    nzPopconfirmTitle="Deseja remover este produto?"
+                    nzOkText="Remover"
+                    nzCancelText="Cancelar"
+                    aria-label="Remover produto"
+                    (nzOnConfirm)="remover(item)"
+                  >
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                </div>
               </div>
             </div>
           </article>
@@ -104,7 +107,42 @@
       }
     </section>
 
-    <nz-card class="resumo" nzTitle="Resumo">
+    <nz-card class="resumo resumo-mobile" nzTitle="Resumo">
+      <div class="linha-resumo">
+        <span>Itens</span>
+        <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
+      </div>
+
+      <div class="linha-resumo">
+        <span>Subtotal</span>
+        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <div class="linha-resumo total">
+        <span>Total</span>
+        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </div>
+
+      <div class="acoes-resumo">
+        <button
+          nz-button
+          type="button"
+          nz-popconfirm
+          nzPopconfirmTitle="Deseja limpar o carrinho?"
+          nzOkText="Limpar"
+          nzCancelText="Cancelar"
+          (nzOnConfirm)="limpar()"
+        >
+          Limpar
+        </button>
+
+        <button nz-button nzType="primary" type="button" (click)="finalizar()">
+          Finalizar
+        </button>
+      </div>
+    </nz-card>
+
+    <nz-card class="resumo resumo-desktop" nzTitle="Resumo">
       <div class="linha-resumo">
         <span>Itens</span>
         <strong>{{ carrinhoService.quantidadeTotal() }}</strong>

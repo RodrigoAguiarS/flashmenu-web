@@ -7,6 +7,15 @@
 
 <nz-spin [nzSpinning]="carregando()">
   @if (possuiFormasPagamento()) {
+    <section class="resumo-listagem cartao-sistema" aria-label="Resumo de formas de pagamento">
+      <div>
+        <h2>Formas encontradas</h2>
+        <p>Lista de meios de pagamento disponiveis para venda e checkout.</p>
+      </div>
+
+      <nz-tag nzColor="processing">{{ formasPagamento().length }} registros</nz-tag>
+    </section>
+
     <section class="lista-formas" aria-label="Formas de pagamento">
       @for (forma of formasPagamento(); track forma.id) {
         <article class="forma-card">
@@ -36,23 +45,26 @@
                 [nzMax]="999.99"
                 [nzStep]="0.1"
                 [nzPrecision]="2"
+                [nzDisabled]="!podeEditarFormaPagamento()"
                 (ngModelChange)="alterarPercentual(forma.id, $event)"
               ></nz-input-number>
               <span>%</span>
             </div>
           </div>
 
-          <button
-            nz-button
-            nzType="primary"
-            type="button"
-            [disabled]="!houveAlteracao(forma) || salvandoId() !== null"
-            [nzLoading]="salvandoId() === forma.id"
-            (click)="salvarPercentual(forma)"
-          >
-            <span nz-icon nzType="save" nzTheme="outline"></span>
-            Salvar percentual
-          </button>
+          @if (podeEditarFormaPagamento()) {
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              [disabled]="!houveAlteracao(forma) || salvandoId() !== null"
+              [nzLoading]="salvandoId() === forma.id"
+              (click)="salvarPercentual(forma)"
+            >
+              <span nz-icon nzType="save" nzTheme="outline"></span>
+              Salvar percentual
+            </button>
+          }
         </article>
       }
     </section>

@@ -8,6 +8,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
+import { NAV_ITEMS, NavItem } from './core/auth/permissoes';
 import { AuthService } from './core/services/auth.service';
 import { CarrinhoService } from './core/services/carrinho.service';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
@@ -34,17 +35,9 @@ export class App implements OnInit {
   private readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
   protected readonly carrinhoService = inject(CarrinhoService);
-  protected readonly podeVerProdutos = computed(() => this.authService.possuiPermissao('produto.listar'));
-  protected readonly podeVerUsuarios = computed(() => this.authService.possuiPermissao('usuario.listar'));
-  protected readonly podeCriarUsuario = computed(() => this.authService.possuiPermissao('usuario.criar'));
-  protected readonly podeVerPerfis = computed(() => this.authService.possuiPermissao('perfil.listar'));
-  protected readonly podeVerPermissoes = computed(() => this.authService.possuiPermissao('permissao.listar'));
-  protected readonly podeUsarPdv = computed(() => this.authService.possuiPermissao('pdv.criar'));
-  protected readonly podeVerMeusPedidos = computed(() => this.authService.possuiPermissao('pedido.listar'));
-  protected readonly podeGerenciarPedidos = computed(() =>
-    this.authService.possuiAlgumaPermissao(['pedido.alterar-status', 'pagamento.confirmar', 'pedido.cancelar'])
+  protected readonly itensNavegacao = computed(() =>
+    NAV_ITEMS.filter((item) => this.podeExibirItemNavegacao(item))
   );
-  protected readonly podeEditarFormasPagamento = computed(() => this.authService.possuiPermissao('forma-pagamento.editar'));
 
   protected readonly rotaLogin = toSignal(
     this.router.events.pipe(
@@ -67,5 +60,17 @@ export class App implements OnInit {
 
   sair(): void {
     this.authService.sair();
+  }
+
+  private podeExibirItemNavegacao(item: NavItem): boolean {
+    if (item.authOnly && !this.authService.usuarioAutenticado()) {
+      return false;
+    }
+
+    if (!item.permissoes) {
+      return true;
+    }
+
+    return this.authService.possuiAlgumaPermissao(item.permissoes);
   }
 }

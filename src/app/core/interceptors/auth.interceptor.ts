@@ -1,22 +1,53 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
+  const message = inject(NzMessageService);
   const token = authService.obterToken();
-  const isLoginRequest = request.url.includes('/auth/login');
+  const isAuthPublicRequest = request.url.includes('/auth/login') || request.url.includes('/auth/clientes');
+  const isApiRequest = request.url.startsWith(environment.apiUrl);
 
-  if (!token || isLoginRequest) {
+  if (!token || isAuthPublicRequest || !isApiRequest) {
     return next(request);
   }
 
-  return next(
-    request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
+  const authenticatedRequest = request.clone({
+    setHeaders: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return next(authenticatedRequest).pipe(
+    catchError((error: unknown) => {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        const rotaAtual = router.url;
+        const rotaPublica = rotaAtual.startsWith('/checkout') ||
+          rotaAtual.startsWith('/catalogo') ||
+          rotaAtual.startsWith('/carrinho') ||
+          rotaAtual.startsWith('/login');
+
+        if (rotaPublica) {
+          authService.limparSessao();
+        } else {
+          authService.encerrarSessaoExpirada(rotaAtual);
+        }
+
+        message.warning('Sua sessao expirou. Entre novamente para continuar.');
       }
+
+      if (error instanceof HttpErrorResponse && error.status === 403) {
+        message.warning('Seu usuario nao possui permissao para esta acao.');
+      }
+
+      return throwError(() => error);
     })
   );
 };

@@ -1,8 +1,7 @@
 .cabecalho-pagina {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -18,33 +17,58 @@
   color: var(--cor-texto-suave);
 }
 
+.botao-voltar {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+}
+
 .layout-checkout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 12px;
   align-items: start;
 }
 
 .revisao {
   min-width: 0;
-  padding: 14px;
+  padding: 12px;
+  color: var(--cor-texto);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
 }
 
-.revisao h2 {
-  margin: 0 0 12px;
-  font-size: 16px;
+.alerta-checkout {
+  margin-bottom: 16px;
+}
+
+.revisao ::ng-deep .ant-collapse {
+  color: var(--cor-texto);
+}
+
+.revisao ::ng-deep .ant-collapse-header {
+  padding: 10px;
+  color: var(--cor-texto);
   font-weight: 700;
 }
 
-.revisao h2:not(:first-of-type) {
-  margin-top: 18px;
+.revisao ::ng-deep .ant-collapse-content-box {
+  padding: 0 0 12px;
 }
 
-.alerta-checkout {
-  margin-bottom: 16px;
+.revisao ::ng-deep .ant-collapse-content,
+.revisao ::ng-deep .ant-collapse-item {
+  color: var(--cor-texto);
+  background: transparent;
+  border-color: var(--cor-borda);
 }
 
 .estado-vazio {
@@ -69,6 +93,22 @@
   border-color: var(--cor-borda);
 }
 
+.resumo ::ng-deep .ant-card-head {
+  min-height: 42px;
+}
+
+.resumo ::ng-deep .ant-card-body {
+  padding: 12px;
+}
+
+.resumo nz-form-item {
+  margin-bottom: 12px;
+}
+
+.campo-pagamento {
+  margin-top: 12px;
+}
+
 .itens-pedido {
   display: grid;
   gap: 8px;
@@ -76,9 +116,10 @@
 
 .item-pedido {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
   padding: 10px;
+  color: var(--cor-texto);
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
@@ -86,8 +127,8 @@
 
 .produto-imagem,
 .produto-sem-imagem {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   border-radius: 8px;
   object-fit: cover;
@@ -97,25 +138,19 @@
   display: grid;
   place-items: center;
   color: var(--cor-texto-suave);
-  background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
 }
 
-.produto-sem-imagem .anticon {
-  font-size: 24px;
-}
-
 .item-pedido-info {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
   min-width: 0;
+  color: var(--cor-texto);
 }
 
 .item-pedido-info div {
   display: grid;
-  gap: 3px;
   min-width: 0;
 }
 
@@ -126,29 +161,35 @@
 }
 
 .item-pedido-info span,
+.item-pedido-info small,
 .cliente-resumo small {
   color: var(--cor-texto-suave);
 }
 
-.item-pedido-info > strong {
-  flex: 0 0 auto;
-}
-
 .cliente-resumo {
   display: grid;
-  gap: 4px;
+  grid-template-columns: minmax(0, 1fr);
   padding: 10px;
+  color: var(--cor-texto);
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
+}
+
+.cliente-resumo * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .linha-resumo {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   color: var(--cor-texto);
+  font-size: 13px;
 }
 
 .linha-resumo span {
@@ -162,18 +203,13 @@
 
 .pagamento-resumo {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 12px;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
   color: var(--cor-texto);
-}
-
-.pagamento-resumo > div:first-child {
-  display: grid;
-  gap: 3px;
 }
 
 .pagamento-resumo span {
@@ -185,47 +221,39 @@
 }
 
 .linha-resumo.total {
-  font-size: 18px;
-  color: var(--cor-texto);
-}
-
-.linha-resumo.total span,
-.linha-resumo.total strong {
-  color: var(--cor-texto);
+  font-size: 16px;
 }
 
 @media (max-width: 460px) {
   .item-pedido {
-    grid-template-columns: 48px minmax(0, 1fr);
-  }
-
-  .produto-imagem,
-  .produto-sem-imagem {
-    width: 48px;
-    height: 48px;
-  }
-
-  .item-pedido-info {
-    display: grid;
-    gap: 6px;
+    padding: 8px;
   }
 }
 
-.resumo button {
-  width: 100%;
-  margin-top: 10px;
+@media (min-width: 520px) {
+  .cliente-resumo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
 }
 
-@media (max-width: 960px) {
-  .cabecalho-pagina a {
-    width: 100%;
-  }
+.acoes-checkout {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.acoes-checkout a,
+.acoes-checkout button {
+  min-width: 104px;
+  min-height: 38px;
+  border-radius: 8px;
 }
 
 @media (min-width: 700px) {
   .cabecalho-pagina {
     align-items: flex-end;
-    flex-direction: row;
     margin-bottom: 24px;
   }
 
@@ -233,9 +261,6 @@
     font-size: 28px;
   }
 
-  .cabecalho-pagina a {
-    width: auto;
-  }
 }
 
 @media (min-width: 960px) {

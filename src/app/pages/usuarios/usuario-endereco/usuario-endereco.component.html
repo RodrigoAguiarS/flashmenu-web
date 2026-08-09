@@ -1,0 +1,210 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Enderecos</h1>
+    <p>
+      @if (usuario(); as usuarioDados) {
+        Gerencie os enderecos de {{ usuarioDados.nome }}.
+      } @else {
+        Gerencie os enderecos do usuario.
+      }
+    </p>
+  </div>
+
+  <a nz-button routerLink="/usuarios">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Voltar
+  </a>
+</section>
+
+@if (mensagemErro()) {
+  <nz-alert class="alerta-endereco" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+}
+
+@if (!podeEditar()) {
+  <nz-alert
+    class="alerta-endereco"
+    nzType="warning"
+    nzMessage="Seu usuario pode consultar os enderecos, mas nao possui permissao para alterar."
+    nzShowIcon
+  ></nz-alert>
+}
+
+<nz-spin [nzSpinning]="carregando()">
+  <section class="layout-endereco">
+    <section class="lista-enderecos cartao-sistema" aria-label="Enderecos do usuario">
+      <header class="cabecalho-listagem">
+        <div>
+          <h2>Enderecos cadastrados</h2>
+          <p>O endereco principal aparece primeiro na lista.</p>
+        </div>
+
+        <nz-tag nzColor="processing">{{ enderecos().length }} registros</nz-tag>
+      </header>
+
+      @if (possuiEnderecos()) {
+        <div class="cards-endereco">
+          @for (endereco of enderecos(); track endereco.id) {
+            <article class="endereco-card" [class.principal]="endereco.principal">
+              <header>
+                <div>
+                  <strong>{{ formatarEndereco(endereco) }}</strong>
+                  <span>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}</span>
+                </div>
+
+                @if (endereco.principal) {
+                  <nz-tag nzColor="success">Principal</nz-tag>
+                }
+              </header>
+
+              <div class="endereco-meta">
+                <span>CEP {{ formatarCep(endereco.cep) }}</span>
+                <span>Criado em {{ endereco.criadoEm | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+
+              <footer>
+                <button
+                  nz-button
+                  nzType="text"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Editar"
+                  aria-label="Editar endereco"
+                  [disabled]="!podeEditar()"
+                  (click)="editar(endereco)"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+
+                <button
+                  nz-button
+                  nzType="text"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Definir como principal"
+                  aria-label="Definir endereco principal"
+                  [disabled]="!podeEditar() || endereco.principal || processandoId() !== null"
+                  [nzLoading]="processandoId() === endereco.id && !endereco.principal"
+                  (click)="definirPrincipal(endereco)"
+                >
+                  <span nz-icon nzType="home" nzTheme="outline"></span>
+                </button>
+
+                <button
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja excluir este endereco?"
+                  nzOkText="Excluir"
+                  nzCancelText="Cancelar"
+                  nz-tooltip
+                  nzTooltipTitle="Excluir"
+                  aria-label="Excluir endereco"
+                  [disabled]="!podeEditar() || processandoId() !== null"
+                  [nzLoading]="processandoId() === endereco.id"
+                  (nzOnConfirm)="excluir(endereco)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </footer>
+            </article>
+          }
+        </div>
+      } @else {
+        <nz-empty nzNotFoundContent="Nenhum endereco cadastrado."></nz-empty>
+      }
+    </section>
+
+    <form class="form-endereco cartao-sistema" nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="salvar()">
+      <header class="cabecalho-listagem">
+        <div>
+          <h2>{{ tituloFormulario() }}</h2>
+          <p>Preencha os dados conforme retornado pelo backend.</p>
+        </div>
+      </header>
+
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24" nzMd="10">
+          <nz-form-item>
+            <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
+            <nz-form-control
+              [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
+              nzErrorTip="Informe um CEP valido."
+              [nzValidateStatus]="form.controls.cep"
+            >
+              <input nz-input id="cep" formControlName="cep" placeholder="59000-000" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="14">
+          <nz-form-item>
+            <nz-form-label nzFor="logradouro" nzRequired>Logradouro</nz-form-label>
+            <nz-form-control nzErrorTip="Informe o logradouro." [nzValidateStatus]="form.controls.logradouro">
+              <input nz-input id="logradouro" formControlName="logradouro" placeholder="Rua, avenida, travessa" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="8">
+          <nz-form-item>
+            <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
+            <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="form.controls.numero">
+              <input nz-input id="numero" formControlName="numero" placeholder="100" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="16">
+          <nz-form-item>
+            <nz-form-label nzFor="complemento">Complemento</nz-form-label>
+            <nz-form-control [nzValidateStatus]="form.controls.complemento">
+              <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, ponto de referencia" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="10">
+          <nz-form-item>
+            <nz-form-label nzFor="bairro" nzRequired>Bairro</nz-form-label>
+            <nz-form-control nzErrorTip="Informe o bairro." [nzValidateStatus]="form.controls.bairro">
+              <input nz-input id="bairro" formControlName="bairro" placeholder="Centro" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="10">
+          <nz-form-item>
+            <nz-form-label nzFor="cidade" nzRequired>Cidade</nz-form-label>
+            <nz-form-control nzErrorTip="Informe a cidade." [nzValidateStatus]="form.controls.cidade">
+              <input nz-input id="cidade" formControlName="cidade" placeholder="Natal" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="4">
+          <nz-form-item>
+            <nz-form-label nzFor="estado" nzRequired>UF</nz-form-label>
+            <nz-form-control nzErrorTip="Informe a UF com 2 letras." [nzValidateStatus]="form.controls.estado">
+              <input nz-input id="estado" formControlName="estado" placeholder="RN" maxlength="2" readonly />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      <label class="switch-principal">
+        <nz-switch formControlName="principal" [nzDisabled]="!podeEditar()"></nz-switch>
+        <span>Definir como endereco principal</span>
+      </label>
+
+      <div class="acoes-formulario">
+        <button nz-button type="button" (click)="limparFormulario()">Limpar</button>
+        <button nz-button nzType="primary" type="submit" [disabled]="!podeEditar()" [nzLoading]="salvando()">
+          <span nz-icon nzType="save" nzTheme="outline"></span>
+          {{ textoBotao() }}
+        </button>
+      </div>
+    </form>
+  </section>
+</nz-spin>

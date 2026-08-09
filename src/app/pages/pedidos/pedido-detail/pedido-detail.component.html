@@ -4,9 +4,8 @@
     <p>Confira os produtos, pagamento e valores do seu pedido.</p>
   </div>
 
-  <a nz-button routerLink="/pedidos">
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/pedidos" aria-label="Voltar para meus pedidos">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-    Voltar
   </a>
 </section>
 
@@ -30,6 +29,26 @@
           <span>Criado em: <strong>{{ pedidoDetalhe.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>Itens: <strong>{{ pedidoDetalhe.itens.length }}</strong></span>
           <span>Total: <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong></span>
+        </div>
+      </article>
+
+      <article class="painel-detalhe resumo-financeiro">
+        <header class="secao-topo">
+          <span nz-icon nzType="shop" nzTheme="outline"></span>
+          <h2>Resumo financeiro</h2>
+        </header>
+
+        <div class="linha-resumo">
+          <span>Subtotal</span>
+          <strong>{{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="linha-resumo">
+          <span>Acrescimo {{ pedidoDetalhe.percentualAcrescimo }}%</span>
+          <strong>{{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="linha-resumo total">
+          <span>Total</span>
+          <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
       </article>
 
@@ -64,33 +83,52 @@
         <div class="itens-pedido">
           @for (item of pedidoDetalhe.itens; track item.id) {
             <div class="item-pedido">
-              <div>
-                <strong>{{ item.produtoNome }}</strong>
-                <span>{{ item.quantidade }} x {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</span>
+              @if (produtoDetalhe(item.produtoId); as produto) {
+                @if (imagemPrincipal(produto); as imagem) {
+                  <img
+                    class="produto-imagem"
+                    [src]="imagem"
+                    [alt]="item.produtoNome"
+                    (error)="marcarImagemInvalida(produto.id)"
+                  />
+                } @else {
+                  <div class="produto-sem-imagem" aria-hidden="true">
+                    <span nz-icon nzType="picture" nzTheme="outline"></span>
+                  </div>
+                }
+              } @else {
+                <div class="produto-sem-imagem" aria-hidden="true">
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </div>
+              }
+
+              <div class="item-info">
+                <div class="produto-info">
+                  <strong>{{ item.produtoNome }}</strong>
+                  @if (produtoDetalhe(item.produtoId); as produto) {
+                    <span class="produto-meta">
+                      <nz-tag>{{ produto.categoria.nome }}</nz-tag>
+                    </span>
+                  }
+                </div>
+
+                <div class="item-valores">
+                  <span>
+                    <small>Qtd</small>
+                    <strong>{{ item.quantidade }}</strong>
+                  </span>
+                  <span>
+                    <small>Preco</small>
+                    <strong>{{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  </span>
+                  <span>
+                    <small>Subtotal</small>
+                    <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  </span>
+                </div>
               </div>
-              <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>
           }
-        </div>
-      </article>
-
-      <article class="painel-detalhe resumo-financeiro">
-        <header class="secao-topo">
-          <span nz-icon nzType="shop" nzTheme="outline"></span>
-          <h2>Resumo financeiro</h2>
-        </header>
-
-        <div class="linha-resumo">
-          <span>Subtotal</span>
-          <strong>{{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-        <div class="linha-resumo">
-          <span>Acrescimo {{ pedidoDetalhe.percentualAcrescimo }}%</span>
-          <strong>{{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-        <div class="linha-resumo total">
-          <span>Total</span>
-          <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
       </article>
     </section>

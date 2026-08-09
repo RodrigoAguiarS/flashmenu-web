@@ -1,21 +1,31 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
+import { EnderecoRequest, EnderecoResponse } from '../../../core/models/endereco.model';
 import { UsuarioRequest, UsuarioResponse } from '../../../core/models/usuario.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
+import { ViaCepService } from '../../../core/services/via-cep.service';
+import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
 
 const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
 
@@ -23,15 +33,21 @@ const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
   selector: 'app-minha-conta-form',
   standalone: true,
   imports: [
+    DatePipe,
     ReactiveFormsModule,
     RouterLink,
+    DocumentoMaskDirective,
     NzAlertModule,
     NzButtonModule,
+    NzEmptyModule,
     NzFormModule,
     NzGridModule,
     NzIconModule,
     NzInputModule,
-    NzSpinModule
+    NzSpinModule,
+    NzSwitchModule,
+    NzTabsModule,
+    NzTagModule
   ],
   templateUrl: './minha-conta-form.component.html',
   styleUrl: './minha-conta-form.component.scss',
@@ -40,13 +56,20 @@ const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
 export class MinhaContaFormComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly enderecoService = inject(EnderecoService);
   private readonly usuarioService = inject(UsuarioService);
+  private readonly viaCepService = inject(ViaCepService);
   private readonly message = inject(NzMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);
+  protected readonly salvandoEndereco = signal(false);
   protected readonly alterandoSenha = signal(false);
+  protected readonly buscandoCep = signal(false);
+  protected readonly formularioEnderecoAberto = signal(false);
   protected readonly usuario = signal<UsuarioResponse | null>(null);
+  protected readonly enderecos = signal<EnderecoResponse[]>([]);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly errosValidacao = signal<string[]>([]);
 
@@ -61,7 +84,19 @@ export class MinhaContaFormComponent implements OnInit {
     confirmarSenha: ['', [Validators.required, Validators.minLength(6)]]
   });
 
+  protected readonly formularioEndereco = this.fb.group({
+    cep: ['', [Validators.required, Validators.pattern(/^\d{5}-?\d{3}$/)]],
+    logradouro: ['', [Validators.required, Validators.maxLength(150)]],
+    numero: ['', [Validators.required, Validators.maxLength(20)]],
+    complemento: ['', [Validators.maxLength(100)]],
+    bairro: ['', [Validators.required, Validators.maxLength(100)]],
+    cidade: ['', [Validators.required, Validators.maxLength(100)]],
+    estado: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)]],
+    principal: [true]
+  });
+
   ngOnInit(): void {
+    this.observarCep();
     this.carregarUsuario();
   }
 
@@ -131,22 +166,165 @@ export class MinhaContaFormComponent implements OnInit {
     });
   }
 
+  cadastrarEndereco(): void {
+    this.mensagemErro.set(null);
+    this.errosValidacao.set([]);
+
+    if (this.formularioEndereco.invalid) {
+      this.formularioEndereco.markAllAsTouched();
+      return;
+    }
+
+    const usuario = this.usuario();
+    if (!usuario) {
+      this.mensagemErro.set('Nao foi possivel identificar seu usuario.');
+      return;
+    }
+
+    this.salvandoEndereco.set(true);
+
+    this.enderecoService.criar(usuario.id, this.montarEnderecoRequest()).pipe(
+      switchMap(() => this.enderecoService.listar(usuario.id)),
+      finalize(() => this.salvandoEndereco.set(false))
+    ).subscribe({
+      next: (enderecos) => {
+        this.enderecos.set(enderecos);
+        this.formularioEnderecoAberto.set(false);
+        this.formularioEndereco.reset({
+          cep: '',
+          logradouro: '',
+          numero: '',
+          complemento: '',
+          bairro: '',
+          cidade: '',
+          estado: '',
+          principal: true
+        });
+        this.message.success('Endereco cadastrado com sucesso.');
+      },
+      error: (error: HttpErrorResponse) => this.tratarErro(error)
+    });
+  }
+
   private carregarUsuario(): void {
     this.carregando.set(true);
 
     this.authService.usuarioLogado().pipe(
-      finalize(() => this.carregando.set(false))
-    ).subscribe({
-      next: (usuario) => {
+      switchMap((usuario) => {
         this.usuario.set(usuario);
         this.formulario.patchValue({
           nome: usuario.nome,
           login: usuario.email,
           telefone: usuario.telefone ?? ''
         });
+
+        return this.enderecoService.listar(usuario.id).pipe(
+          catchError(() => of([])),
+          map((enderecos) => ({ usuario, enderecos }))
+        );
+      }),
+      finalize(() => this.carregando.set(false))
+    ).subscribe({
+      next: ({ usuario, enderecos }) => {
+        this.usuario.set(usuario);
+        this.enderecos.set(enderecos);
       },
       error: (error: HttpErrorResponse) => this.tratarErro(error)
     });
+  }
+
+  protected formatarEndereco(endereco: EnderecoResponse): string {
+    const complemento = endereco.complemento ? `, ${endereco.complemento}` : '';
+    return `${endereco.logradouro}, ${endereco.numero}${complemento}`;
+  }
+
+  protected formatarCep(cep: string): string {
+    const numeros = cep.replace(/\D/g, '');
+    return numeros.length === 8 ? `${numeros.slice(0, 5)}-${numeros.slice(5)}` : cep;
+  }
+
+  protected abrirFormularioEndereco(): void {
+    this.formularioEnderecoAberto.set(true);
+  }
+
+  protected cancelarEndereco(): void {
+    this.formularioEnderecoAberto.set(false);
+    this.formularioEndereco.reset({
+      cep: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      estado: '',
+      principal: false
+    });
+  }
+
+  private observarCep(): void {
+    this.formularioEndereco.controls.cep.valueChanges.pipe(
+      debounceTime(350),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((cep) => {
+      const cepNormalizado = cep.replace(/\D/g, '');
+
+      if (cepNormalizado.length !== 8) {
+        this.limparEnderecoViaCep();
+        return;
+      }
+
+      this.buscarCep(cepNormalizado);
+    });
+  }
+
+  private buscarCep(cep: string): void {
+    this.buscandoCep.set(true);
+
+    this.viaCepService.buscarPorCep(cep).pipe(
+      finalize(() => this.buscandoCep.set(false))
+    ).subscribe({
+      next: (dados) => {
+        if (dados.erro) {
+          this.message.warning('CEP nao encontrado.');
+          return;
+        }
+
+        this.formularioEndereco.patchValue({
+          cep: dados.cep,
+          logradouro: dados.logradouro,
+          bairro: dados.bairro,
+          cidade: dados.localidade,
+          estado: dados.uf
+        });
+        this.formularioEndereco.controls.numero.markAsTouched();
+      },
+      error: () => this.message.error('Nao foi possivel buscar o CEP.')
+    });
+  }
+
+  private limparEnderecoViaCep(): void {
+    this.formularioEndereco.patchValue({
+      logradouro: '',
+      bairro: '',
+      cidade: '',
+      estado: ''
+    }, { emitEvent: false });
+  }
+
+  private montarEnderecoRequest(): EnderecoRequest {
+    const valor = this.formularioEndereco.getRawValue();
+
+    return {
+      cep: valor.cep.trim(),
+      logradouro: valor.logradouro.trim(),
+      numero: valor.numero.trim(),
+      complemento: valor.complemento.trim() || null,
+      bairro: valor.bairro.trim(),
+      cidade: valor.cidade.trim(),
+      estado: valor.estado.trim(),
+      principal: valor.principal
+    };
   }
 
   private montarRequest(usuario: UsuarioResponse): UsuarioRequest {
@@ -186,7 +364,14 @@ export class MinhaContaFormComponent implements OnInit {
       telefone: 'Telefone',
       senha: 'Senha',
       novaSenha: 'Nova senha',
-      confirmarSenha: 'Confirmar senha'
+      confirmarSenha: 'Confirmar senha',
+      cep: 'CEP',
+      logradouro: 'Logradouro',
+      numero: 'Numero',
+      complemento: 'Complemento',
+      bairro: 'Bairro',
+      cidade: 'Cidade',
+      estado: 'UF'
     };
 
     return `${labels[fieldName] ?? fieldName}: ${message}`;

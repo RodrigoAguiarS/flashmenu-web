@@ -1,0 +1,139 @@
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cabecalho-pagina p,
+.cabecalho-card p,
+.linha-dado span,
+.estado-pendente p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-empresa {
+  margin-bottom: 16px;
+}
+
+.alerta-empresa ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.layout-empresa {
+  display: grid;
+  gap: 16px;
+}
+
+.formulario-empresa,
+.resumo-empresa {
+  padding: 16px;
+}
+
+.cabecalho-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cabecalho-card h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.painel-lateral {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.resumo-empresa {
+  display: grid;
+  gap: 4px;
+}
+
+.linha-dado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.linha-dado strong {
+  max-width: 62%;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.linha-dado:last-child {
+  border-bottom: 0;
+}
+
+.estado-pendente {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 30px 12px;
+  text-align: center;
+}
+
+.estado-pendente .anticon {
+  color: var(--cor-texto-suave);
+  font-size: 32px;
+}
+
+@media (min-width: 980px) {
+  .layout-empresa {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.42fr);
+    align-items: start;
+  }
+
+  .formulario-empresa,
+  .resumo-empresa {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cabecalho-pagina,
+  .cabecalho-card,
+  .acoes-formulario {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-pagina button,
+  .acoes-formulario button {
+    width: 100%;
+  }
+
+  .linha-dado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .linha-dado strong {
+    max-width: 100%;
+    text-align: left;
+  }
+}

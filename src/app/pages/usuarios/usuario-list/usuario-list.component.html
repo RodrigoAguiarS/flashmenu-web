@@ -4,10 +4,12 @@
     <p>Gerencie acessos, perfis e status dos usuarios do sistema.</p>
   </div>
 
-  <a nz-button nzType="primary" routerLink="/usuarios/novo">
-    <span nz-icon nzType="plus" nzTheme="outline"></span>
-    Novo usuario
-  </a>
+  @if (podeCriarUsuario()) {
+    <a nz-button nzType="primary" routerLink="/usuarios/novo">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Novo usuario
+    </a>
+  }
 </section>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de usuarios">
@@ -72,6 +74,15 @@
 </section>
 
 <section class="secao-tabela cartao-sistema">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Usuarios encontrados</h2>
+      <p>Lista paginada de acessos cadastrados no sistema.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+  </header>
+
   <ng-template #estadoVazio>
     <nz-empty nzNotFoundContent="Nenhum usuario encontrado."></nz-empty>
   </ng-template>
@@ -85,25 +96,28 @@
     [nzPageSize]="pageSize()"
     [nzShowSizeChanger]="true"
     [nzNoResult]="estadoVazio"
+    nzSize="middle"
     nzTableLayout="fixed"
-    [nzScroll]="{ x: '900px' }"
     (nzPageIndexChange)="alterarPagina($event)"
     (nzPageSizeChange)="alterarTamanhoPagina($event)"
   >
     <thead>
       <tr>
-        <th nzWidth="240px">Nome</th>
-        <th nzWidth="260px">E-mail</th>
+        <th>Usuario</th>
         <th nzWidth="180px">Perfil</th>
         <th nzWidth="120px">Status</th>
-        <th nzWidth="160px" nzAlign="right">Acoes</th>
+        <th nzWidth="172px" nzAlign="right">Acoes</th>
       </tr>
     </thead>
     <tbody>
       @for (usuario of usuarios(); track usuario.id) {
         <tr>
-          <td>{{ usuario.nome }}</td>
-          <td>{{ usuario.email }}</td>
+          <td>
+            <div class="usuario-celula">
+              <strong>{{ usuario.nome }}</strong>
+              <span>{{ usuario.email }}</span>
+            </div>
+          </td>
           <td>{{ usuario.perfil?.descricao || '-' }}</td>
           <td>
             <nz-tag [nzColor]="statusColor(usuario.ativo)">
@@ -126,31 +140,46 @@
             <a
               nz-button
               nzType="text"
-              [routerLink]="['/usuarios', usuario.id, 'editar']"
+              [routerLink]="['/usuarios', usuario.id, 'enderecos']"
               nz-tooltip
-              nzTooltipTitle="Editar"
-              aria-label="Editar usuario"
+              nzTooltipTitle="Enderecos"
+              aria-label="Enderecos do usuario"
             >
-              <span nz-icon nzType="edit" nzTheme="outline"></span>
+              <span nz-icon nzType="home" nzTheme="outline"></span>
             </a>
 
-            <button
-              nz-button
-              nzType="text"
-              nzDanger
-              type="button"
-              nz-popconfirm
-              nzPopconfirmTitle="Deseja excluir este usuario?"
-              nzOkText="Excluir"
-              nzCancelText="Cancelar"
-              [nzLoading]="excluindoId() === usuario.id"
-              nz-tooltip
-              nzTooltipTitle="Excluir"
-              aria-label="Excluir usuario"
-              (nzOnConfirm)="excluir(usuario)"
-            >
-              <span nz-icon nzType="delete" nzTheme="outline"></span>
-            </button>
+            @if (podeEditarUsuario()) {
+              <a
+                nz-button
+                nzType="text"
+                [routerLink]="['/usuarios', usuario.id, 'editar']"
+                nz-tooltip
+                nzTooltipTitle="Editar"
+                aria-label="Editar usuario"
+              >
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </a>
+            }
+
+            @if (podeExcluirUsuario()) {
+              <button
+                nz-button
+                nzType="text"
+                nzDanger
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja excluir este usuario?"
+                nzOkText="Excluir"
+                nzCancelText="Cancelar"
+                [nzLoading]="excluindoId() === usuario.id"
+                nz-tooltip
+                nzTooltipTitle="Excluir"
+                aria-label="Excluir usuario"
+                (nzOnConfirm)="excluir(usuario)"
+              >
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            }
           </td>
         </tr>
       }
@@ -170,7 +199,7 @@
       <nz-descriptions [nzColumn]="1" nzBordered>
         <nz-descriptions-item nzTitle="Nome">{{ usuario.nome }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="E-mail">{{ usuario.email }}</nz-descriptions-item>
-        <nz-descriptions-item nzTitle="Telefone">{{ usuario.telefone || '-' }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Telefone">{{ usuario.telefone | telefone }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="Perfil">{{ usuario.perfil?.descricao || '-' }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="Status">
           <nz-tag [nzColor]="statusColor(usuario.ativo)">

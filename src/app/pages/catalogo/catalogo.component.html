@@ -4,29 +4,33 @@
     <p>Escolha os produtos e monte seu pedido.</p>
   </div>
 
-  <a class="atalho-carrinho" nz-button nzType="primary" routerLink="/carrinho">
+  <a
+    class="atalho-carrinho"
+    nz-button
+    nzType="primary"
+    nzShape="circle"
+    routerLink="/carrinho"
+    aria-label="Ver carrinho"
+  >
     <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
-    Ver carrinho
   </a>
 </section>
 
-<section class="filtros cartao-sistema" aria-label="Filtros do catalogo">
+<section class="filtros" aria-label="Filtros do catalogo">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">
-    <nz-row [nzGutter]="16">
-      <nz-col nzXs="24" nzMd="12">
+    <div class="busca-catalogo">
+      <div class="campo-busca">
         <nz-form-item>
-          <nz-form-label nzFor="nome">Produto</nz-form-label>
           <nz-form-control>
             <nz-input-group nzPrefixIcon="search">
               <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
             </nz-input-group>
           </nz-form-control>
         </nz-form-item>
-      </nz-col>
+      </div>
 
-      <nz-col nzXs="24" nzMd="8">
+      <div class="campo-categoria">
         <nz-form-item>
-          <nz-form-label nzFor="categoria">Categoria</nz-form-label>
           <nz-form-control>
             <nz-select
               id="categoria"
@@ -41,12 +45,12 @@
             </nz-select>
           </nz-form-control>
         </nz-form-item>
-      </nz-col>
+      </div>
 
-      <nz-col nzXs="24" nzMd="4" class="acao-filtro">
-        <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
-      </nz-col>
-    </nz-row>
+      <button class="botao-limpar" nz-button nzType="text" type="button" (click)="limparFiltros()" aria-label="Limpar filtros">
+        Limpar
+      </button>
+    </div>
   </form>
 </section>
 
@@ -68,7 +72,9 @@
               <div>
                 <div class="produto-meta">
                   <nz-tag>{{ produto.categoria.nome }}</nz-tag>
-                  <nz-badge [nzStatus]="podeAdicionar(produto) ? 'success' : 'default'" [nzText]="estoqueTexto(produto)" />
+                  <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
+                    {{ estoqueTexto(produto) }}
+                  </span>
                 </div>
 
                 <h2>{{ produto.nome }}</h2>
@@ -132,7 +138,7 @@
   [nzVisible]="drawerAberto()"
   nzTitle="Detalhes do produto"
   nzPlacement="right"
-  [nzWidth]="460"
+  [nzWidth]="'min(100vw, 460px)'"
   (nzOnClose)="fecharDetalhes()"
 >
   <ng-container *nzDrawerContent>
@@ -146,7 +152,7 @@
           </div>
         }
 
-        <nz-tag>{{ produto.categoria.nome }}</nz-tag>
+        <nz-tag class="detalhe-categoria">{{ produto.categoria.nome }}</nz-tag>
         <h2>{{ produto.nome }}</h2>
         <p>{{ produto.descricao }}</p>
 
@@ -167,6 +173,7 @@
         ></nz-input-number>
 
         <button
+          class="detalhe-adicionar"
           nz-button
           nzType="primary"
           type="button"

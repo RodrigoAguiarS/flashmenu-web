@@ -12,9 +12,29 @@
   font-weight: 700;
 }
 
-.cabecalho-pagina p {
+.cabecalho-pagina p,
+.resumo-listagem p {
   margin: 0;
   color: var(--cor-texto-suave);
+}
+
+.resumo-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px;
+}
+
+.resumo-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.resumo-listagem nz-tag {
+  flex: 0 0 auto;
 }
 
 .lista-formas {
@@ -102,5 +122,12 @@
 
   .lista-formas {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .resumo-listagem {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

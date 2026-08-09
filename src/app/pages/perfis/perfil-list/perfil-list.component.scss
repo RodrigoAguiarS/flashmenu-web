@@ -13,7 +13,8 @@
   font-weight: 700;
 }
 
-.cabecalho-pagina p {
+.cabecalho-pagina p,
+.cabecalho-listagem p {
   margin: 0;
   color: var(--cor-texto-suave);
 }
@@ -24,7 +25,9 @@
 
 .filtros,
 .secao-tabela {
+  max-width: 100%;
   padding: 14px;
+  overflow: hidden;
 }
 
 .filtros {
@@ -44,6 +47,24 @@
   width: 100%;
 }
 
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cabecalho-listagem nz-tag {
+  flex: 0 0 auto;
+}
+
 .acoes-linha {
   display: flex;
   justify-content: flex-end;
@@ -54,6 +75,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+:host ::ng-deep .secao-tabela .ant-table {
+  overflow: hidden;
+}
+
+:host ::ng-deep .secao-tabela .ant-table-cell {
+  vertical-align: middle;
+}
+
+:host ::ng-deep .secao-tabela .ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin-bottom: 0;
 }
 
 @media (min-width: 700px) {
@@ -81,3 +117,9 @@
   }
 }
 
+@media (max-width: 520px) {
+  .cabecalho-listagem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

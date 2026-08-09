@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -18,8 +18,10 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PerfilResponse } from '../../../core/models/perfil.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
 
 @Component({
@@ -47,6 +49,7 @@ import { PerfilService } from '../../../core/services/perfil.service';
 })
 export class PerfilListComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly perfilService = inject(PerfilService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -59,6 +62,9 @@ export class PerfilListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly podeCriarPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_CRIAR));
+  protected readonly podeEditarPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_EDITAR));
+  protected readonly podeExcluirPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_DELETAR));
 
   protected readonly filtros = this.fb.group({
     descricao: ['']
@@ -166,4 +172,3 @@ export class PerfilListComponent implements OnInit {
     return !!value && typeof value === 'object' && 'message' in value;
   }
 }
-

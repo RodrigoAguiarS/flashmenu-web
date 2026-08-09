@@ -1,4 +1,5 @@
 import { PerfilResponse } from './perfil.model';
+import { EnderecoRequest } from './endereco.model';
 
 export interface UsuarioRequest {
   nome: string;
@@ -6,6 +7,7 @@ export interface UsuarioRequest {
   telefone: string;
   idPerfil: number;
   senha?: string;
+  endereco?: EnderecoRequest;
 }
 
 export interface AlterarSenhaUsuarioRequest {
@@ -31,6 +33,8 @@ export interface UsuarioResponse {
   telefone: string | null;
   ativo: boolean;
   perfil: PerfilResponse | null;
+  empresaId?: number | null;
+  empresaNome?: string | null;
   criadoEm: string;
   atualizadoEm: string;
 }

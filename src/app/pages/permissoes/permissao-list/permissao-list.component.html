@@ -34,6 +34,15 @@
 </section>
 
 <section class="secao-tabela cartao-sistema">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Permissoes encontradas</h2>
+      <p>Lista paginada de authorities disponiveis para os perfis.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+  </header>
+
   <ng-template #estadoVazio>
     <nz-empty nzNotFoundContent="Nenhuma permissao encontrada."></nz-empty>
   </ng-template>
@@ -47,22 +56,26 @@
     [nzPageSize]="pageSize()"
     [nzShowSizeChanger]="true"
     [nzNoResult]="estadoVazio"
+    nzSize="middle"
     nzTableLayout="fixed"
-    [nzScroll]="{ x: '720px' }"
     (nzPageIndexChange)="alterarPagina($event)"
     (nzPageSizeChange)="alterarTamanhoPagina($event)"
   >
     <thead>
       <tr>
-        <th nzWidth="120px">Codigo</th>
+        <th nzWidth="132px">Codigo</th>
         <th>Authority</th>
       </tr>
     </thead>
     <tbody>
       @for (permissao of permissoes(); track permissao.id) {
         <tr>
-          <td>{{ permissao.codigo }}</td>
-          <td>{{ permissao.authority }}</td>
+          <td>
+            <nz-tag nzColor="default">#{{ permissao.codigo }}</nz-tag>
+          </td>
+          <td>
+            <code class="authority">{{ permissao.authority }}</code>
+          </td>
         </tr>
       }
     </tbody>

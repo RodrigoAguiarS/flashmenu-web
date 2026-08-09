@@ -24,7 +24,9 @@
 
 .filtros,
 .secao-tabela {
+  max-width: 100%;
   padding: 14px;
+  overflow: hidden;
 }
 
 .filtros {
@@ -43,6 +45,57 @@
 .acao-filtro button,
 nz-input-number {
   width: 100%;
+}
+
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cabecalho-listagem p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.cabecalho-listagem nz-tag {
+  flex: 0 0 auto;
+}
+
+.authority {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 8px;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+:host ::ng-deep .secao-tabela .ant-table {
+  overflow: hidden;
+}
+
+:host ::ng-deep .secao-tabela .ant-table-cell {
+  vertical-align: middle;
+}
+
+:host ::ng-deep .secao-tabela .ant-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin-bottom: 0;
 }
 
 @media (min-width: 700px) {
@@ -67,5 +120,16 @@ nz-input-number {
 
   .filtros nz-form-item {
     margin-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .cabecalho-listagem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  :host ::ng-deep .secao-tabela .ant-table-cell {
+    padding: 10px 8px;
   }
 }
