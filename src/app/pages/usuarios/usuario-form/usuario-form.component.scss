@@ -78,7 +78,11 @@
 @media (max-width: 560px) {
   .cabecalho-pagina,
   .acoes-formulario {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
+  }
+
+  .acoes-formulario {
+    align-items: flex-end;
   }
 }

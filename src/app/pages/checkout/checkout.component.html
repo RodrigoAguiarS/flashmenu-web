@@ -130,7 +130,10 @@
           </div>
 
           <div class="acoes-checkout">
-            <a nz-button routerLink="/carrinho">Voltar</a>
+            <a nz-button routerLink="/carrinho">
+              <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+              Voltar
+            </a>
             <button nz-button nzType="primary" type="submit" [nzLoading]="checkout.finalizando()" [disabled]="checkout.finalizando() || !checkout.usuario()">
               Confirmar
             </button>

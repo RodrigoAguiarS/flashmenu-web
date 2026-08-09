@@ -31,15 +31,16 @@
 .acao-filtro {
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .acao-filtro button {
-  width: 100%;
+  width: fit-content;
 }
 
 .secao-tabela {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   padding: 20px;
 }
 
@@ -84,6 +85,10 @@
   overflow: hidden;
 }
 
+:host ::ng-deep .secao-tabela .ant-table-content {
+  overflow-x: auto;
+}
+
 :host ::ng-deep .secao-tabela .ant-table-cell {
   vertical-align: middle;
 }
@@ -102,7 +107,7 @@
   }
 
   .cabecalho-pagina a {
-    width: 100%;
+    width: fit-content;
   }
 
   .filtros nz-form-item {
@@ -112,5 +117,10 @@
   .cabecalho-listagem {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .filtros,
+  .secao-tabela {
+    padding: 14px;
   }
 }

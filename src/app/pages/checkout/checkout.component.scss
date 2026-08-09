@@ -20,14 +20,21 @@
 .botao-voltar {
   display: inline-grid;
   place-items: center;
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
   padding: 0;
   color: var(--cor-texto);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 999px;
+}
+
+.botao-voltar:hover,
+.botao-voltar:focus-visible {
+  color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
 }
 
 .layout-checkout {
@@ -246,8 +253,8 @@
 
 .acoes-checkout a,
 .acoes-checkout button {
-  min-width: 104px;
-  min-height: 38px;
+  min-width: 92px;
+  min-height: 34px;
   border-radius: 8px;
 }
 

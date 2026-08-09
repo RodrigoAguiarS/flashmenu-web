@@ -20,14 +20,14 @@
 }
 
 .cabecalho-pagina a {
-  width: 100%;
+  width: fit-content;
 }
 
 .filtros,
 .secao-tabela {
   max-width: 100%;
   padding: 14px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .filtros {
@@ -41,10 +41,11 @@
 .acao-filtro {
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .acao-filtro button {
-  width: 100%;
+  width: fit-content;
 }
 
 .cabecalho-listagem {
@@ -81,6 +82,10 @@
   overflow: hidden;
 }
 
+:host ::ng-deep .secao-tabela .ant-table-content {
+  overflow-x: auto;
+}
+
 :host ::ng-deep .secao-tabela .ant-table-cell {
   vertical-align: middle;
 }
@@ -104,7 +109,7 @@
   }
 
   .cabecalho-pagina a {
-    width: auto;
+    width: fit-content;
   }
 
   .filtros,

@@ -118,13 +118,16 @@
   .cabecalho-pagina,
   .cabecalho-card,
   .acoes-formulario {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
   }
 
-  .cabecalho-pagina button,
-  .acoes-formulario button {
-    width: 100%;
+  .cabecalho-card {
+    align-items: stretch;
+  }
+
+  .acoes-formulario {
+    align-items: flex-end;
   }
 
   .linha-dado {

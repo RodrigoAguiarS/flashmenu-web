@@ -145,6 +145,83 @@ a {
   box-shadow: var(--sombra-painel);
 }
 
+.cabecalho-pagina > .ant-btn,
+.cabecalho-pagina > a.ant-btn,
+.filtros .ant-btn,
+.acoes-filtro .ant-btn,
+.acao-filtro .ant-btn,
+.acoes-formulario .ant-btn,
+.acoes-form .ant-btn,
+.acoes-checkout .ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding-inline: 12px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.cabecalho-pagina > .ant-btn,
+.cabecalho-pagina > a.ant-btn {
+  width: fit-content;
+}
+
+.acoes-linha .ant-btn,
+.acoes-grupo .ant-btn,
+.acoes-rapidas .ant-btn,
+.item-controles .ant-btn,
+.quantidade .ant-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  line-height: 1;
+}
+
+.acoes-linha .ant-btn .anticon,
+.acoes-grupo .ant-btn .anticon,
+.acoes-rapidas .ant-btn .anticon,
+.item-controles .ant-btn .anticon,
+.quantidade .ant-btn .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.botao-voltar.ant-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+}
+
+.botao-voltar.ant-btn:hover,
+.botao-voltar.ant-btn:focus-visible {
+  color: var(--cor-primaria);
+  background: var(--cor-superficie);
+  border-color: var(--cor-primaria);
+}
+
+.botao-voltar.ant-btn .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
 .ant-layout,
 .ant-menu,
 .ant-card,

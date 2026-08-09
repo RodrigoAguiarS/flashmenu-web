@@ -140,12 +140,16 @@
   .cabecalho-listagem,
   .endereco-card header,
   .acoes-formulario {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
   }
 
-  .cabecalho-pagina a,
-  .acoes-formulario button {
-    width: 100%;
+  .cabecalho-listagem,
+  .endereco-card header {
+    align-items: stretch;
+  }
+
+  .acoes-formulario {
+    align-items: flex-end;
   }
 }

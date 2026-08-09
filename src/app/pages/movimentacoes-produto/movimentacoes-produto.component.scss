@@ -95,7 +95,7 @@
 
 .secao-tabela {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .diferenca-saldo {
@@ -126,6 +126,10 @@
   overflow: hidden;
 }
 
+:host ::ng-deep .secao-tabela .ant-table-content {
+  overflow-x: auto;
+}
+
 :host ::ng-deep .secao-tabela .ant-table-cell {
   vertical-align: middle;
 }
@@ -150,5 +154,12 @@
   .cabecalho-listagem {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .filtros,
+  .resumo-produto,
+  .card-operacao,
+  .secao-tabela {
+    padding: 14px;
   }
 }

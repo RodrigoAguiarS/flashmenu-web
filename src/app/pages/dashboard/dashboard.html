@@ -118,7 +118,13 @@
       </header>
 
       @if (possuiProdutosMaisVendidos()) {
-        <nz-table [nzData]="produtosMaisVendidos()" [nzFrontPagination]="false" nzSize="small">
+        <nz-table
+          [nzData]="produtosMaisVendidos()"
+          [nzFrontPagination]="false"
+          [nzScroll]="{ x: '520px' }"
+          nzSize="small"
+          nzTableLayout="fixed"
+        >
           <thead>
             <tr>
               <th>Produto</th>
@@ -173,7 +179,13 @@
       </header>
 
       @if (possuiEstoqueBaixo()) {
-        <nz-table [nzData]="produtosEstoqueBaixo()" [nzFrontPagination]="false" nzSize="small">
+        <nz-table
+          [nzData]="produtosEstoqueBaixo()"
+          [nzFrontPagination]="false"
+          [nzScroll]="{ x: '420px' }"
+          nzSize="small"
+          nzTableLayout="fixed"
+        >
           <thead>
             <tr>
               <th>Produto</th>

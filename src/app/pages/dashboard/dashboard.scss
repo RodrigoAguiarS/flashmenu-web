@@ -41,10 +41,13 @@
 .acao-filtro {
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .acao-filtro button {
-  width: 100%;
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
 }
 
 .indicadores {
@@ -101,6 +104,8 @@
   display: grid;
   align-content: start;
   gap: 12px;
+  max-width: 100%;
+  overflow: hidden;
   padding: 14px;
 }
 
@@ -155,6 +160,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+:host ::ng-deep .painel-dashboard .ant-table {
+  overflow: hidden;
+}
+
+:host ::ng-deep .painel-dashboard .ant-table-content {
+  overflow-x: auto;
+}
+
+:host ::ng-deep .painel-dashboard .ant-table-cell {
+  vertical-align: middle;
 }
 
 .lista-pagamentos > div {

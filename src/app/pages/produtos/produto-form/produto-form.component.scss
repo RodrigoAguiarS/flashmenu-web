@@ -93,7 +93,11 @@
   .cabecalho-pagina,
   .acoes-formulario,
   .upload-acoes {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
+  }
+
+  .acoes-formulario {
+    align-items: flex-end;
   }
 }
