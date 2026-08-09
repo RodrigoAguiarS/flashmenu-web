@@ -1,5 +1,16 @@
 .resultado {
   padding: 24px;
+  background: color-mix(in srgb, var(--cor-superficie) 92%, var(--cor-primaria));
+  border-color: var(--cor-borda);
+}
+
+:host ::ng-deep .ant-result-title,
+:host ::ng-deep .ant-result-subtitle {
+  color: var(--cor-texto);
+}
+
+:host ::ng-deep .ant-result-subtitle {
+  color: var(--cor-texto-suave);
 }
 
 .detalhes-pedido {

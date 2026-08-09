@@ -58,6 +58,12 @@ export class PedidoService {
     return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/cancelar`, {});
   }
 
+  exportarPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/pdf`, {
+      responseType: 'blob'
+    });
+  }
+
   private criarParametros(filtros: PedidoFiltros): HttpParams {
     let params = new HttpParams()
       .set('page', filtros.page)

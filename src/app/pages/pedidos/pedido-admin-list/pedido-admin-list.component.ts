@@ -1,7 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -22,6 +22,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { salvarArquivo } from '../../../core/utils/download-file';
 
 @Component({
   selector: 'app-pedido-admin-list',
@@ -29,7 +30,6 @@ import { PedidoService } from '../../../core/services/pedido.service';
   imports: [
     CurrencyPipe,
     DatePipe,
-    FormsModule,
     ReactiveFormsModule,
     RouterLink,
     NzButtonModule,
@@ -56,13 +56,12 @@ export class PedidoAdminListComponent implements OnInit {
 
   protected readonly carregando = signal(false);
   protected readonly processandoId = signal<number | null>(null);
+  protected readonly pdfProcessandoId = signal<number | null>(null);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
-  protected readonly statusSelecionados = signal<Record<number, StatusPedido>>({});
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
-  protected readonly podeAlterarStatus = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
   protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_CONFIRMACAO', 'PAGO', 'CANCELADO'];
@@ -95,25 +94,6 @@ export class PedidoAdminListComponent implements OnInit {
     this.carregarPedidos();
   }
 
-  protected alterarStatusSelecionado(pedidoId: number, status: StatusPedido): void {
-    this.statusSelecionados.update((statusSelecionados) => ({
-      ...statusSelecionados,
-      [pedidoId]: status
-    }));
-  }
-
-  protected salvarStatus(pedido: PedidoResponse): void {
-    const status = this.statusSelecionados()[pedido.id];
-
-    if (!status || status === pedido.status) {
-      return;
-    }
-
-    this.executarAcao(pedido.id, 'Status atualizado com sucesso.', () =>
-      this.pedidoService.alterarStatus(pedido.id, { status })
-    );
-  }
-
   protected confirmarPagamento(pedido: PedidoResponse): void {
     this.executarAcao(pedido.id, 'Pagamento confirmado com sucesso.', () =>
       this.pedidoService.confirmarPagamento(pedido.id)
@@ -126,22 +106,23 @@ export class PedidoAdminListComponent implements OnInit {
     );
   }
 
+  protected exportarPdf(pedido: PedidoResponse): void {
+    this.pdfProcessandoId.set(pedido.id);
+
+    this.pedidoService.exportarPdf(pedido.id).pipe(
+      finalize(() => this.pdfProcessandoId.set(null))
+    ).subscribe({
+      next: (arquivo) => salvarArquivo(arquivo, `pedido-${pedido.id}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
   protected podeExecutarConfirmacao(pedido: PedidoResponse): boolean {
     return this.podeConfirmarPagamento() && pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
   }
 
   protected podeExecutarCancelamento(pedido: PedidoResponse): boolean {
-    return this.podeCancelarPedido() && pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
-  }
-
-  protected pedidoBloqueado(pedido: PedidoResponse): boolean {
-    return pedido.status === 'CANCELADO';
-  }
-
-  protected podeSalvarStatus(pedido: PedidoResponse): boolean {
-    return !this.pedidoBloqueado(pedido)
-      && this.statusSelecionados()[pedido.id] !== pedido.status
-      && this.processandoId() === null;
+    return this.podeCancelarPedido() && pedido.status !== 'CANCELADO';
   }
 
   protected corStatus(status: StatusPedido): string {
@@ -200,12 +181,6 @@ export class PedidoAdminListComponent implements OnInit {
       next: (page) => {
         this.pedidos.set(page.content);
         this.total.set(page.totalElements);
-        this.statusSelecionados.set(
-          page.content.reduce<Record<number, StatusPedido>>((acc, pedido) => {
-            acc[pedido.id] = pedido.status;
-            return acc;
-          }, {})
-        );
       },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
@@ -225,10 +200,6 @@ export class PedidoAdminListComponent implements OnInit {
         this.pedidos.update((pedidos) =>
           pedidos.map((pedido) => pedido.id === pedidoAtualizado.id ? pedidoAtualizado : pedido)
         );
-        this.statusSelecionados.update((statusSelecionados) => ({
-          ...statusSelecionados,
-          [pedidoAtualizado.id]: pedidoAtualizado.status
-        }));
         this.message.success(mensagemSucesso);
       },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))

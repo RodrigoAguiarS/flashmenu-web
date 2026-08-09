@@ -13,6 +13,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { salvarArquivo } from '../../../core/utils/download-file';
 
 @Component({
   selector: 'app-pedido-list',
@@ -37,6 +38,7 @@ export class PedidoListComponent implements OnInit {
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
+  protected readonly pdfProcessandoId = signal<number | null>(null);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
 
@@ -85,6 +87,18 @@ export class PedidoListComponent implements OnInit {
   protected abrirDetalhe(id: number, event?: Event): void {
     event?.stopPropagation();
     void this.router.navigate(['/pedidos', id]);
+  }
+
+  protected exportarPdf(pedido: PedidoResponse, event: Event): void {
+    event.stopPropagation();
+    this.pdfProcessandoId.set(pedido.id);
+
+    this.pedidoService.exportarPdf(pedido.id).pipe(
+      finalize(() => this.pdfProcessandoId.set(null))
+    ).subscribe({
+      next: (arquivo) => salvarArquivo(arquivo, `pedido-${pedido.id}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   private carregarPedidos(): void {

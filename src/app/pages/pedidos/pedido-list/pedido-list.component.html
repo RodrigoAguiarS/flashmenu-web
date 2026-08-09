@@ -52,17 +52,34 @@
           <footer class="pedido-rodape">
             <small>Pagamento em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
 
-            <button
-              class="botao-detalhes"
-              nz-button
-              nzType="text"
-              nzShape="circle"
-              type="button"
-              (click)="abrirDetalhe(pedido.id, $event)"
-              aria-label="Ver detalhes do pedido"
-            >
-              <span nz-icon nzType="eye" nzTheme="outline"></span>
-            </button>
+            <div class="pedido-acoes-card">
+              <button
+                class="botao-detalhes"
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                title="Exportar PDF"
+                aria-label="Exportar pedido em PDF"
+                [nzLoading]="pdfProcessandoId() === pedido.id"
+                (click)="exportarPdf(pedido, $event)"
+              >
+                <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+              </button>
+
+              <button
+                class="botao-detalhes"
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                title="Ver detalhes"
+                aria-label="Ver detalhes do pedido"
+                (click)="abrirDetalhe(pedido.id, $event)"
+              >
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </button>
+            </div>
           </footer>
         </article>
       }

@@ -16,9 +16,17 @@
 
 .cabecalho-pagina p,
 .painel-topo span,
-.pagamento-resumo small,
+.pagamento-topo span,
+.grade-valores small,
+.linha-pagamento span,
 .item-pedido span {
   color: var(--cor-texto-suave);
+}
+
+.acoes-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .detalhe-layout {
@@ -45,7 +53,7 @@
 .painel-topo,
 .secao-topo,
 .item-pedido,
-.linha-resumo {
+.linha-pagamento {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -57,7 +65,9 @@
 
 .painel-topo > div:first-child,
 .resumo-compacto,
-.pagamento-resumo > div,
+.pagamento-topo > div,
+.grade-valores span,
+.grade-valores strong,
 .item-pedido > div {
   display: grid;
   gap: 3px;
@@ -90,10 +100,27 @@
   gap: 10px 18px;
 }
 
-.pagamento-resumo {
+.pagamento-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.grade-valores {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 10px 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linha-pagamento {
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.linha-pagamento.pendente strong {
+  color: var(--cor-texto-suave);
 }
 
 .itens-pedido {
@@ -118,16 +145,6 @@
 
 .resumo-financeiro {
   background: var(--cor-campo);
-}
-
-.linha-resumo {
-  align-items: center;
-}
-
-.linha-resumo.total {
-  padding-top: 10px;
-  border-top: 1px solid var(--cor-borda);
-  font-size: 18px;
 }
 
 .estado-vazio { display: grid; place-items: center; padding: 40px 20px; }
@@ -156,5 +173,16 @@
   .resumo-financeiro {
     grid-column: 2;
     grid-row: 1 / span 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .resumo-compacto,
+  .grade-valores {
+    grid-template-columns: 1fr;
+  }
+
+  .pagamento-topo {
+    display: grid;
   }
 }

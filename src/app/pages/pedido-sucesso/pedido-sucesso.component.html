@@ -32,15 +32,15 @@
           {{ pedido.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
         </span>
         <strong>
-          <small>Total</small>
+          <small>{{ pedido.pagamento ? 'Total pago' : 'Total do pedido' }}</small>
           {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
         </strong>
       </div>
 
-      @if (pedido.pagamento) {
+      @if (!pedido.pagamento) {
         <div class="linha-pagamento">
-          <span>Valor do pagamento</span>
-          <strong>{{ pedido.pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          <span>Pagamento</span>
+          <strong>Pendente</strong>
         </div>
       }
     </section>

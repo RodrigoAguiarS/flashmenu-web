@@ -33,7 +33,7 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Permissoes encontradas</h2>
@@ -81,4 +81,41 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Lista de permissoes">
+    @if (carregando()) {
+      <nz-empty nzNotFoundContent="Carregando permissoes..."></nz-empty>
+    } @else if (permissoes().length) {
+      @for (permissao of permissoes(); track permissao.id) {
+        <article class="mobile-card">
+          <div class="mobile-card__topo">
+            <div>
+              <span class="mobile-card__rotulo">Codigo</span>
+              <h3 class="mobile-card__titulo">#{{ permissao.codigo }}</h3>
+            </div>
+
+            <nz-tag nzColor="processing">Authority</nz-tag>
+          </div>
+
+          <p class="mobile-card__texto">
+            <code class="authority">{{ permissao.authority }}</code>
+          </p>
+        </article>
+      }
+    } @else {
+      <nz-empty nzNotFoundContent="Nenhuma permissao encontrada."></nz-empty>
+    }
+  </div>
+
+  @if (permissoes().length) {
+    <div class="mobile-paginacao">
+      <nz-pagination
+        nzSimple
+        [nzPageIndex]="pageIndex()"
+        [nzPageSize]="pageSize()"
+        [nzTotal]="total()"
+        (nzPageIndexChange)="alterarPagina($event)"
+      ></nz-pagination>
+    </div>
+  }
 </section>

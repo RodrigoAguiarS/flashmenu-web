@@ -15,6 +15,7 @@ import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/p
 import { ProdutoResponse } from '../../../core/models/produto.model';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProdutoService } from '../../../core/services/produto.service';
+import { salvarArquivo } from '../../../core/utils/download-file';
 
 @Component({
   selector: 'app-pedido-detail',
@@ -40,6 +41,7 @@ export class PedidoDetailComponent implements OnInit {
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
+  protected readonly exportandoPdf = signal(false);
   protected readonly pedido = signal<PedidoResponse | null>(null);
   protected readonly produtos = signal<Record<number, ProdutoResponse>>({});
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
@@ -101,6 +103,23 @@ export class PedidoDetailComponent implements OnInit {
 
   protected marcarImagemInvalida(produtoId: number): void {
     this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+  }
+
+  protected exportarPdf(): void {
+    const pedido = this.pedido();
+
+    if (!pedido) {
+      return;
+    }
+
+    this.exportandoPdf.set(true);
+
+    this.pedidoService.exportarPdf(pedido.id).pipe(
+      finalize(() => this.exportandoPdf.set(false))
+    ).subscribe({
+      next: (arquivo) => salvarArquivo(arquivo, `pedido-${pedido.id}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   private carregarPedido(): void {

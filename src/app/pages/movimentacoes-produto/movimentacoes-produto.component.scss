@@ -16,6 +16,7 @@
 .cabecalho-card p,
 .cabecalho-listagem p,
 .resumo-produto span,
+.produto-destaque small,
 .diferenca-saldo {
   margin: 0;
   color: var(--cor-texto-suave);
@@ -42,28 +43,41 @@
 }
 
 .resumo-produto {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
   margin-bottom: 16px;
+  background: color-mix(in srgb, var(--cor-superficie) 92%, var(--cor-primaria));
 }
 
-.resumo-produto > div {
+.auditoria-grade {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.auditoria-grade > div {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
 
-.resumo-produto strong {
+.auditoria-grade strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.produto-destaque {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.produto-destaque strong {
+  font-size: 18px;
+}
+
 .layout-movimentacao {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -84,6 +98,17 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.acoes-listagem {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.acoes-listagem nz-tag {
+  margin: 0;
 }
 
 .cabecalho-card h2,
@@ -116,6 +141,10 @@
   transform: rotate(180deg);
 }
 
+.mobile-card__linha span {
+  color: var(--cor-texto-suave);
+}
+
 .observacao-celula {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -142,9 +171,27 @@
 }
 
 @media (max-width: 900px) {
-  .layout-movimentacao,
-  .resumo-produto {
-    grid-template-columns: 1fr;
+  .auditoria-grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .layout-movimentacao {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .auditoria-grade {
+    grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(0, 1fr));
+    align-items: center;
+  }
+
+  .produto-destaque {
+    padding-right: 12px;
+    padding-bottom: 0;
+    border-right: 1px solid var(--cor-borda);
+    border-bottom: 0;
   }
 }
 
@@ -156,10 +203,21 @@
     flex-direction: column;
   }
 
+  .acoes-listagem {
+    justify-content: space-between;
+    width: 100%;
+  }
+
   .filtros,
   .resumo-produto,
   .card-operacao,
   .secao-tabela {
     padding: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .auditoria-grade {
+    grid-template-columns: 1fr;
   }
 }

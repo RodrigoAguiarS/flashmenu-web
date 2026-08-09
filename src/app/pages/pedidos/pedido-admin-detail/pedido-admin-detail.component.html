@@ -4,9 +4,25 @@
     <p>Informacoes completas do pedido, pagamento e itens.</p>
   </div>
 
-  <a class="botao-voltar" nz-button nzType="text" routerLink="/pedidos/gerenciar" aria-label="Voltar para gerenciamento de pedidos">
-    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-  </a>
+  <div class="acoes-cabecalho">
+    <button
+      class="botao-voltar"
+      nz-button
+      nzType="text"
+      type="button"
+      title="Exportar PDF"
+      aria-label="Exportar pedido em PDF"
+      [disabled]="!possuiPedido()"
+      [nzLoading]="exportandoPdf()"
+      (click)="exportarPdf()"
+    >
+      <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+    </button>
+
+    <a class="botao-voltar" nz-button nzType="text" routerLink="/pedidos/gerenciar" aria-label="Voltar para gerenciamento de pedidos">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    </a>
+  </div>
 </section>
 
 <nz-spin [nzSpinning]="carregando()">
@@ -28,30 +44,53 @@
         <div class="resumo-compacto">
           <span>Criado em: <strong>{{ pedidoDetalhe.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>Itens: <strong>{{ pedidoDetalhe.itens.length }}</strong></span>
-          <span>Total: <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong></span>
         </div>
       </article>
 
-      <article class="painel-detalhe">
+      <article class="painel-detalhe resumo-financeiro">
         <header class="secao-topo">
           <span nz-icon nzType="credit-card" nzTheme="outline"></span>
           <h2>Pagamento</h2>
         </header>
 
-        <div class="pagamento-resumo">
+        <div class="pagamento-topo">
           <div>
-            <small>Forma</small>
+            <span>Forma de pagamento</span>
             <strong>{{ pedidoDetalhe.formaPagamento.nome }}</strong>
           </div>
-          <div>
-            <small>Valor pago</small>
-            <strong>{{ (pedidoDetalhe.pagamento?.valor ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-          <div>
-            <small>Criado em</small>
-            <span>{{ pedidoDetalhe.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
+          @if (pedidoDetalhe.pagamento?.dataCriacao) {
+            <div>
+              <span>Pago em</span>
+              <strong>{{ pedidoDetalhe.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong>
+            </div>
+          }
         </div>
+
+        <div class="grade-valores">
+          <span>
+            <small>Subtotal</small>
+            {{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+          <span>
+            <small>Acrescimo</small>
+            {{ pedidoDetalhe.percentualAcrescimo }}%
+          </span>
+          <span>
+            <small>Valor do acrescimo</small>
+            {{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+          <strong>
+            <small>{{ pedidoDetalhe.pagamento ? 'Total pago' : 'Total do pedido' }}</small>
+            {{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
+          </strong>
+        </div>
+
+        @if (!pedidoDetalhe.pagamento) {
+          <div class="linha-pagamento pendente">
+            <span>Pagamento</span>
+            <strong>Pendente</strong>
+          </div>
+        }
       </article>
 
       <article class="painel-detalhe">
@@ -70,26 +109,6 @@
               <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>
           }
-        </div>
-      </article>
-
-      <article class="painel-detalhe resumo-financeiro">
-        <header class="secao-topo">
-          <span nz-icon nzType="shop" nzTheme="outline"></span>
-          <h2>Resumo financeiro</h2>
-        </header>
-
-        <div class="linha-resumo">
-          <span>Subtotal</span>
-          <strong>{{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-        <div class="linha-resumo">
-          <span>Acrescimo {{ pedidoDetalhe.percentualAcrescimo }}%</span>
-          <strong>{{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-        <div class="linha-resumo total">
-          <span>Total</span>
-          <strong>{{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
       </article>
     </section>

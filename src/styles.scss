@@ -11,6 +11,11 @@
   --cor-primaria: #1677ff;
   --cor-perigo: #d92d20;
   --sombra-painel: 0 18px 50px rgba(15, 23, 42, 0.12);
+  --raio-sm: 6px;
+  --raio-md: 8px;
+  --espaco-sm: 8px;
+  --espaco-md: 12px;
+  --espaco-lg: 16px;
 
   --color-bg: var(--cor-fundo);
   --color-surface: var(--cor-superficie);
@@ -141,8 +146,37 @@ a {
   display: block;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+  border-radius: var(--raio-md);
   box-shadow: var(--sombra-painel);
+}
+
+.cabecalho-pagina {
+  min-width: 0;
+}
+
+.cabecalho-pagina h1 {
+  overflow-wrap: anywhere;
+}
+
+.cabecalho-pagina p {
+  max-width: 68ch;
+}
+
+.filtros {
+  max-width: 100%;
+}
+
+.filtros .ant-form-item {
+  margin-bottom: 12px;
+}
+
+.filtros .ant-input,
+.filtros .ant-input-number,
+.filtros .ant-select-selector,
+.cartao-sistema .ant-input,
+.cartao-sistema .ant-input-number,
+.cartao-sistema .ant-select-selector {
+  min-height: 40px;
 }
 
 .cabecalho-pagina > .ant-btn,
@@ -183,6 +217,62 @@ a {
   line-height: 1;
 }
 
+.lista-mobile {
+  display: none;
+}
+
+.mobile-paginacao {
+  display: none;
+}
+
+.mobile-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.mobile-card__topo,
+.mobile-card__linha,
+.mobile-card__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.mobile-card__topo,
+.mobile-card__linha {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mobile-card__conteudo {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mobile-card__titulo {
+  color: var(--cor-texto);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.mobile-card__texto,
+.mobile-card__rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.mobile-card__acoes {
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--cor-borda);
+}
+
 .acoes-linha .ant-btn .anticon,
 .acoes-grupo .ant-btn .anticon,
 .acoes-rapidas .ant-btn .anticon,
@@ -220,6 +310,64 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 16px;
+}
+
+@media (max-width: 700px) {
+  .cabecalho-pagina {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .cabecalho-pagina > .ant-btn,
+  .cabecalho-pagina > a.ant-btn {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .cabecalho-pagina > .botao-voltar.ant-btn,
+  .cabecalho-pagina > a.botao-voltar.ant-btn {
+    width: 40px;
+  }
+
+  .filtros {
+    padding: 12px;
+  }
+
+  .filtros .acao-filtro,
+  .filtros .acoes-filtro {
+    align-items: stretch;
+  }
+
+  .filtros .acao-filtro .ant-btn,
+  .filtros .acoes-filtro .ant-btn {
+    width: 100%;
+  }
+
+  .secao-tabela.tem-lista-mobile .ant-table-wrapper {
+    display: none;
+  }
+
+  .lista-mobile {
+    display: grid;
+    gap: 10px;
+  }
+
+  .mobile-paginacao {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .ant-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 0;
+  }
+
+  .ant-drawer-content-wrapper {
+    width: min(100vw, 430px) !important;
+  }
 }
 
 .ant-layout,

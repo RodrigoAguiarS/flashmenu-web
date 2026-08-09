@@ -40,7 +40,7 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Categorias encontradas</h2>
@@ -147,6 +147,66 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Categorias em cards">
+    @for (categoria of categorias(); track categoria.id) {
+      <article class="mobile-card">
+        <div class="mobile-card__topo">
+          <div class="mobile-card__conteudo">
+            <strong class="mobile-card__titulo">{{ categoria.nome }}</strong>
+            <span class="mobile-card__texto">{{ categoria.descricao }}</span>
+          </div>
+
+          <nz-tag [nzColor]="statusColor(categoria)">{{ statusTexto(categoria) }}</nz-tag>
+        </div>
+
+        <div class="mobile-card__acoes acoes-grupo">
+          <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Visualizar categoria" (click)="visualizar(categoria)">
+            <span nz-icon nzType="eye" nzTheme="outline"></span>
+          </button>
+
+          @if (podeEditarCategoria()) {
+            <a nz-button nzType="text" nzShape="circle" [routerLink]="['/categorias', categoria.id, 'editar']" aria-label="Editar categoria">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </a>
+          }
+
+          @if (podeExcluirCategoria()) {
+            <button
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja excluir esta categoria?"
+              nzOkText="Excluir"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === categoria.id"
+              aria-label="Excluir categoria"
+              (nzOnConfirm)="excluir(categoria)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          }
+        </div>
+      </article>
+    }
+
+    @if (!categorias().length && !carregando()) {
+      <nz-empty nzNotFoundContent="Nenhuma categoria encontrada."></nz-empty>
+    }
+  </div>
+
+  <div class="mobile-paginacao">
+    <nz-pagination
+      [nzPageIndex]="pageIndex()"
+      [nzPageSize]="pageSize()"
+      [nzTotal]="total()"
+      [nzSimple]="true"
+      (nzPageIndexChange)="alterarPagina($event)"
+    ></nz-pagination>
+  </div>
 </section>
 
 <nz-drawer

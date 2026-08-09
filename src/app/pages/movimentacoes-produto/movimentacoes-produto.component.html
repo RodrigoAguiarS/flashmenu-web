@@ -64,20 +64,31 @@
 </section>
 
 @if (produtoSelecionado(); as produto) {
-  <section class="resumo-produto cartao-sistema" aria-label="Resumo do produto selecionado">
-    <div>
-      <span>Produto selecionado</span>
-      <strong>{{ produto.nome }}</strong>
-    </div>
-    <div>
-      <span>Categoria</span>
-      <strong>{{ produto.categoria.nome }}</strong>
-    </div>
-    <div>
-      <span>Estoque atual</span>
-      <nz-tag [nzColor]="produto.quantidadeEstoque > 0 ? 'success' : 'default'">
-        {{ produto.quantidadeEstoque }} un.
-      </nz-tag>
+  <section class="resumo-produto cartao-sistema" aria-label="Resumo e auditoria do produto selecionado">
+    <div class="auditoria-grade">
+      <div class="produto-destaque">
+        <span>Produto</span>
+        <strong>{{ produto.nome }}</strong>
+        <small>{{ produto.categoria.nome }}</small>
+      </div>
+      <div>
+        <span>Filtro</span>
+        <strong>{{ tipoAuditoriaTexto() }}</strong>
+      </div>
+      <div>
+        <span>Estoque</span>
+        <nz-tag [nzColor]="produto.quantidadeEstoque > 0 ? 'success' : 'default'">
+          {{ produto.quantidadeEstoque }} un.
+        </nz-tag>
+      </div>
+      <div>
+        <span>Registros</span>
+        <strong>{{ total() }}</strong>
+      </div>
+      <div>
+        <span>Ultima mov.</span>
+        <strong>{{ ultimaMovimentacao()?.criadoEm ? (ultimaMovimentacao()?.criadoEm | date:'dd/MM/yyyy HH:mm') : '-' }}</strong>
+      </div>
     </div>
   </section>
 }
@@ -192,14 +203,26 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Historico de movimentacoes</h2>
       <p>Entradas, saidas por pedidos, estornos e ajustes registrados.</p>
     </div>
 
-    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+    <div class="acoes-listagem">
+      <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+      <button
+        nz-button
+        type="button"
+        [disabled]="!possuiProdutoSelecionado() || !podeListarMovimentacoes()"
+        [nzLoading]="exportandoAuditoriaProduto()"
+        (click)="exportarAuditoriaProduto()"
+      >
+        <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+        PDF geral
+      </button>
+    </div>
   </header>
 
   <ng-template #estadoVazio>
@@ -259,4 +282,52 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Historico de movimentacoes">
+    @if (carregandoMovimentacoes()) {
+      <nz-empty nzNotFoundContent="Carregando movimentacoes..."></nz-empty>
+    } @else if (movimentacoes().length) {
+      @for (movimentacao of movimentacoes(); track movimentacao.id) {
+        <article class="mobile-card">
+          <div class="mobile-card__topo">
+            <div class="mobile-card__conteudo">
+              <h3 class="mobile-card__titulo">{{ movimentacao.criadoEm | date:'dd/MM/yyyy HH:mm' }}</h3>
+              <p class="mobile-card__texto">Pedido {{ movimentacao.pedidoId || '-' }}</p>
+            </div>
+            <nz-tag [nzColor]="tipoCor(movimentacao.tipo)">{{ tipoTexto(movimentacao.tipo) }}</nz-tag>
+          </div>
+
+          <div class="mobile-card__linha">
+            <span>Quantidade</span>
+            <strong>{{ movimentacao.quantidade }} un. ({{ diferencaSaldo(movimentacao) }})</strong>
+          </div>
+
+          <div class="mobile-card__linha">
+            <span>Saldo</span>
+            <strong>{{ movimentacao.saldoAnterior }} -> {{ movimentacao.saldoPosterior }} un.</strong>
+          </div>
+
+          @if (movimentacao.observacao) {
+            <p class="mobile-card__texto">{{ movimentacao.observacao }}</p>
+          }
+        </article>
+      }
+    } @else if (possuiProdutoSelecionado()) {
+      <nz-empty nzNotFoundContent="Nenhuma movimentacao encontrada para o produto."></nz-empty>
+    } @else {
+      <nz-empty nzNotFoundContent="Selecione um produto para listar as movimentacoes."></nz-empty>
+    }
+  </div>
+
+  @if (movimentacoes().length) {
+    <div class="mobile-paginacao">
+      <nz-pagination
+        nzSimple
+        [nzPageIndex]="pageIndex()"
+        [nzPageSize]="pageSize()"
+        [nzTotal]="total()"
+        (nzPageIndexChange)="alterarPagina($event)"
+      ></nz-pagination>
+    </div>
+  }
 </section>

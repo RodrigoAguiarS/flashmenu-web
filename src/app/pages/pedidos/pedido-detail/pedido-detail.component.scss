@@ -16,9 +16,10 @@
 
 .cabecalho-pagina p,
 .painel-topo span,
-.pagamento-resumo small,
-.item-pedido span,
-.linha-resumo span {
+.pagamento-topo span,
+.grade-valores small,
+.linha-pagamento span,
+.item-pedido span {
   color: var(--cor-texto-suave);
 }
 
@@ -33,6 +34,12 @@
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 999px;
+}
+
+.acoes-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .detalhe-layout {
@@ -58,8 +65,7 @@
 
 .painel-topo,
 .secao-topo,
-.item-pedido,
-.linha-resumo {
+.item-pedido {
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -103,22 +109,45 @@
 }
 
 .resumo-compacto {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   font-size: 13px;
 }
 
-.pagamento-resumo {
-  display: grid;
-  gap: 8px;
-}
-
-.pagamento-resumo > div {
+.pagamento-topo,
+.linha-pagamento {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.pagamento-topo {
+  align-items: flex-start;
   font-size: 13px;
+}
+
+.pagamento-topo > div,
+.grade-valores span,
+.grade-valores strong {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.grade-valores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linha-pagamento {
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.linha-pagamento.pendente strong {
+  color: var(--cor-texto-suave);
 }
 
 .itens-pedido {
@@ -227,17 +256,6 @@
   background: var(--cor-campo);
 }
 
-.linha-resumo {
-  align-items: center;
-  font-size: 13px;
-}
-
-.linha-resumo.total {
-  padding-top: 8px;
-  border-top: 1px solid var(--cor-borda);
-  font-size: 16px;
-}
-
 .estado-vazio {
   display: grid;
   place-items: center;
@@ -271,8 +289,13 @@
 }
 
 @media (max-width: 520px) {
-  .resumo-compacto {
+  .resumo-compacto,
+  .grade-valores {
     grid-template-columns: 1fr;
+  }
+
+  .pagamento-topo {
+    display: grid;
   }
 
   .item-pedido {

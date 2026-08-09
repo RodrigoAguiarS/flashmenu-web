@@ -162,6 +162,10 @@
   white-space: nowrap;
 }
 
+.mobile-card strong {
+  flex: 0 0 auto;
+}
+
 :host ::ng-deep .painel-dashboard .ant-table {
   overflow: hidden;
 }
@@ -226,5 +230,9 @@
   .linha-barra strong,
   .linha-barra small {
     grid-column: 2;
+  }
+
+  :host ::ng-deep .painel-dashboard.tem-lista-mobile .ant-table-wrapper {
+    display: none;
   }
 }

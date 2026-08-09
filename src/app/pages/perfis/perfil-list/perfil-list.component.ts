@@ -13,6 +13,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -38,6 +39,7 @@ import { PerfilService } from '../../../core/services/perfil.service';
     NzGridModule,
     NzIconModule,
     NzInputModule,
+    NzPaginationModule,
     NzPopconfirmModule,
     NzTableModule,
     NzTagModule,

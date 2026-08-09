@@ -11,6 +11,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
@@ -30,6 +31,7 @@ import { PermissaoService } from '../../../core/services/permissao.service';
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
+    NzPaginationModule,
     NzTableModule,
     NzTagModule
   ],

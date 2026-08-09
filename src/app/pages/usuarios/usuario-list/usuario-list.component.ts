@@ -13,6 +13,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -45,6 +46,7 @@ type StatusFiltro = boolean | null;
     NzGridModule,
     NzIconModule,
     NzInputModule,
+    NzPaginationModule,
     NzPopconfirmModule,
     NzSelectModule,
     NzTableModule,

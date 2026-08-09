@@ -134,33 +134,14 @@
 }
 
 .acoes-pedido {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  justify-content: end;
   border-style: dashed;
 }
 
-.alterar-status,
-.alterar-status > div,
 .acoes-rapidas,
 .itens-pedido {
   display: grid;
   gap: 8px;
-}
-
-.alterar-status label {
-  color: var(--cor-texto-suave);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.alterar-status nz-select {
-  width: 100%;
-}
-
-.alterar-status > div {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
 }
 
 .acoes-rapidas {

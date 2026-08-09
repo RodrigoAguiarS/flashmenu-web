@@ -13,6 +13,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -25,6 +26,7 @@ import { ProdutoResponse } from '../../core/models/produto.model';
 import { AuthService } from '../../core/services/auth.service';
 import { MovimentacaoProdutoService } from '../../core/services/movimentacao-produto.service';
 import { ProdutoService } from '../../core/services/produto.service';
+import { salvarArquivo } from '../../core/utils/download-file';
 
 @Component({
   selector: 'app-movimentacoes-produto',
@@ -40,6 +42,7 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
+    NzPaginationModule,
     NzSelectModule,
     NzSpinModule,
     NzTableModule,
@@ -63,10 +66,13 @@ export class MovimentacoesProdutoComponent implements OnInit {
   protected readonly carregandoMovimentacoes = signal(false);
   protected readonly salvandoEntrada = signal(false);
   protected readonly salvandoAjuste = signal(false);
+  protected readonly exportandoAuditoriaProduto = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly produtoSelecionadoId = signal<number | null>(null);
+  protected readonly tipoSelecionado = signal<TipoMovimentacaoProduto | null>(null);
 
   protected readonly tiposMovimentacao: TipoMovimentacaoProduto[] = ['ENTRADA', 'SAIDA', 'ESTORNO', 'AJUSTE'];
   protected readonly podeListarMovimentacoes = computed(() =>
@@ -76,10 +82,15 @@ export class MovimentacoesProdutoComponent implements OnInit {
     this.authService.possuiAlgumaPermissao([PERMISSOES.MOVIMENTACAO_CRIAR, PERMISSOES.PRODUTO_EDITAR])
   );
   protected readonly produtoSelecionado = computed(() => {
-    const produtoId = this.filtroForm.controls.produtoId.value;
+    const produtoId = this.produtoSelecionadoId();
     return this.produtos().find((produto) => produto.id === produtoId) ?? null;
   });
-  protected readonly possuiProdutoSelecionado = computed(() => this.produtoSelecionado() !== null);
+  protected readonly possuiProdutoSelecionado = computed(() => this.produtoSelecionadoId() !== null);
+  protected readonly ultimaMovimentacao = computed(() => this.movimentacoes()[0] ?? null);
+  protected readonly tipoAuditoriaTexto = computed(() => {
+    const tipo = this.tipoSelecionado();
+    return tipo ? this.tipoTexto(tipo) : 'Todos os tipos';
+  });
 
   protected readonly filtroForm = this.fb.group({
     produtoId: this.fb.control<number | null>(null, [Validators.required]),
@@ -106,6 +117,9 @@ export class MovimentacoesProdutoComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
+        const filtros = this.filtroForm.getRawValue();
+        this.produtoSelecionadoId.set(filtros.produtoId);
+        this.tipoSelecionado.set(filtros.tipo);
         this.pageIndex.set(1);
         this.carregarMovimentacoes();
       });
@@ -217,6 +231,24 @@ export class MovimentacoesProdutoComponent implements OnInit {
   protected diferencaSaldo(movimentacao: MovimentacaoProdutoResponse): string {
     const diferenca = movimentacao.saldoPosterior - movimentacao.saldoAnterior;
     return `${diferenca > 0 ? '+' : ''}${diferenca}`;
+  }
+
+  protected exportarAuditoriaProduto(): void {
+    const filtros = this.filtroForm.getRawValue();
+
+    if (!filtros.produtoId || !this.podeListarMovimentacoes()) {
+      this.filtroForm.controls.produtoId.markAsTouched();
+      return;
+    }
+
+    this.exportandoAuditoriaProduto.set(true);
+
+    this.movimentacaoProdutoService.exportarAuditoriaProdutoPdf(filtros.produtoId, filtros.tipo).pipe(
+      finalize(() => this.exportandoAuditoriaProduto.set(false))
+    ).subscribe({
+      next: (arquivo) => salvarArquivo(arquivo, `auditoria-movimentacoes-produto-${filtros.produtoId}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   private carregarProdutos(): void {

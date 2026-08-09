@@ -13,6 +13,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { salvarArquivo } from '../../../core/utils/download-file';
 
 @Component({
   selector: 'app-pedido-admin-detail',
@@ -37,6 +38,7 @@ export class PedidoAdminDetailComponent implements OnInit {
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
+  protected readonly exportandoPdf = signal(false);
   protected readonly pedido = signal<PedidoResponse | null>(null);
   protected readonly possuiPedido = computed(() => this.pedido() !== null);
 
@@ -80,6 +82,23 @@ export class PedidoAdminDetailComponent implements OnInit {
     };
 
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
+  }
+
+  protected exportarPdf(): void {
+    const pedido = this.pedido();
+
+    if (!pedido) {
+      return;
+    }
+
+    this.exportandoPdf.set(true);
+
+    this.pedidoService.exportarPdf(pedido.id).pipe(
+      finalize(() => this.exportandoPdf.set(false))
+    ).subscribe({
+      next: (arquivo) => salvarArquivo(arquivo, `pedido-${pedido.id}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   private carregarPedido(): void {

@@ -73,7 +73,7 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Usuarios encontrados</h2>
@@ -186,6 +186,78 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Usuarios em cards">
+    @for (usuario of usuarios(); track usuario.id) {
+      <article class="mobile-card">
+        <div class="mobile-card__topo">
+          <div class="mobile-card__conteudo">
+            <strong class="mobile-card__titulo">{{ usuario.nome }}</strong>
+            <span class="mobile-card__texto">{{ usuario.email }}</span>
+            <span class="mobile-card__texto">{{ usuario.telefone | telefone }}</span>
+          </div>
+
+          <nz-tag [nzColor]="statusColor(usuario.ativo)">{{ statusTexto(usuario.ativo) }}</nz-tag>
+        </div>
+
+        <div class="mobile-card__linha">
+          <span>
+            <span class="mobile-card__rotulo">Perfil</span>
+            <strong>{{ usuario.perfil?.descricao || '-' }}</strong>
+          </span>
+        </div>
+
+        <div class="mobile-card__acoes acoes-grupo">
+          <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Visualizar usuario" (click)="visualizar(usuario)">
+            <span nz-icon nzType="eye" nzTheme="outline"></span>
+          </button>
+
+          <a nz-button nzType="text" nzShape="circle" [routerLink]="['/usuarios', usuario.id, 'enderecos']" aria-label="Enderecos do usuario">
+            <span nz-icon nzType="home" nzTheme="outline"></span>
+          </a>
+
+          @if (podeEditarUsuario()) {
+            <a nz-button nzType="text" nzShape="circle" [routerLink]="['/usuarios', usuario.id, 'editar']" aria-label="Editar usuario">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </a>
+          }
+
+          @if (podeExcluirUsuario()) {
+            <button
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja excluir este usuario?"
+              nzOkText="Excluir"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === usuario.id"
+              aria-label="Excluir usuario"
+              (nzOnConfirm)="excluir(usuario)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          }
+        </div>
+      </article>
+    }
+
+    @if (!usuarios().length && !carregando()) {
+      <nz-empty nzNotFoundContent="Nenhum usuario encontrado."></nz-empty>
+    }
+  </div>
+
+  <div class="mobile-paginacao">
+    <nz-pagination
+      [nzPageIndex]="pageIndex()"
+      [nzPageSize]="pageSize()"
+      [nzTotal]="total()"
+      [nzSimple]="true"
+      (nzPageIndexChange)="alterarPagina($event)"
+    ></nz-pagination>
+  </div>
 </section>
 
 <nz-drawer

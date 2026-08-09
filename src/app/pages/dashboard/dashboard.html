@@ -112,7 +112,7 @@
       }
     </article>
 
-    <article class="painel-dashboard painel-produtos">
+    <article class="painel-dashboard painel-produtos tem-lista-mobile">
       <header>
         <h2>Produtos mais vendidos</h2>
       </header>
@@ -147,6 +147,23 @@
             }
           </tbody>
         </nz-table>
+
+        <div class="lista-mobile" aria-label="Produtos mais vendidos">
+          @for (produto of produtosMaisVendidos(); track produto.produtoId) {
+            <article class="mobile-card">
+              <div class="mobile-card__topo">
+                <div class="mobile-card__conteudo">
+                  <h3 class="mobile-card__titulo">{{ produto.produtoNome }}</h3>
+                  <p class="mobile-card__texto">{{ produto.quantidadeVendida | number:'1.0-0' }} unidades vendidas</p>
+                </div>
+                <strong>{{ produto.faturamento | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
+              <div class="barra">
+                <i [style.width.%]="percentual(produto.quantidadeVendida, maiorQuantidadeVendida())"></i>
+              </div>
+            </article>
+          }
+        </div>
       } @else {
         <nz-empty nzNotFoundContent="Nenhum produto vendido no periodo."></nz-empty>
       }
@@ -173,7 +190,7 @@
       }
     </article>
 
-    <article class="painel-dashboard painel-estoque">
+    <article class="painel-dashboard painel-estoque tem-lista-mobile">
       <header>
         <h2>Estoque baixo</h2>
       </header>
@@ -205,6 +222,22 @@
             }
           </tbody>
         </nz-table>
+
+        <div class="lista-mobile" aria-label="Produtos com estoque baixo">
+          @for (produto of produtosEstoqueBaixo(); track produto.produtoId) {
+            <article class="mobile-card">
+              <div class="mobile-card__topo">
+                <div class="mobile-card__conteudo">
+                  <h3 class="mobile-card__titulo">{{ produto.produtoNome }}</h3>
+                  <p class="mobile-card__texto">Saldo atual em estoque</p>
+                </div>
+                <nz-tag [nzColor]="produto.quantidadeEstoque === 0 ? 'error' : 'warning'">
+                  {{ produto.quantidadeEstoque }} un.
+                </nz-tag>
+              </div>
+            </article>
+          }
+        </div>
       } @else {
         <nz-empty nzNotFoundContent="Nenhum produto com estoque baixo."></nz-empty>
       }

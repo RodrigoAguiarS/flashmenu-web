@@ -8,7 +8,8 @@ import {
   AjusteEstoqueProdutoRequest,
   MovimentacaoProdutoFiltros,
   MovimentacaoProdutoRequest,
-  MovimentacaoProdutoResponse
+  MovimentacaoProdutoResponse,
+  TipoMovimentacaoProduto
 } from '../models/movimentacao-produto.model';
 
 @Injectable({
@@ -33,6 +34,21 @@ export class MovimentacaoProdutoService {
 
   registrarAjuste(produtoId: number, request: AjusteEstoqueProdutoRequest): Observable<MovimentacaoProdutoResponse> {
     return this.http.post<MovimentacaoProdutoResponse>(`${this.movimentacoesUrl(produtoId)}/ajuste`, request);
+  }
+
+  exportarAuditoriaProdutoPdf(produtoId: number, tipo?: TipoMovimentacaoProduto | null): Observable<Blob> {
+    const params = tipo ? new HttpParams().set('tipo', tipo) : undefined;
+
+    return this.http.get(`${this.movimentacoesUrl(produtoId)}/auditoria/pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarAuditoriaMovimentacaoPdf(produtoId: number, movimentacaoId: number): Observable<Blob> {
+    return this.http.get(`${this.movimentacoesUrl(produtoId)}/${movimentacaoId}/auditoria/pdf`, {
+      responseType: 'blob'
+    });
   }
 
   private movimentacoesUrl(produtoId: number): string {

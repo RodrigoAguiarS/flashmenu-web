@@ -65,7 +65,7 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Produtos encontrados</h2>
@@ -190,6 +190,89 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Produtos em cards">
+    @for (produto of produtos(); track produto.id) {
+      <article class="mobile-card produto-card-mobile">
+        <div class="mobile-card__topo">
+          <div class="produto-card-identidade">
+            @if (imagemPrincipal(produto); as imagem) {
+              <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+            } @else {
+              <div class="produto-sem-imagem" aria-hidden="true">
+                <span nz-icon nzType="picture" nzTheme="outline"></span>
+              </div>
+            }
+
+            <div class="mobile-card__conteudo">
+              <strong class="mobile-card__titulo">{{ produto.nome }}</strong>
+              <span class="mobile-card__texto">{{ produto.categoria.nome }}</span>
+            </div>
+          </div>
+
+          <nz-tag [nzColor]="estoqueColor(produto)">{{ estoqueTexto(produto) }}</nz-tag>
+        </div>
+
+        <div class="mobile-card__linha">
+          <span>
+            <span class="mobile-card__rotulo">Venda</span>
+            <strong>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </span>
+          <span>
+            <span class="mobile-card__rotulo">Custo</span>
+            <strong>{{ produto.valorFornecedor | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </span>
+        </div>
+
+        <p class="mobile-card__texto">{{ produto.descricao || 'Sem descricao.' }}</p>
+
+        <div class="mobile-card__acoes acoes-grupo">
+          <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Visualizar produto" (click)="visualizar(produto)">
+            <span nz-icon nzType="eye" nzTheme="outline"></span>
+          </button>
+
+          @if (podeEditarProduto()) {
+            <a nz-button nzType="text" nzShape="circle" [routerLink]="['/produtos', produto.id, 'editar']" aria-label="Editar produto">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </a>
+          }
+
+          @if (podeExcluirProduto()) {
+            <button
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja excluir este produto?"
+              nzOkText="Excluir"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === produto.id"
+              aria-label="Excluir produto"
+              (nzOnConfirm)="excluir(produto)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          }
+        </div>
+      </article>
+    }
+
+    @if (!produtos().length && !carregando()) {
+      <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
+    }
+  </div>
+
+  <div class="mobile-paginacao">
+    <nz-pagination
+      [nzPageIndex]="pageIndex()"
+      [nzPageSize]="pageSize()"
+      [nzTotal]="total()"
+      [nzSimple]="true"
+      (nzPageIndexChange)="alterarPagina($event)"
+    ></nz-pagination>
+  </div>
 </section>
 
 <nz-drawer

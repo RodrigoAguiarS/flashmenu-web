@@ -91,40 +91,21 @@
           </div>
 
           <section class="acoes-pedido" aria-label="Acoes do pedido">
-            @if (podeAlterarStatus()) {
-              <div class="alterar-status">
-                <label [for]="'status-' + pedido.id">Status do pedido</label>
-                <div>
-                  <nz-select
-                    [id]="'status-' + pedido.id"
-                    [ngModel]="statusSelecionados()[pedido.id]"
-                    [nzDisabled]="pedidoBloqueado(pedido) || processandoId() !== null"
-                    (ngModelChange)="alterarStatusSelecionado(pedido.id, $event)"
-                  >
-                    @for (status of statusOptions; track status) {
-                      <nz-option [nzValue]="status" [nzLabel]="statusTexto(status)"></nz-option>
-                    }
-                  </nz-select>
-
-                  <button
-                    class="botao-acao"
-                    nz-button
-                    nzType="primary"
-                    nzShape="circle"
-                    type="button"
-                    title="Salvar status"
-                    aria-label="Salvar status"
-                    [disabled]="!podeSalvarStatus(pedido)"
-                    [nzLoading]="processandoId() === pedido.id"
-                    (click)="salvarStatus(pedido)"
-                  >
-                    <span nz-icon nzType="save" nzTheme="outline"></span>
-                  </button>
-                </div>
-              </div>
-            }
-
             <div class="acoes-rapidas">
+              <button
+                class="botao-acao"
+                nz-button
+                nzShape="circle"
+                type="button"
+                title="Exportar PDF"
+                aria-label="Exportar pedido em PDF"
+                [nzLoading]="pdfProcessandoId() === pedido.id"
+                [disabled]="pdfProcessandoId() !== null"
+                (click)="exportarPdf(pedido)"
+              >
+                <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+              </button>
+
               <a
                 class="botao-acao"
                 nz-button

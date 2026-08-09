@@ -31,7 +31,7 @@
   </form>
 </section>
 
-<section class="secao-tabela cartao-sistema">
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
   <header class="cabecalho-listagem">
     <div>
       <h2>Perfis encontrados</h2>
@@ -122,6 +122,89 @@
       }
     </tbody>
   </nz-table>
+
+  <div class="lista-mobile" aria-label="Lista de perfis">
+    @if (carregando()) {
+      <nz-empty nzNotFoundContent="Carregando perfis..."></nz-empty>
+    } @else if (perfis().length) {
+      @for (perfil of perfis(); track perfil.id) {
+        <article class="mobile-card">
+          <div class="mobile-card__topo">
+            <div>
+              <h3 class="mobile-card__titulo">{{ perfil.descricao }}</h3>
+              <p class="mobile-card__texto">{{ perfil.permissoes.length }} permissoes vinculadas</p>
+            </div>
+
+            <button
+              nz-button
+              nzType="text"
+              type="button"
+              nz-tooltip
+              nzTooltipTitle="Visualizar"
+              aria-label="Visualizar perfil"
+              (click)="visualizar(perfil)"
+            >
+              <span nz-icon nzType="eye" nzTheme="outline"></span>
+            </button>
+          </div>
+
+          <div class="lista-tags">
+            @for (permissao of perfil.permissoes; track permissao.id) {
+              <nz-tag>{{ permissao.authority }}</nz-tag>
+            } @empty {
+              <nz-tag nzColor="default">Sem permissoes</nz-tag>
+            }
+          </div>
+
+          <div class="mobile-card__acoes">
+            @if (podeEditarPerfil()) {
+              <a
+                nz-button
+                nzType="default"
+                [routerLink]="['/perfis', perfil.id, 'editar']"
+                aria-label="Editar perfil"
+              >
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+                Editar
+              </a>
+            }
+
+            @if (podeExcluirPerfil()) {
+              <button
+                nz-button
+                nzDanger
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja excluir este perfil?"
+                nzOkText="Excluir"
+                nzCancelText="Cancelar"
+                [nzLoading]="excluindoId() === perfil.id"
+                aria-label="Excluir perfil"
+                (nzOnConfirm)="excluir(perfil)"
+              >
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+                Excluir
+              </button>
+            }
+          </div>
+        </article>
+      }
+    } @else {
+      <nz-empty nzNotFoundContent="Nenhum perfil encontrado."></nz-empty>
+    }
+  </div>
+
+  @if (perfis().length) {
+    <div class="mobile-paginacao">
+      <nz-pagination
+        nzSimple
+        [nzPageIndex]="pageIndex()"
+        [nzPageSize]="pageSize()"
+        [nzTotal]="total()"
+        (nzPageIndexChange)="alterarPagina($event)"
+      ></nz-pagination>
+    </div>
+  }
 </section>
 
 <nz-drawer
