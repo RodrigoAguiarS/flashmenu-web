@@ -1,0 +1,173 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Categorias</h1>
+    <p>Gerencie os grupos usados para organizar os produtos do catalogo.</p>
+  </div>
+
+  @if (podeCriarCategoria()) {
+    <a nz-button nzType="primary" routerLink="/categorias/novo">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Nova categoria
+    </a>
+  }
+</section>
+
+<section class="filtros cartao-sistema" aria-label="Filtros de categorias">
+  <form nz-form nzLayout="vertical" [formGroup]="filtros">
+    <nz-row [nzGutter]="16">
+      <nz-col nzXs="24" nzMd="10">
+        <nz-form-item>
+          <nz-form-label nzFor="nome">Nome</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="10">
+        <nz-form-item>
+          <nz-form-label nzFor="descricao">Descricao</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="descricao" formControlName="descricao" placeholder="Buscar por descricao" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col nzXs="24" nzMd="4" class="acao-filtro">
+        <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+      </nz-col>
+    </nz-row>
+  </form>
+</section>
+
+<section class="secao-tabela cartao-sistema">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Categorias encontradas</h2>
+      <p>Lista paginada de categorias cadastradas.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ total() }} registros</nz-tag>
+  </header>
+
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhuma categoria encontrada."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="categorias()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzTotal]="total()"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzShowSizeChanger]="true"
+    [nzNoResult]="estadoVazio"
+    nzSize="middle"
+    nzTableLayout="fixed"
+    (nzPageIndexChange)="alterarPagina($event)"
+    (nzPageSizeChange)="alterarTamanhoPagina($event)"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="220px">Nome</th>
+        <th>Descricao</th>
+        <th nzWidth="120px">Status</th>
+        <th nzWidth="132px" nzAlign="right">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (categoria of categorias(); track categoria.id) {
+        <tr>
+          <td>
+            <strong class="nome-categoria">{{ categoria.nome }}</strong>
+          </td>
+          <td>
+            <span class="descricao-categoria">{{ categoria.descricao }}</span>
+          </td>
+          <td>
+            <nz-tag [nzColor]="statusColor(categoria)">{{ statusTexto(categoria) }}</nz-tag>
+          </td>
+          <td class="acoes-linha">
+            <div class="acoes-grupo">
+              <button
+                class="acao-botao"
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Visualizar"
+                aria-label="Visualizar categoria"
+                (click)="visualizar(categoria)"
+              >
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </button>
+
+              @if (podeEditarCategoria()) {
+                <a
+                  class="acao-botao"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  [routerLink]="['/categorias', categoria.id, 'editar']"
+                  nz-tooltip
+                  nzTooltipTitle="Editar"
+                  aria-label="Editar categoria"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </a>
+              }
+
+              @if (podeExcluirCategoria()) {
+                <button
+                  class="acao-botao acao-botao-perigo"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja excluir esta categoria?"
+                  nzOkText="Excluir"
+                  nzCancelText="Cancelar"
+                  [nzLoading]="excluindoId() === categoria.id"
+                  nz-tooltip
+                  nzTooltipTitle="Excluir"
+                  aria-label="Excluir categoria"
+                  (nzOnConfirm)="excluir(categoria)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</section>
+
+<nz-drawer
+  [nzVisible]="drawerAberto()"
+  nzTitle="Detalhes da categoria"
+  nzPlacement="right"
+  [nzWidth]="420"
+  (nzOnClose)="fecharDrawer()"
+>
+  <ng-container *nzDrawerContent>
+    @if (categoriaSelecionada(); as categoria) {
+      <nz-descriptions [nzColumn]="1" nzBordered>
+        <nz-descriptions-item nzTitle="Nome">{{ categoria.nome }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Descricao">{{ categoria.descricao }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Status">
+          <nz-tag [nzColor]="statusColor(categoria)">{{ statusTexto(categoria) }}</nz-tag>
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Criada em">{{ categoria.criadoEm | date:'dd/MM/yyyy HH:mm' }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Atualizada em">
+          {{ categoria.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}
+        </nz-descriptions-item>
+      </nz-descriptions>
+    }
+  </ng-container>
+</nz-drawer>

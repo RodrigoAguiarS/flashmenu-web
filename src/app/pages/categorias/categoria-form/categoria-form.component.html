@@ -1,0 +1,78 @@
+<section class="cabecalho-pagina">
+  <div>
+    <h1>{{ titulo() }}</h1>
+    <p>{{ editando() ? 'Atualize os dados da categoria.' : 'Cadastre uma categoria para organizar produtos.' }}</p>
+  </div>
+
+  <a nz-button routerLink="/categorias">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    Voltar
+  </a>
+</section>
+
+<section class="formulario cartao-sistema">
+  @if (mensagemErro()) {
+    <nz-alert class="alerta-formulario" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+  }
+
+  @if (errosValidacao().length) {
+    <ng-template #descricaoValidacao>
+      <ul>
+        @for (erroValidacao of errosValidacao(); track erroValidacao) {
+          <li>{{ erroValidacao }}</li>
+        }
+      </ul>
+    </ng-template>
+
+    <nz-alert
+      class="alerta-formulario"
+      nzType="warning"
+      nzMessage="Revise os campos informados"
+      [nzDescription]="descricaoValidacao"
+      nzShowIcon
+    ></nz-alert>
+  }
+
+  <nz-spin [nzSpinning]="carregando()">
+    <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24" nzMd="10">
+          <nz-form-item>
+            <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe um nome entre 2 e 50 caracteres."
+              [nzValidateStatus]="formulario.controls.nome"
+            >
+              <input nz-input id="nome" formControlName="nome" placeholder="Ex.: Bebidas" autocomplete="off" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="14">
+          <nz-form-item>
+            <nz-form-label nzFor="descricao" nzRequired>Descricao</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe uma descricao entre 3 e 255 caracteres."
+              [nzValidateStatus]="formulario.controls.descricao"
+            >
+              <textarea
+                nz-input
+                id="descricao"
+                formControlName="descricao"
+                placeholder="Ex.: Refrigerantes, sucos e aguas"
+                rows="4"
+              ></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+
+      <div class="acoes-formulario">
+        <a nz-button routerLink="/categorias">Cancelar</a>
+        <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando() || carregando()">
+          {{ textoBotao() }}
+        </button>
+      </div>
+    </form>
+  </nz-spin>
+</section>

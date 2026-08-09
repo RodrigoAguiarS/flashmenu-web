@@ -1,3 +1,8 @@
+export interface CategoriaRequest {
+  nome: string;
+  descricao: string;
+}
+
 export interface CategoriaResponse {
   id: number;
   nome: string;
@@ -15,4 +20,3 @@ export interface CategoriaFiltros {
   nome?: string;
   descricao?: string;
 }
-

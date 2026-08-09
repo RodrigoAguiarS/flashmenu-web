@@ -87,6 +87,33 @@ export const routes: Routes = [
       import('./pages/produtos/produto-form/produto-form.component').then((component) => component.ProdutoFormComponent)
   },
   {
+    path: 'categorias',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.CATEGORIAS },
+    loadComponent: () =>
+      import('./pages/categorias/categoria-list/categoria-list.component').then(
+        (component) => component.CategoriaListComponent
+      )
+  },
+  {
+    path: 'categorias/novo',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.CATEGORIA_CRIAR },
+    loadComponent: () =>
+      import('./pages/categorias/categoria-form/categoria-form.component').then(
+        (component) => component.CategoriaFormComponent
+      )
+  },
+  {
+    path: 'categorias/:id/editar',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.CATEGORIA_EDITAR },
+    loadComponent: () =>
+      import('./pages/categorias/categoria-form/categoria-form.component').then(
+        (component) => component.CategoriaFormComponent
+      )
+  },
+  {
     path: 'produtos/:id/editar',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.PRODUTO_EDITAR },
