@@ -255,7 +255,7 @@ export class MovimentacoesProdutoComponent implements OnInit {
     this.carregandoProdutos.set(true);
     this.mensagemErro.set(null);
 
-    this.produtoService.listar({ page: 0, size: 200, sort: 'nome' }).pipe(
+    this.produtoService.listar({ page: 0, size: 100, sort: 'nome' }).pipe(
       finalize(() => this.carregandoProdutos.set(false))
     ).subscribe({
       next: (page) => this.produtos.set(page.content),

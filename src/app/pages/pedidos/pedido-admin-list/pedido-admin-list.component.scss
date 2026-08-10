@@ -35,6 +35,7 @@
   align-items: end;
   justify-content: stretch;
   align-content: end;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -205,5 +206,11 @@
 
   .acoes-rapidas {
     display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .acoes-filtro button:not(:first-child) {
+    flex: 1 1 0;
   }
 }

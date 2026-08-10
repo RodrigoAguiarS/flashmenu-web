@@ -8,7 +8,7 @@
 <section class="filtros cartao-sistema" aria-label="Filtros de pedidos">
   <form nz-form nzLayout="vertical" [formGroup]="filtros" (ngSubmit)="filtrar()">
     <nz-row [nzGutter]="16">
-      <nz-col nzXs="24" nzMd="6">
+      <nz-col nzXs="24" nzMd="6" nzLg="5">
         <nz-form-item>
           <nz-form-label nzFor="pedidoId">Pedido</nz-form-label>
           <nz-form-control>
@@ -17,7 +17,7 @@
         </nz-form-item>
       </nz-col>
 
-      <nz-col nzXs="24" nzMd="6">
+      <nz-col nzXs="24" nzMd="6" nzLg="5">
         <nz-form-item>
           <nz-form-label nzFor="usuarioId">Usuario</nz-form-label>
           <nz-form-control>
@@ -26,7 +26,7 @@
         </nz-form-item>
       </nz-col>
 
-      <nz-col nzXs="24" nzMd="6">
+      <nz-col nzXs="24" nzMd="6" nzLg="5">
         <nz-form-item>
           <nz-form-label nzFor="status">Status</nz-form-label>
           <nz-form-control>
@@ -39,7 +39,7 @@
         </nz-form-item>
       </nz-col>
 
-      <nz-col nzXs="24" nzMd="4">
+      <nz-col nzXs="24" nzMd="4" nzLg="5">
         <nz-form-item>
           <nz-form-label nzFor="tipo">Tipo</nz-form-label>
           <nz-form-control>
@@ -52,7 +52,7 @@
         </nz-form-item>
       </nz-col>
 
-      <nz-col nzXs="24" nzMd="2" class="acoes-filtro">
+      <nz-col nzXs="24" nzMd="24" nzLg="4" class="acoes-filtro">
         <button nz-button nzType="primary" type="submit" aria-label="Filtrar pedidos">
           <span nz-icon nzType="search" nzTheme="outline"></span>
         </button>
