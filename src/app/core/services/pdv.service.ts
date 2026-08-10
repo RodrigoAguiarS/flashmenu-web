@@ -20,8 +20,9 @@ export class PdvService {
 
   adicionar(produto: ProdutoResponse, quantidade = 1): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
+    const itemId = this.criarItemId(produto.id);
     const itens = this.itensVenda();
-    const itemExistente = itens.find((item) => item.produto.id === produto.id);
+    const itemExistente = itens.find((item) => item.id === itemId);
     const quantidadeAtual = itemExistente?.quantidade ?? 0;
     const novaQuantidade = quantidadeAtual + quantidadeNormalizada;
 
@@ -31,8 +32,8 @@ export class PdvService {
 
     const produtoAtualizado = this.paraProdutoCarrinho(produto);
     const proximosItens = itemExistente
-      ? itens.map((item) => item.produto.id === produto.id ? { produto: produtoAtualizado, quantidade: novaQuantidade } : item)
-      : [...itens, { produto: this.paraProdutoCarrinho(produto), quantidade: quantidadeNormalizada }];
+      ? itens.map((item) => item.id === itemId ? { ...item, produto: produtoAtualizado, quantidade: novaQuantidade } : item)
+      : [...itens, { id: itemId, produto: this.paraProdutoCarrinho(produto), quantidade: quantidadeNormalizada }];
 
     this.atualizarItens(proximosItens);
     return true;
@@ -52,9 +53,9 @@ export class PdvService {
     this.atualizarItens(itensSincronizados);
   }
 
-  definirQuantidade(produtoId: number, quantidade: number): boolean {
+  definirQuantidade(itemId: string, quantidade: number): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
-    const item = this.itensVenda().find((itemVenda) => itemVenda.produto.id === produtoId);
+    const item = this.itensVenda().find((itemVenda) => itemVenda.id === itemId);
 
     if (!item || !this.quantidadePermitida(item.produto, quantidadeNormalizada)) {
       return false;
@@ -62,29 +63,29 @@ export class PdvService {
 
     this.atualizarItens(
       this.itensVenda().map((itemVenda) =>
-        itemVenda.produto.id === produtoId ? { ...itemVenda, quantidade: quantidadeNormalizada } : itemVenda
+        itemVenda.id === itemId ? { ...itemVenda, quantidade: quantidadeNormalizada } : itemVenda
       )
     );
     return true;
   }
 
-  incrementar(produtoId: number): boolean {
-    const item = this.itensVenda().find((itemVenda) => itemVenda.produto.id === produtoId);
-    return item ? this.definirQuantidade(produtoId, item.quantidade + 1) : false;
+  incrementar(itemId: string): boolean {
+    const item = this.itensVenda().find((itemVenda) => itemVenda.id === itemId);
+    return item ? this.definirQuantidade(itemId, item.quantidade + 1) : false;
   }
 
-  decrementar(produtoId: number): boolean {
-    const item = this.itensVenda().find((itemVenda) => itemVenda.produto.id === produtoId);
+  decrementar(itemId: string): boolean {
+    const item = this.itensVenda().find((itemVenda) => itemVenda.id === itemId);
 
     if (!item || item.quantidade <= 1) {
       return false;
     }
 
-    return this.definirQuantidade(produtoId, item.quantidade - 1);
+    return this.definirQuantidade(itemId, item.quantidade - 1);
   }
 
-  remover(produtoId: number): void {
-    this.atualizarItens(this.itensVenda().filter((item) => item.produto.id !== produtoId));
+  remover(itemId: string): void {
+    this.atualizarItens(this.itensVenda().filter((item) => item.id !== itemId));
   }
 
   limpar(): void {
@@ -140,6 +141,7 @@ export class PdvService {
         ? itens
             .filter((item) => item?.produto?.id && item.quantidade > 0)
             .map((item) => ({
+              id: item.id ?? this.criarItemId(item.produto.id),
               produto: this.paraProdutoCarrinho(item.produto as ProdutoResponse),
               quantidade: item.quantidade
             }))
@@ -151,5 +153,9 @@ export class PdvService {
       localStorage.removeItem(PDV_KEY);
       return [];
     }
+  }
+
+  private criarItemId(produtoId: number): string {
+    return `${produtoId}:`;
   }
 }

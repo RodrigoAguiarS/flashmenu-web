@@ -32,6 +32,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         const rotaPublica = rotaAtual.startsWith('/checkout') ||
           rotaAtual.startsWith('/catalogo') ||
           rotaAtual.startsWith('/carrinho') ||
+          rotaAtual.startsWith('/loja') ||
           rotaAtual.startsWith('/login');
 
         if (rotaPublica) {

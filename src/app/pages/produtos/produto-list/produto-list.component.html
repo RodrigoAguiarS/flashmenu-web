@@ -293,19 +293,28 @@
           </div>
         }
 
+        <section class="detalhe-produto-card">
+          <nz-tag>{{ produto.categoria.nome }}</nz-tag>
+          <h2>{{ produto.nome }}</h2>
+          <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+
+          <div class="detalhe-metricas">
+            <div>
+              <span>Venda</span>
+              <strong>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+            <div>
+              <span>Custo</span>
+              <strong>{{ produto.valorFornecedor | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+            <div>
+              <span>Estoque</span>
+              <nz-tag [nzColor]="estoqueColor(produto)">{{ estoqueTexto(produto) }}</nz-tag>
+            </div>
+          </div>
+        </section>
+
         <nz-descriptions [nzColumn]="1" nzBordered>
-          <nz-descriptions-item nzTitle="Nome">{{ produto.nome }}</nz-descriptions-item>
-          <nz-descriptions-item nzTitle="Descricao">{{ produto.descricao }}</nz-descriptions-item>
-          <nz-descriptions-item nzTitle="Categoria">{{ produto.categoria.nome }}</nz-descriptions-item>
-          <nz-descriptions-item nzTitle="Valor fornecedor">
-            {{ produto.valorFornecedor | currency:'BRL':'symbol':'1.2-2' }}
-          </nz-descriptions-item>
-          <nz-descriptions-item nzTitle="Valor venda">
-            {{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}
-          </nz-descriptions-item>
-          <nz-descriptions-item nzTitle="Estoque">
-            <nz-tag [nzColor]="estoqueColor(produto)">{{ estoqueTexto(produto) }}</nz-tag>
-          </nz-descriptions-item>
           <nz-descriptions-item nzTitle="Criado em">{{ produto.criadoEm | date:'dd/MM/yyyy HH:mm' }}</nz-descriptions-item>
           <nz-descriptions-item nzTitle="Atualizado em">{{ produto.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}</nz-descriptions-item>
         </nz-descriptions>

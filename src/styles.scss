@@ -273,6 +273,82 @@ a {
   border-top: 1px solid var(--cor-borda);
 }
 
+.observacao-item {
+  display: block;
+  margin-top: 4px;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.entrega-card {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.entrega-card__conteudo {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.entrega-card__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dados-entrega {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.dados-entrega > div {
+  display: grid;
+  gap: 2px;
+}
+
+.dados-entrega dt {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.dados-entrega dd {
+  margin: 0;
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+.participante-pedido .entrega-card {
+  margin: 0;
+}
+
+.endereco-entrega {
+  min-width: 0;
+}
+
+.entrega-card nz-tag {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.entrega-card.pendente {
+  display: grid;
+}
+
+.entrega-card.pendente a {
+  justify-self: start;
+  margin-top: 6px;
+}
+
 .acoes-linha .ant-btn .anticon,
 .acoes-grupo .ant-btn .anticon,
 .acoes-rapidas .ant-btn .anticon,
@@ -310,6 +386,208 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 16px;
+}
+
+.ant-drawer-content {
+  background: var(--cor-fundo);
+}
+
+.ant-drawer-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 56px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--cor-superficie) 94%, var(--cor-fundo));
+  border-bottom: 1px solid var(--cor-borda);
+  backdrop-filter: blur(10px);
+}
+
+.ant-drawer-title {
+  color: var(--cor-texto);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ant-drawer-close {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  color: var(--cor-texto-suave);
+  border-radius: 999px;
+}
+
+.ant-drawer-close:hover,
+.ant-drawer-close:focus-visible {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+}
+
+.ant-drawer-body {
+  padding: 16px;
+  background: var(--cor-fundo);
+}
+
+.ant-drawer-body .ant-descriptions {
+  overflow: hidden;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.ant-drawer-body .ant-descriptions-view,
+.ant-drawer-body .ant-descriptions-bordered .ant-descriptions-view {
+  border: 0;
+}
+
+.ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 12px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-label {
+  width: 34%;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detalhe-produto {
+  display: grid;
+  gap: 14px;
+}
+
+.detalhe-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--cor-campo);
+}
+
+.detalhe-imagem,
+.detalhe-sem-imagem {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.detalhe-sem-imagem {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+}
+
+.detalhe-sem-imagem .anticon {
+  font-size: 34px;
+}
+
+.detalhe-conteudo,
+.detalhe-cabecalho,
+.quantidade-bloco {
+  display: grid;
+}
+
+.detalhe-conteudo {
+  gap: 16px;
+}
+
+.detalhe-cabecalho {
+  gap: 10px;
+}
+
+.detalhe-categoria {
+  justify-self: start;
+  margin: 0;
+}
+
+.detalhe-cabecalho h2 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.detalhe-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  line-height: 1.5;
+}
+
+.detalhe-info,
+.detalhe-metricas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detalhe-info > div,
+.detalhe-metricas > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.detalhe-info span,
+.detalhe-metricas span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.detalhe-info strong,
+.detalhe-metricas strong {
+  color: var(--cor-texto);
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.quantidade-bloco {
+  gap: 8px;
+}
+
+.observacao-bloco {
+  display: grid;
+  gap: 8px;
+}
+
+.observacao-bloco textarea {
+  min-height: 82px;
+  resize: vertical;
+  border-radius: var(--raio-md);
+}
+
+.observacao-bloco small {
+  color: var(--cor-texto-suave);
+  text-align: right;
+}
+
+.quantidade-label {
+  font-weight: 600;
+}
+
+.detalhe-adicionar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border-radius: var(--raio-md);
 }
 
 @media (max-width: 700px) {
@@ -367,6 +645,44 @@ a {
 
   .ant-drawer-content-wrapper {
     width: min(100vw, 430px) !important;
+  }
+
+  .ant-drawer-header {
+    padding: 10px 12px;
+  }
+
+  .ant-drawer-body {
+    padding: 12px;
+  }
+
+  .ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-content {
+    display: block;
+    width: 100%;
+    border-right: 0;
+  }
+
+  .ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-label {
+    padding-bottom: 4px;
+    border-bottom: 0;
+  }
+
+  .ant-drawer-body .ant-descriptions-bordered .ant-descriptions-item-content {
+    padding-top: 0;
+  }
+
+  .entrega-card {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 600px) {
+  .participante-pedido .dados-entrega {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .participante-pedido .endereco-entrega {
+    grid-column: 1 / -1;
   }
 }
 

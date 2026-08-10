@@ -118,6 +118,17 @@
   gap: 4px 10px;
 }
 
+.endereco-acoes {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.endereco-acoes button {
+  min-height: 34px;
+  border-radius: 8px;
+}
+
 .form-endereco {
   margin-top: 16px;
   padding-top: 16px;
@@ -238,6 +249,11 @@
   .endereco-card-topo {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .endereco-acoes,
+  .endereco-acoes button {
+    width: 100%;
   }
 
   .endereco-card-topo nz-tag {

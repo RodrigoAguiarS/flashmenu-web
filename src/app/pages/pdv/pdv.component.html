@@ -148,7 +148,7 @@
       </div>
     } @else {
       <div class="itens-venda">
-        @for (item of pdvService.itens(); track item.produto.id) {
+        @for (item of pdvService.itens(); track item.id) {
           <article class="item-venda">
             <div class="item-midia">
               @if (imagemPrincipal(item.produto); as imagem) {
@@ -194,7 +194,7 @@
                   nzOkText="Remover"
                   nzCancelText="Voltar"
                   aria-label="Remover produto"
-                  (nzOnConfirm)="removerProduto(item.produto.id)"
+                  (nzOnConfirm)="removerProduto(item.id)"
                 >
                   <span nz-icon nzType="delete" nzTheme="outline"></span>
                 </button>

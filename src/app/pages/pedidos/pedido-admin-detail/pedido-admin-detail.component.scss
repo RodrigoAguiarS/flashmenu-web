@@ -170,9 +170,13 @@
     grid-column: 1;
   }
 
+  .participante-pedido {
+    grid-column: 1;
+  }
+
   .resumo-financeiro {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1 / span 3;
   }
 }
 

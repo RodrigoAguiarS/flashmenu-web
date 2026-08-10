@@ -1,0 +1,90 @@
+<main class="loja-publica">
+  <section class="loja-banner" aria-hidden="true">
+    <div class="banner-textura"></div>
+  </section>
+
+  <nz-spin [nzSpinning]="carregando()">
+    @if (mensagemErro()) {
+      <nz-alert class="alerta-loja" nzType="warning" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+    }
+
+    @if (empresa(); as empresaDados) {
+      <section class="cartao-loja" aria-label="Informacoes da loja">
+        <div class="identidade-loja">
+          <div class="logo-loja" aria-hidden="true">
+            <span>{{ iniciaisEmpresa() }}</span>
+          </div>
+
+          <div class="dados-loja">
+            <h1>{{ empresaDados.nomeFantasia }}</h1>
+
+            @if (empresaDados.telefone) {
+              <p>
+                <span nz-icon nzType="phone" nzTheme="outline"></span>
+                {{ empresaDados.telefone | telefone }}
+              </p>
+            }
+
+            @if (empresaDados.email) {
+              <p>
+                <span nz-icon nzType="mail" nzTheme="outline"></span>
+                {{ empresaDados.email }}
+              </p>
+            }
+
+            <p>
+              <span nz-icon nzType="shop" nzTheme="outline"></span>
+              Pedido minimo nao configurado
+            </p>
+          </div>
+        </div>
+
+        <div class="status-loja">
+          <nz-tag [nzColor]="empresaDados.ativo ? 'success' : 'default'">
+            {{ empresaDados.ativo ? 'Aberto agora' : 'Fechado agora' }}
+          </nz-tag>
+
+          <button nz-button nzType="text" type="button" (click)="alternarHorarios()">
+            Ver horarios
+            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+          </button>
+        </div>
+
+        @if (horariosVisiveis()) {
+          <div class="painel-horarios">
+            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+            <p>Horarios de atendimento ainda nao configurados no backend.</p>
+          </div>
+        }
+
+        <div class="acoes-loja">
+          <a class="botao-cardapio" nz-button routerLink="/catalogo">
+            <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+            Ver cardapio
+          </a>
+
+          <a
+            nz-button
+            [href]="linkWhatsApp() || null"
+            target="_blank"
+            rel="noopener"
+            [class.botao-desabilitado]="!linkWhatsApp()"
+            [attr.aria-disabled]="!linkWhatsApp()"
+          >
+            <span nz-icon nzType="whats-app" nzTheme="outline"></span>
+            WhatsApp
+          </a>
+
+          <button nz-button nzType="text" type="button" (click)="compartilhar()">
+            <span nz-icon nzType="share-alt" nzTheme="outline"></span>
+            Compartilhar
+          </button>
+        </div>
+      </section>
+    } @else if (!carregando()) {
+      <section class="estado-vazio cartao-sistema">
+        <nz-empty nzNotFoundContent="Empresa nao encontrada."></nz-empty>
+      </section>
+    }
+  </nz-spin>
+</main>

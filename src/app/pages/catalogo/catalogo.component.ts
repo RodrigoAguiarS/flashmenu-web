@@ -71,6 +71,7 @@ export class CatalogoComponent implements OnInit {
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly drawerAberto = signal(false);
   protected readonly quantidadeDetalhe = signal(1);
+  protected readonly observacaoDetalhe = signal('');
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly total = signal(0);
@@ -114,6 +115,7 @@ export class CatalogoComponent implements OnInit {
   abrirDetalhes(produto: ProdutoResponse): void {
     this.produtoSelecionado.set(produto);
     this.quantidadeDetalhe.set(1);
+    this.observacaoDetalhe.set('');
     this.drawerAberto.set(true);
   }
 
@@ -121,20 +123,25 @@ export class CatalogoComponent implements OnInit {
     this.drawerAberto.set(false);
     this.produtoSelecionado.set(null);
     this.quantidadeDetalhe.set(1);
+    this.observacaoDetalhe.set('');
   }
 
-  adicionarProduto(produto: ProdutoResponse, quantidade = 1): void {
+  adicionarProduto(produto: ProdutoResponse, quantidade = 1, observacao?: string | null): void {
     if (!this.carrinhoService.possuiEstoque(produto)) {
       this.message.warning('Produto sem estoque disponivel.');
       return;
     }
 
-    if (!this.carrinhoService.adicionar(produto, quantidade)) {
+    if (!this.carrinhoService.adicionar(produto, quantidade, observacao)) {
       this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
       return;
     }
 
     this.message.success('Produto adicionado ao carrinho.');
+  }
+
+  alterarObservacaoDetalhe(observacao: string): void {
+    this.observacaoDetalhe.set((observacao ?? '').substring(0, 255));
   }
 
   alterarQuantidadeDetalhe(quantidade: number | null): void {
@@ -152,7 +159,7 @@ export class CatalogoComponent implements OnInit {
       return;
     }
 
-    this.adicionarProduto(produto, this.quantidadeDetalhe());
+    this.adicionarProduto(produto, this.quantidadeDetalhe(), this.observacaoDetalhe());
   }
 
   marcarImagemInvalida(produtoId: number): void {

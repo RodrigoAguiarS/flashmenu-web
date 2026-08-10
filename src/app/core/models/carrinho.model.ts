@@ -12,6 +12,8 @@ export interface ProdutoCarrinho {
 }
 
 export interface ItemCarrinho {
+  id: string;
   produto: ProdutoCarrinho;
   quantidade: number;
+  observacao?: string | null;
 }

@@ -47,6 +47,56 @@
         </div>
       </article>
 
+      <article class="painel-detalhe participante-pedido">
+        <header class="secao-topo">
+          <span nz-icon [nzType]="pedidoDetalhe.tipo === 'PDV' ? 'shop' : 'user'" nzTheme="outline"></span>
+          <h2>{{ pedidoDetalhe.tipo === 'PDV' ? 'Atendimento' : 'Cliente e entrega' }}</h2>
+        </header>
+
+        @if (pedidoDetalhe.tipo === 'PDV') {
+          <div class="entrega-card">
+            <dl class="dados-entrega">
+              <div>
+                <dt>Vendedor</dt>
+                <dd>{{ pedidoDetalhe.vendedor?.nome || 'Nao informado' }}</dd>
+              </div>
+            </dl>
+          </div>
+        } @else {
+          <div class="entrega-card">
+            <dl class="dados-entrega">
+              <div>
+                <dt>Nome</dt>
+                <dd>{{ pedidoDetalhe.cliente?.nome || 'Nao informado' }}</dd>
+              </div>
+
+              <div>
+                <dt>Telefone</dt>
+                <dd>{{ pedidoDetalhe.cliente?.telefone || 'Nao informado' }}</dd>
+              </div>
+
+              <div class="endereco-entrega">
+                <dt>Endereco</dt>
+                <dd>
+                  @if (pedidoDetalhe.enderecoEntrega; as endereco) {
+                    {{ endereco.logradouro }}, {{ endereco.numero }}
+                    @if (endereco.complemento) {
+                      - {{ endereco.complemento }}
+                    }
+                    - {{ endereco.bairro }}, {{ endereco.cidade }} / {{ endereco.estado }}
+                    @if (endereco.cep) {
+                      - CEP {{ endereco.cep }}
+                    }
+                  } @else {
+                    Nao informado
+                  }
+                </dd>
+              </div>
+            </dl>
+          </div>
+        }
+      </article>
+
       <article class="painel-detalhe resumo-financeiro">
         <header class="secao-topo">
           <span nz-icon nzType="credit-card" nzTheme="outline"></span>
@@ -105,6 +155,9 @@
               <div>
                 <strong>{{ item.produtoNome }}</strong>
                 <span>{{ item.quantidade }} x {{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</span>
+                @if (item.observacao) {
+                  <small class="observacao-item">Obs: {{ item.observacao }}</small>
+                }
               </div>
               <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>

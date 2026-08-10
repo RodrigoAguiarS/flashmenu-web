@@ -65,6 +65,7 @@ export class MinhaContaFormComponent implements OnInit {
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);
   protected readonly salvandoEndereco = signal(false);
+  protected readonly definindoPrincipalId = signal<number | null>(null);
   protected readonly alterandoSenha = signal(false);
   protected readonly buscandoCep = signal(false);
   protected readonly formularioEnderecoAberto = signal(false);
@@ -258,6 +259,29 @@ export class MinhaContaFormComponent implements OnInit {
       cidade: '',
       estado: '',
       principal: false
+    });
+  }
+
+  protected definirEnderecoPrincipal(endereco: EnderecoResponse): void {
+    const usuario = this.usuario();
+
+    if (!usuario || endereco.principal) {
+      return;
+    }
+
+    this.mensagemErro.set(null);
+    this.errosValidacao.set([]);
+    this.definindoPrincipalId.set(endereco.id);
+
+    this.enderecoService.definirPrincipal(usuario.id, endereco.id).pipe(
+      switchMap(() => this.enderecoService.listar(usuario.id)),
+      finalize(() => this.definindoPrincipalId.set(null))
+    ).subscribe({
+      next: (enderecos) => {
+        this.enderecos.set(enderecos);
+        this.message.success('Endereco principal atualizado.');
+      },
+      error: (error: HttpErrorResponse) => this.tratarErro(error)
     });
   }
 

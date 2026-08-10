@@ -1,4 +1,5 @@
 import { FormaPagamentoResponse } from './forma-pagamento.model';
+import { EnderecoResponse } from './endereco.model';
 
 export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'PAGO' | 'CANCELADO' | string;
 export type TipoPedido = 'DELIVERY' | 'PDV' | string;
@@ -6,6 +7,7 @@ export type TipoPedido = 'DELIVERY' | 'PDV' | string;
 export interface ItemPedidoRequest {
   produtoId: number;
   quantidade: number;
+  observacao?: string | null;
 }
 
 export interface PedidoRequest {
@@ -35,6 +37,7 @@ export interface ItemPedidoResponse {
   quantidade: number;
   precoUnitario: number;
   subtotal: number;
+  observacao?: string | null;
 }
 
 export interface PagamentoResponse {
@@ -43,6 +46,13 @@ export interface PagamentoResponse {
   valor: number;
   dataCriacao: string;
   dataPagamento: string | null;
+}
+
+export interface PedidoParticipanteResponse {
+  id: number;
+  nome: string;
+  email?: string | null;
+  telefone?: string | null;
 }
 
 export interface PedidoResponse {
@@ -57,4 +67,7 @@ export interface PedidoResponse {
   formaPagamento: FormaPagamentoResponse;
   itens: ItemPedidoResponse[];
   pagamento: PagamentoResponse | null;
+  cliente?: PedidoParticipanteResponse | null;
+  vendedor?: PedidoParticipanteResponse | null;
+  enderecoEntrega?: EnderecoResponse | null;
 }

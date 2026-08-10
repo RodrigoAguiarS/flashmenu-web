@@ -18,58 +18,65 @@ export class CarrinhoService {
   );
   readonly vazio = computed(() => this.itensCarrinho().length === 0);
 
-  adicionar(produto: ProdutoResponse, quantidade = 1): boolean {
+  adicionar(produto: ProdutoResponse, quantidade = 1, observacao?: string | null): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
+    const observacaoNormalizada = this.normalizarObservacao(observacao);
+    const itemId = this.criarItemId(produto.id, observacaoNormalizada);
     const itens = this.itensCarrinho();
-    const itemExistente = itens.find((item) => item.produto.id === produto.id);
+    const itemExistente = itens.find((item) => item.id === itemId);
     const quantidadeAtual = itemExistente?.quantidade ?? 0;
     const novaQuantidade = quantidadeAtual + quantidadeNormalizada;
 
-    if (!this.quantidadePermitida(produto, novaQuantidade)) {
+    if (!this.quantidadePermitida(produto, novaQuantidade, itemId)) {
       return false;
     }
 
     const proximosItens = itemExistente
-      ? itens.map((item) => item.produto.id === produto.id ? { ...item, quantidade: novaQuantidade } : item)
-      : [...itens, { produto: this.paraProdutoCarrinho(produto), quantidade: quantidadeNormalizada }];
+      ? itens.map((item) => item.id === itemId ? { ...item, quantidade: novaQuantidade } : item)
+      : [...itens, {
+        id: itemId,
+        produto: this.paraProdutoCarrinho(produto),
+        quantidade: quantidadeNormalizada,
+        observacao: observacaoNormalizada
+      }];
 
     this.atualizarItens(proximosItens);
     return true;
   }
 
-  definirQuantidade(produtoId: number, quantidade: number): boolean {
+  definirQuantidade(itemId: string, quantidade: number): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
-    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.produto.id === produtoId);
+    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.id === itemId);
 
-    if (!item || !this.quantidadePermitida(item.produto, quantidadeNormalizada)) {
+    if (!item || !this.quantidadePermitida(item.produto, quantidadeNormalizada, itemId)) {
       return false;
     }
 
     this.atualizarItens(
       this.itensCarrinho().map((itemCarrinho) =>
-        itemCarrinho.produto.id === produtoId ? { ...itemCarrinho, quantidade: quantidadeNormalizada } : itemCarrinho
+        itemCarrinho.id === itemId ? { ...itemCarrinho, quantidade: quantidadeNormalizada } : itemCarrinho
       )
     );
     return true;
   }
 
-  incrementar(produtoId: number): boolean {
-    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.produto.id === produtoId);
-    return item ? this.definirQuantidade(produtoId, item.quantidade + 1) : false;
+  incrementar(itemId: string): boolean {
+    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.id === itemId);
+    return item ? this.definirQuantidade(itemId, item.quantidade + 1) : false;
   }
 
-  decrementar(produtoId: number): boolean {
-    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.produto.id === produtoId);
+  decrementar(itemId: string): boolean {
+    const item = this.itensCarrinho().find((itemCarrinho) => itemCarrinho.id === itemId);
 
     if (!item || item.quantidade <= 1) {
       return false;
     }
 
-    return this.definirQuantidade(produtoId, item.quantidade - 1);
+    return this.definirQuantidade(itemId, item.quantidade - 1);
   }
 
-  remover(produtoId: number): void {
-    this.atualizarItens(this.itensCarrinho().filter((item) => item.produto.id !== produtoId));
+  remover(itemId: string): void {
+    this.atualizarItens(this.itensCarrinho().filter((item) => item.id !== itemId));
   }
 
   limpar(): void {
@@ -89,9 +96,18 @@ export class CarrinhoService {
     return Number(produto.valorVenda ?? 0);
   }
 
-  private quantidadePermitida(produto: ProdutoCarrinho | ProdutoResponse, quantidade: number): boolean {
+  private quantidadePermitida(produto: ProdutoCarrinho | ProdutoResponse, quantidade: number, itemIdAtual?: string): boolean {
     const estoque = this.quantidadeDisponivel(produto);
-    return estoque === null || quantidade <= estoque;
+
+    if (estoque === null) {
+      return true;
+    }
+
+    const quantidadeOutrosItens = this.itensCarrinho()
+      .filter((item) => item.produto.id === produto.id && item.id !== itemIdAtual)
+      .reduce((total, item) => total + item.quantidade, 0);
+
+    return quantidadeOutrosItens + quantidade <= estoque;
   }
 
   private paraProdutoCarrinho(produto: ProdutoResponse): ProdutoCarrinho {
@@ -125,8 +141,10 @@ export class CarrinhoService {
         ? itens
             .filter((item) => item?.produto?.id && item.quantidade > 0)
             .map((item) => ({
+              id: this.criarItemId(item.produto.id, this.normalizarObservacao(item.observacao)),
               produto: this.paraProdutoCarrinho(item.produto as ProdutoResponse),
-              quantidade: item.quantidade
+              quantidade: item.quantidade,
+              observacao: this.normalizarObservacao(item.observacao)
             }))
         : [];
 
@@ -136,5 +154,14 @@ export class CarrinhoService {
       localStorage.removeItem(CARRINHO_KEY);
       return [];
     }
+  }
+
+  private normalizarObservacao(observacao: string | null | undefined): string | null {
+    const valor = observacao?.trim();
+    return valor ? valor.substring(0, 255) : null;
+  }
+
+  private criarItemId(produtoId: number, observacao: string | null): string {
+    return `${produtoId}:${observacao ?? ''}`;
   }
 }

@@ -17,7 +17,7 @@
 } @else {
   <section class="layout-carrinho">
     <section class="itens-carrinho" aria-label="Itens do carrinho">
-      @for (item of carrinhoService.itens(); track item.produto.id) {
+      @for (item of carrinhoService.itens(); track item.id) {
         <nz-card class="item-carrinho">
           <article class="item-layout">
             @if (imagemPrincipal(item.produto); as imagem) {
@@ -38,6 +38,9 @@
                 <div class="produto-info">
                   <strong>{{ item.produto.nome }}</strong>
                   <nz-tag>{{ item.produto.categoria.nome }}</nz-tag>
+                  @if (item.observacao) {
+                    <small class="observacao-item">Obs: {{ item.observacao }}</small>
+                  }
                 </div>
 
               </div>

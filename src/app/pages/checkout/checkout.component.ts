@@ -13,6 +13,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
@@ -38,6 +39,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzIconModule,
     NzSelectModule,
     NzSpinModule,
+    NzTagModule,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],

@@ -1,0 +1,181 @@
+.loja-publica {
+  min-height: 100vh;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+}
+
+.loja-banner {
+  position: relative;
+  min-height: 136px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 26%, rgba(255, 193, 7, 0.92) 0 18px, transparent 19px),
+    radial-gradient(circle at 68% 22%, rgba(82, 196, 26, 0.75) 0 12px, transparent 13px),
+    radial-gradient(circle at 78% 70%, rgba(250, 173, 20, 0.68) 0 16px, transparent 17px),
+    linear-gradient(135deg, #151515, #2b2b2b);
+}
+
+.banner-textura {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(30deg, transparent 0 42%, rgba(255, 255, 255, 0.08) 43% 45%, transparent 46%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 18px);
+  opacity: 0.9;
+}
+
+.cartao-loja {
+  display: grid;
+  gap: 18px;
+  width: min(100% - 24px, 520px);
+  margin: -32px auto 0;
+  padding: 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  box-shadow: var(--sombra-painel);
+}
+
+.alerta-loja,
+.estado-vazio {
+  width: min(100% - 24px, 520px);
+  margin: 16px auto;
+}
+
+.identidade-loja {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.logo-loja {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  color: #ffcf33;
+  background: #090909;
+  border: 4px solid var(--cor-superficie);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18);
+}
+
+.logo-loja span {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.dados-loja {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.dados-loja h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.dados-loja p,
+.painel-horarios p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.dados-loja p {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.dados-loja .anticon,
+.painel-horarios .anticon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.status-loja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  background: var(--cor-campo);
+  border-radius: 8px;
+}
+
+.status-loja nz-tag {
+  margin: 0;
+}
+
+.status-loja button {
+  min-height: 34px;
+  color: var(--cor-primaria);
+}
+
+.painel-horarios {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--cor-superficie) 90%, var(--cor-primaria));
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.acoes-loja {
+  display: grid;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.acoes-loja a,
+.acoes-loja button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.botao-cardapio,
+.botao-cardapio:hover,
+.botao-cardapio:focus {
+  color: #fff;
+  background: #111827;
+  border-color: #111827;
+}
+
+.botao-cardapio .anticon {
+  color: #fff;
+}
+
+.acoes-loja button[nztype="text"],
+.acoes-loja button.ant-btn-text {
+  color: var(--cor-primaria);
+}
+
+.botao-desabilitado {
+  pointer-events: none;
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+}
+
+@media (min-width: 700px) {
+  .loja-banner {
+    min-height: 190px;
+  }
+
+  .cartao-loja {
+    margin-top: -44px;
+    padding: 20px;
+  }
+}

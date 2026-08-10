@@ -42,25 +42,25 @@ export class CarrinhoComponent {
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
 
   incrementar(item: ItemCarrinho): void {
-    if (!this.carrinhoService.incrementar(item.produto.id)) {
+    if (!this.carrinhoService.incrementar(item.id)) {
       this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
     }
   }
 
   decrementar(item: ItemCarrinho): void {
-    if (!this.carrinhoService.decrementar(item.produto.id)) {
+    if (!this.carrinhoService.decrementar(item.id)) {
       this.message.info('A quantidade minima e 1.');
     }
   }
 
   alterarQuantidade(item: ItemCarrinho, quantidade: number | null): void {
-    if (!this.carrinhoService.definirQuantidade(item.produto.id, quantidade ?? 1)) {
+    if (!this.carrinhoService.definirQuantidade(item.id, quantidade ?? 1)) {
       this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
     }
   }
 
   remover(item: ItemCarrinho): void {
-    this.carrinhoService.remover(item.produto.id);
+    this.carrinhoService.remover(item.id);
     this.message.success('Produto removido do carrinho.');
   }
 

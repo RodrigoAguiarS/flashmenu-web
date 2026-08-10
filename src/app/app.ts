@@ -39,11 +39,11 @@ export class App implements OnInit {
     NAV_ITEMS.filter((item) => this.podeExibirItemNavegacao(item))
   );
 
-  protected readonly rotaLogin = toSignal(
+  protected readonly rotaSemLayout = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.router.url.startsWith('/login')),
-      startWith(this.router.url.startsWith('/login'))
+      map(() => this.ehRotaSemLayout()),
+      startWith(this.ehRotaSemLayout())
     ),
     { initialValue: false }
   );
@@ -72,5 +72,9 @@ export class App implements OnInit {
     }
 
     return this.authService.possuiAlgumaPermissao(item.permissoes);
+  }
+
+  private ehRotaSemLayout(): boolean {
+    return this.router.url.startsWith('/login') || this.router.url.startsWith('/loja');
   }
 }

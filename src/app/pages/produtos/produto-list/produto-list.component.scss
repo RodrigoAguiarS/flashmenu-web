@@ -180,11 +180,68 @@
 .detalhe-sem-imagem {
   width: 100%;
   aspect-ratio: 16 / 10;
+  overflow: hidden;
   border-radius: 8px;
 }
 
 .detalhe-imagem {
   object-fit: cover;
+}
+
+.detalhe-produto-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.detalhe-produto-card nz-tag {
+  justify-self: start;
+  margin: 0;
+}
+
+.detalhe-produto-card h2 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.detalhe-produto-card p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.detalhe-metricas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.detalhe-metricas > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.detalhe-metricas span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.detalhe-metricas strong {
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
 }
 
 :host ::ng-deep .secao-tabela .ant-table {

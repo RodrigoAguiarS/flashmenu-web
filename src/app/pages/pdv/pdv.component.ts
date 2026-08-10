@@ -146,25 +146,25 @@ export class PdvComponent implements OnInit {
   }
 
   protected incrementar(item: ItemCarrinho): void {
-    if (!this.pdvService.incrementar(item.produto.id)) {
+    if (!this.pdvService.incrementar(item.id)) {
       this.message.warning('Quantidade maior que o estoque disponivel.');
     }
   }
 
   protected decrementar(item: ItemCarrinho): void {
-    if (!this.pdvService.decrementar(item.produto.id)) {
+    if (!this.pdvService.decrementar(item.id)) {
       this.message.info('Quantidade minima mantida.');
     }
   }
 
   protected alterarQuantidade(item: ItemCarrinho, quantidade: number | null): void {
-    if (!this.pdvService.definirQuantidade(item.produto.id, quantidade ?? 1)) {
+    if (!this.pdvService.definirQuantidade(item.id, quantidade ?? 1)) {
       this.message.warning('Quantidade maior que o estoque disponivel.');
     }
   }
 
-  protected removerProduto(produtoId: number): void {
-    this.pdvService.remover(produtoId);
+  protected removerProduto(itemId: string): void {
+    this.pdvService.remover(itemId);
   }
 
   protected limparVenda(): void {
@@ -190,7 +190,8 @@ export class PdvComponent implements OnInit {
       tipo: 'PDV',
       itens: this.pdvService.itens().map((item) => ({
         produtoId: item.produto.id,
-        quantidade: item.quantidade
+        quantidade: item.quantidade,
+        observacao: item.observacao ?? null
       }))
     };
 

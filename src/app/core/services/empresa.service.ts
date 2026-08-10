@@ -16,6 +16,10 @@ export class EmpresaService {
     return this.http.get<EmpresaResponse>(this.baseUrl);
   }
 
+  buscarPublica(): Observable<EmpresaResponse> {
+    return this.http.get<EmpresaResponse>(this.baseUrl);
+  }
+
   criar(request: EmpresaRequest): Observable<EmpresaResponse> {
     return this.http.post<EmpresaResponse>(this.baseUrl, request);
   }

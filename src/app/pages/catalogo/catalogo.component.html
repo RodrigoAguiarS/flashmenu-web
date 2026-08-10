@@ -144,45 +144,75 @@
   <ng-container *nzDrawerContent>
     @if (produtoSelecionado(); as produto) {
       <div class="detalhe-produto">
-        @if (imagemPrincipal(produto); as imagem) {
-          <img class="detalhe-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
-        } @else {
-          <div class="detalhe-sem-imagem" aria-hidden="true">
-            <span nz-icon nzType="picture" nzTheme="outline"></span>
+        <section class="detalhe-hero">
+          @if (imagemPrincipal(produto); as imagem) {
+            <img class="detalhe-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+          } @else {
+            <div class="detalhe-sem-imagem" aria-hidden="true">
+              <span nz-icon nzType="picture" nzTheme="outline"></span>
+            </div>
+          }
+        </section>
+
+        <section class="detalhe-conteudo">
+          <div class="detalhe-cabecalho">
+            <nz-tag class="detalhe-categoria">{{ produto.categoria.nome }}</nz-tag>
+            <h2>{{ produto.nome }}</h2>
+            <p>{{ produto.descricao || 'Sem descricao.' }}</p>
           </div>
-        }
 
-        <nz-tag class="detalhe-categoria">{{ produto.categoria.nome }}</nz-tag>
-        <h2>{{ produto.nome }}</h2>
-        <p>{{ produto.descricao }}</p>
+          <div class="detalhe-info">
+            <div>
+              <span>Estoque</span>
+              <strong>{{ estoqueTexto(produto) }}</strong>
+            </div>
+            <div>
+              <span>Valor</span>
+              <strong>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
 
-        <div class="detalhe-info">
-          <span>{{ estoqueTexto(produto) }}</span>
-          <strong>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
+          <div class="quantidade-bloco">
+            <label class="quantidade-label" for="quantidadeProduto">Quantidade</label>
+            <nz-input-number
+              id="quantidadeProduto"
+              [ngModel]="quantidadeDetalhe()"
+              [nzMin]="1"
+              [nzMax]="estoqueMaximo(produto)"
+              [nzStep]="1"
+              [disabled]="!podeAdicionar(produto)"
+              (ngModelChange)="alterarQuantidadeDetalhe($event)"
+            ></nz-input-number>
+          </div>
 
-        <label class="quantidade-label" for="quantidadeProduto">Quantidade</label>
-        <nz-input-number
-          id="quantidadeProduto"
-          [ngModel]="quantidadeDetalhe()"
-          [nzMin]="1"
-          [nzMax]="estoqueMaximo(produto)"
-          [nzStep]="1"
-          [disabled]="!podeAdicionar(produto)"
-          (ngModelChange)="alterarQuantidadeDetalhe($event)"
-        ></nz-input-number>
+          <div class="observacao-bloco">
+            <label class="quantidade-label" for="observacaoItem">Observacao do item</label>
+            <textarea
+              nz-input
+              id="observacaoItem"
+              rows="3"
+              maxlength="255"
+              [ngModel]="observacaoDetalhe()"
+              placeholder="Ex.: sem cebola, ponto da carne, retirar molho..."
+              (ngModelChange)="alterarObservacaoDetalhe($event)"
+            ></textarea>
+            <small>{{ observacaoDetalhe().length }}/255</small>
+          </div>
+        </section>
 
-        <button
-          class="detalhe-adicionar"
-          nz-button
-          nzType="primary"
-          type="button"
-          [disabled]="!podeAdicionar(produto)"
-          (click)="adicionarProdutoSelecionado()"
-        >
-          <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
-          Adicionar ao carrinho
-        </button>
+        <footer class="detalhe-rodape">
+          <button
+            class="detalhe-adicionar"
+            nz-button
+            nzType="primary"
+            type="button"
+            [disabled]="!podeAdicionar(produto)"
+            (click)="adicionarProdutoSelecionado()"
+          >
+            <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+            Adicionar ao carrinho
+          </button>
+        </footer>
       </div>
     }
   </ng-container>

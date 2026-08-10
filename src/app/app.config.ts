@@ -8,10 +8,12 @@ import {
   AppstoreOutline,
   ArrowLeftOutline,
   CheckCircleOutline,
+  ClockCircleOutline,
   CloseCircleOutline,
   CreditCardOutline,
   DeleteOutline,
   EditOutline,
+  EnvironmentOutline,
   EyeInvisibleOutline,
   EyeOutline,
   FilePdfOutline,
@@ -26,10 +28,12 @@ import {
   MinusOutline,
   PictureOutline,
   PlusOutline,
+  PhoneOutline,
   SafetyCertificateOutline,
   SaveOutline,
   SearchOutline,
   SettingOutline,
+  ShareAltOutline,
   ShopOutline,
   ShoppingCartOutline,
   SunOutline,
@@ -38,7 +42,8 @@ import {
   UnorderedListOutline,
   UploadOutline,
   UserOutline,
-  UserAddOutline
+  UserAddOutline,
+  WhatsAppOutline
 } from '@ant-design/icons-angular/icons';
 import { provideNzI18n, pt_BR } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
@@ -60,10 +65,12 @@ export const appConfig: ApplicationConfig = {
       AppstoreOutline,
       ArrowLeftOutline,
       CheckCircleOutline,
+      ClockCircleOutline,
       CloseCircleOutline,
       CreditCardOutline,
       DeleteOutline,
       EditOutline,
+      EnvironmentOutline,
       EyeInvisibleOutline,
       EyeOutline,
       FilePdfOutline,
@@ -78,10 +85,12 @@ export const appConfig: ApplicationConfig = {
       MinusOutline,
       PictureOutline,
       PlusOutline,
+      PhoneOutline,
       SafetyCertificateOutline,
       SaveOutline,
       SearchOutline,
       SettingOutline,
+      ShareAltOutline,
       ShopOutline,
       ShoppingCartOutline,
       SunOutline,
@@ -90,7 +99,8 @@ export const appConfig: ApplicationConfig = {
       UnorderedListOutline,
       UploadOutline,
       UserOutline,
-      UserAddOutline
+      UserAddOutline,
+      WhatsAppOutline
     ]),
     provideAppInitializer(() => inject(ThemeService).inicializarTema()),
     { provide: LOCALE_ID, useValue: 'pt-BR' }

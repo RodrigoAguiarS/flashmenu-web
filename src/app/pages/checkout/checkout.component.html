@@ -23,13 +23,13 @@
         }
 
         @if (!checkout.usuario()) {
-          <app-identificacao-cliente />
+          <app-identificacao-cliente (clienteIdentificado)="checkout.atualizarClienteIdentificado()" />
         }
 
         <nz-collapse nzGhost>
           <nz-collapse-panel [nzHeader]="'Itens do pedido (' + carrinhoService.quantidadeTotal() + ')'">
             <div class="itens-pedido">
-              @for (item of carrinhoService.itens(); track item.produto.id) {
+              @for (item of carrinhoService.itens(); track item.id) {
                 <article class="item-pedido">
                   @if (imagemPrincipal(item.produto); as imagem) {
                     <img
@@ -48,6 +48,9 @@
                     <div>
                       <strong>{{ item.produto.nome }}</strong>
                       <small>{{ item.produto.categoria.nome }} - {{ item.produto.descricao }}</small>
+                      @if (item.observacao) {
+                        <small>Obs: {{ item.observacao }}</small>
+                      }
                       <span>{{ item.quantidade }} x {{ item.produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</span>
                     </div>
                     <strong>{{ subtotalItem(item.produto.valorVenda, item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}</strong>
@@ -57,12 +60,52 @@
             </div>
           </nz-collapse-panel>
 
-          <nz-collapse-panel nzHeader="Cliente">
-            @if (checkout.usuario(); as usuarioAtual) {
-              <div class="cliente-resumo">
-                <span>{{ usuarioAtual.nome }}</span>
-                <small>{{ usuarioAtual.email }}</small>
-                <small>{{ usuarioAtual.telefone | telefone }}</small>
+          <nz-collapse-panel nzHeader="Cliente e entrega" [nzActive]="true">
+            @if (checkout.carregandoEnderecos()) {
+              <div class="entrega-card">
+                <span>Carregando endereco de entrega...</span>
+              </div>
+            } @else if (checkout.usuario(); as usuarioAtual) {
+              <div class="entrega-card">
+                <div class="entrega-card__conteudo">
+                  <div class="entrega-card__topo">
+                    <strong>Dados para entrega</strong>
+                    @if (checkout.enderecoEntrega()?.principal) {
+                      <nz-tag nzColor="success">Principal</nz-tag>
+                    }
+                  </div>
+
+                  <dl class="dados-entrega">
+                    <div>
+                      <dt>Nome</dt>
+                      <dd>{{ usuarioAtual.nome }}</dd>
+                    </div>
+                    <div>
+                      <dt>Telefone</dt>
+                      <dd>{{ usuarioAtual.telefone | telefone }}</dd>
+                    </div>
+                    <div>
+                      <dt>Endereco</dt>
+                      <dd>
+                        @if (checkout.enderecoEntrega(); as endereco) {
+                          {{ endereco.logradouro }}, {{ endereco.numero }}
+                          @if (endereco.complemento) {
+                            , {{ endereco.complemento }}
+                          }
+                          - {{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }} - CEP {{ endereco.cep }}
+                        } @else {
+                          Endereco de entrega pendente
+                        }
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            } @else {
+              <div class="entrega-card pendente">
+                <strong>Endereco de entrega pendente</strong>
+                <span>Informe ou cadastre um endereco para liberar a confirmacao do pedido.</span>
+                <a nz-button routerLink="/minha-conta">Adicionar endereco</a>
               </div>
             }
           </nz-collapse-panel>
@@ -134,7 +177,13 @@
               <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
               Voltar
             </a>
-            <button nz-button nzType="primary" type="submit" [nzLoading]="checkout.finalizando()" [disabled]="checkout.finalizando() || !checkout.usuario()">
+            <button
+              nz-button
+              nzType="primary"
+              type="submit"
+              [nzLoading]="checkout.finalizando()"
+              [disabled]="!checkout.checkoutValido()"
+            >
               Confirmar
             </button>
           </div>

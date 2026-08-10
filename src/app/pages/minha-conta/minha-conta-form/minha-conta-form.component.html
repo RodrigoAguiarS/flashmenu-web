@@ -121,6 +121,20 @@
                     <small>CEP {{ formatarCep(endereco.cep) }}</small>
                     <small>{{ endereco.criadoEm | date:'dd/MM/yyyy HH:mm' }}</small>
                   </div>
+
+                  @if (!endereco.principal) {
+                    <footer class="endereco-acoes">
+                      <button
+                        nz-button
+                        type="button"
+                        [nzLoading]="definindoPrincipalId() === endereco.id"
+                        [disabled]="definindoPrincipalId() !== null"
+                        (click)="definirEnderecoPrincipal(endereco)"
+                      >
+                        Definir como principal
+                      </button>
+                    </footer>
+                  }
                 </article>
               }
             </div>
