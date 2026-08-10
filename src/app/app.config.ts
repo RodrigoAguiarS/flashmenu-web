@@ -47,6 +47,7 @@ import {
 } from '@ant-design/icons-angular/icons';
 import { provideNzI18n, pt_BR } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -61,6 +62,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     provideNzI18n(pt_BR),
+    provideEnvironmentNgxMask({ validation: false }),
     provideNzIcons([
       AppstoreOutline,
       ArrowLeftOutline,

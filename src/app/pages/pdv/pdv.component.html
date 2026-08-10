@@ -228,6 +228,31 @@
         </nz-form-control>
       </nz-form-item>
 
+      @if (pagamentoEmDinheiro()) {
+        <nz-form-item>
+          <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Valor recebido</nz-form-label>
+          <nz-form-control
+            nzErrorTip="Informe um valor recebido igual ou maior que o total."
+            [nzValidateStatus]="formulario.controls.valorRecebidoDinheiro"
+          >
+            <input
+              nz-input
+              id="valorRecebidoDinheiro"
+              formControlName="valorRecebidoDinheiro"
+              mask="separator.2"
+              prefix="R$ "
+              thousandSeparator="."
+              decimalMarker=","
+              [leadZero]="true"
+              [typeFromDecimals]="true"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="R$ 0,00"
+            />
+          </nz-form-control>
+        </nz-form-item>
+      }
+
       <div class="resumo-venda">
         <div>
           <span>Subtotal</span>
@@ -247,6 +272,18 @@
           <span>Total</span>
           <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
+
+        @if (pagamentoEmDinheiro()) {
+          <div>
+            <span>Recebido em dinheiro</span>
+            <strong>{{ (valorRecebidoDinheiro() ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <div>
+            <span>Troco</span>
+            <strong>{{ troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+        }
       </div>
 
       <button

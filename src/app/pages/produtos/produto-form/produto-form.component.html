@@ -87,14 +87,20 @@
                   nzErrorTip="Informe um valor maior que zero."
                   [nzValidateStatus]="formulario.controls.valorFornecedor"
                 >
-                  <nz-input-number
+                  <input
+                    nz-input
                     id="valorFornecedor"
                     formControlName="valorFornecedor"
-                    [nzMin]="0.01"
-                    [nzStep]="0.01"
-                    [nzPrecision]="2"
-                    nzPlaceHolder="0,00"
-                  ></nz-input-number>
+                    mask="separator.2"
+                    prefix="R$ "
+                    thousandSeparator="."
+                    decimalMarker=","
+                    [leadZero]="true"
+                    [typeFromDecimals]="true"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    placeholder="R$ 0,00"
+                  />
                 </nz-form-control>
               </nz-form-item>
             </nz-col>

@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,6 +21,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
+import { NgxMaskDirective } from 'ngx-mask';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CategoriaResponse } from '../../core/models/categoria.model';
@@ -55,7 +56,8 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzSelectModule,
     NzSpinModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    NgxMaskDirective
   ],
   templateUrl: './pdv.component.html',
   styleUrl: './pdv.component.scss',
@@ -76,6 +78,7 @@ export class PdvComponent implements OnInit {
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
   protected readonly formaPagamentoId = signal<number | null>(null);
+  protected readonly valorRecebidoDinheiro = signal<number | null>(null);
   protected readonly imagensInvalidas = signal<ReadonlySet<string>>(new Set<string>());
   protected readonly carregandoProdutos = signal(false);
   protected readonly carregandoCategorias = signal(false);
@@ -93,6 +96,16 @@ export class PdvComponent implements OnInit {
   protected readonly percentualAcrescimo = computed(() => Number(this.formaPagamentoSelecionada()?.percentualAcrescimo ?? 0));
   protected readonly valorAcrescimo = computed(() => this.pdvService.valorTotal() * (this.percentualAcrescimo() / 100));
   protected readonly totalPrevisto = computed(() => this.pdvService.valorTotal() + this.valorAcrescimo());
+  protected readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
+  protected readonly troco = computed(() => {
+    const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
+    return Math.max(valorRecebido - this.totalPrevisto(), 0);
+  });
+  protected readonly valorRecebidoInsuficiente = computed(() =>
+    this.pagamentoEmDinheiro() &&
+    this.valorRecebidoDinheiro() !== null &&
+    Number(this.valorRecebidoDinheiro()) < this.totalPrevisto()
+  );
 
   protected readonly filtros = this.fb.group({
     nome: [''],
@@ -100,7 +113,13 @@ export class PdvComponent implements OnInit {
   });
 
   protected readonly formulario = this.fb.group({
-    formaPagamentoId: this.fb.control<number | null>(null, [Validators.required])
+    formaPagamentoId: this.fb.control<number | null>(null, [Validators.required]),
+    valorRecebidoDinheiro: this.fb.control<number | null>(null)
+  });
+
+  private readonly validarPagamentoDinheiro = effect(() => {
+    this.totalPrevisto();
+    this.atualizarValidacaoValorRecebido();
   });
 
   ngOnInit(): void {
@@ -119,7 +138,19 @@ export class PdvComponent implements OnInit {
 
     this.formulario.controls.formaPagamentoId.valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((formaPagamentoId) => this.formaPagamentoId.set(formaPagamentoId));
+    ).subscribe((formaPagamentoId) => {
+      this.formaPagamentoId.set(formaPagamentoId);
+
+      if (!this.pagamentoEmDinheiro()) {
+        this.formulario.controls.valorRecebidoDinheiro.setValue(null);
+      }
+
+      this.atualizarValidacaoValorRecebido();
+    });
+
+    this.formulario.controls.valorRecebidoDinheiro.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((valorRecebido) => this.valorRecebidoDinheiro.set(valorRecebido));
   }
 
   protected alterarPagina(pageIndex: number): void {
@@ -182,6 +213,12 @@ export class PdvComponent implements OnInit {
 
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      return;
+    }
+
+    if (this.valorRecebidoInsuficiente()) {
+      this.formulario.controls.valorRecebidoDinheiro.markAsTouched();
+      this.message.warning('Valor recebido menor que o total da venda.');
       return;
     }
 
@@ -297,6 +334,16 @@ export class PdvComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => this.mensagemErro.set(this.extrairMensagemErro(error))
     });
+  }
+
+  private atualizarValidacaoValorRecebido(): void {
+    const controle = this.formulario.controls.valorRecebidoDinheiro;
+    const validadores = this.pagamentoEmDinheiro()
+      ? [Validators.required, Validators.min(this.totalPrevisto())]
+      : [];
+
+    controle.setValidators(validadores);
+    controle.updateValueAndValidity({ emitEvent: false });
   }
 
   private extrairMensagemErro(error: HttpErrorResponse): string {

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,6 +32,7 @@ export class CheckoutFacade {
   readonly enderecos = signal<EnderecoResponse[]>([]);
   readonly carregandoEnderecos = signal(false);
   readonly formaPagamentoId = signal<number | null>(null);
+  readonly valorRecebidoDinheiro = signal<number | null>(null);
   readonly carregando = signal(false);
   readonly finalizando = signal(false);
   readonly mensagemErro = signal<string | null>(null);
@@ -47,16 +48,33 @@ export class CheckoutFacade {
     return subtotal * (this.percentualAcrescimo() / 100);
   });
   readonly totalPrevisto = computed(() => this.carrinhoService.valorTotal() + this.valorAcrescimo());
+  readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
+  readonly troco = computed(() => {
+    const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
+    return Math.max(valorRecebido - this.totalPrevisto(), 0);
+  });
+  readonly valorRecebidoInsuficiente = computed(() =>
+    this.pagamentoEmDinheiro() &&
+    this.valorRecebidoDinheiro() !== null &&
+    Number(this.valorRecebidoDinheiro()) < this.totalPrevisto()
+  );
   readonly checkoutValido = computed(() =>
     !this.carrinhoService.vazio() &&
     !!this.usuario() &&
     !!this.enderecoEntrega() &&
     !!this.formaPagamentoId() &&
+    (!this.pagamentoEmDinheiro() || (!!this.valorRecebidoDinheiro() && !this.valorRecebidoInsuficiente())) &&
     !this.finalizando()
   );
 
   readonly formulario = this.fb.group({
-    formaPagamentoId: this.fb.control<number | null>(null, [Validators.required])
+    formaPagamentoId: this.fb.control<number | null>(null, [Validators.required]),
+    valorRecebidoDinheiro: this.fb.control<number | null>(null)
+  });
+
+  private readonly validarPagamentoDinheiro = effect(() => {
+    this.totalPrevisto();
+    this.atualizarValidacaoValorRecebido();
   });
 
   inicializar(): void {
@@ -65,7 +83,19 @@ export class CheckoutFacade {
 
     this.formulario.controls.formaPagamentoId.valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((formaPagamentoId) => this.formaPagamentoId.set(formaPagamentoId));
+    ).subscribe((formaPagamentoId) => {
+      this.formaPagamentoId.set(formaPagamentoId);
+
+      if (!this.pagamentoEmDinheiro()) {
+        this.formulario.controls.valorRecebidoDinheiro.setValue(null);
+      }
+
+      this.atualizarValidacaoValorRecebido();
+    });
+
+    this.formulario.controls.valorRecebidoDinheiro.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((valorRecebido) => this.valorRecebidoDinheiro.set(valorRecebido));
   }
 
   atualizarClienteIdentificado(): void {
@@ -87,6 +117,12 @@ export class CheckoutFacade {
 
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      return;
+    }
+
+    if (this.valorRecebidoInsuficiente()) {
+      this.formulario.controls.valorRecebidoDinheiro.markAsTouched();
+      this.message.warning('Valor recebido menor que o total do pedido.');
       return;
     }
 
@@ -168,6 +204,16 @@ export class CheckoutFacade {
         this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel carregar o endereco de entrega.'));
       }
     });
+  }
+
+  private atualizarValidacaoValorRecebido(): void {
+    const controle = this.formulario.controls.valorRecebidoDinheiro;
+    const validadores = this.pagamentoEmDinheiro()
+      ? [Validators.required, Validators.min(this.totalPrevisto())]
+      : [];
+
+    controle.setValidators(validadores);
+    controle.updateValueAndValidity({ emitEvent: false });
   }
 
   private extrairMensagemErro(error: HttpErrorResponse, mensagemPadrao: string): string {

@@ -10,10 +10,12 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NgxMaskDirective } from 'ngx-mask';
 
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
@@ -37,9 +39,11 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzEmptyModule,
     NzFormModule,
     NzIconModule,
+    NzInputModule,
     NzSelectModule,
     NzSpinModule,
     NzTagModule,
+    NgxMaskDirective,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],

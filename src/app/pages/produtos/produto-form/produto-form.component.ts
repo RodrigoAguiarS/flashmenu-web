@@ -14,6 +14,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
+import { NgxMaskDirective } from 'ngx-mask';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { CategoriaResponse } from '../../../core/models/categoria.model';
@@ -39,7 +40,8 @@ const TAMANHO_MAXIMO_IMAGEM = 5 * 1024 * 1024;
     NzInputNumberModule,
     NzSelectModule,
     NzSpinModule,
-    NzUploadModule
+    NzUploadModule,
+    NgxMaskDirective
   ],
   templateUrl: './produto-form.component.html',
   styleUrl: './produto-form.component.scss',

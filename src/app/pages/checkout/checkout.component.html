@@ -141,6 +141,31 @@
             </nz-form-control>
           </nz-form-item>
 
+          @if (checkout.pagamentoEmDinheiro()) {
+            <nz-form-item class="campo-pagamento">
+              <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Valor recebido</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe um valor recebido igual ou maior que o total."
+                [nzValidateStatus]="checkout.formulario.controls.valorRecebidoDinheiro"
+              >
+                <input
+                  nz-input
+                  id="valorRecebidoDinheiro"
+                  formControlName="valorRecebidoDinheiro"
+                  mask="separator.2"
+                  prefix="R$ "
+                  thousandSeparator="."
+                  decimalMarker=","
+                  [leadZero]="true"
+                  [typeFromDecimals]="true"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  placeholder="R$ 0,00"
+                />
+              </nz-form-control>
+            </nz-form-item>
+          }
+
           <div class="pagamento-resumo">
             @if (checkout.formaPagamentoSelecionada(); as formaPagamento) {
               <div class="linha-resumo">
@@ -163,6 +188,18 @@
               <span>Valor do acrescimo</span>
               <strong>{{ checkout.valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>
+
+            @if (checkout.pagamentoEmDinheiro()) {
+              <div class="linha-resumo">
+                <span>Recebido em dinheiro</span>
+                <strong>{{ (checkout.valorRecebidoDinheiro() ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
+
+              <div class="linha-resumo">
+                <span>Troco</span>
+                <strong>{{ checkout.troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
+            }
           </div>
 
           <nz-divider></nz-divider>
