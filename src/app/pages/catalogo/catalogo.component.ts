@@ -80,6 +80,8 @@ export class CatalogoComponent implements OnInit {
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly drawerAberto = signal(false);
   protected readonly carregandoComplementos = signal(false);
+  protected readonly quantidadeDetalhe = signal(1);
+  protected readonly observacaoDetalhe = signal('');
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly total = signal(0);
@@ -123,6 +125,8 @@ export class CatalogoComponent implements OnInit {
   abrirDetalhes(produto: ProdutoResponse): void {
     this.produtoSelecionado.set(produto);
     this.gruposProdutoSelecionado.set([]);
+    this.quantidadeDetalhe.set(1);
+    this.observacaoDetalhe.set('');
     this.drawerAberto.set(true);
     this.carregarComplementosProduto(produto);
   }
@@ -131,6 +135,8 @@ export class CatalogoComponent implements OnInit {
     this.drawerAberto.set(false);
     this.produtoSelecionado.set(null);
     this.gruposProdutoSelecionado.set([]);
+    this.quantidadeDetalhe.set(1);
+    this.observacaoDetalhe.set('');
   }
 
   adicionarProduto(
@@ -187,6 +193,28 @@ export class CatalogoComponent implements OnInit {
     }
 
     this.adicionarProduto(produto, evento.quantidade, evento.observacao, evento.complementos);
+  }
+
+  adicionarProdutoSimplesSelecionado(): void {
+    const produto = this.produtoSelecionado();
+
+    if (!produto) {
+      return;
+    }
+
+    this.adicionarProduto(produto, this.quantidadeDetalhe(), this.observacaoDetalhe());
+  }
+
+  alterarQuantidadeDetalhe(quantidade: number | null): void {
+    const produto = this.produtoSelecionado();
+    const valor = Math.max(1, Math.trunc(quantidade ?? 1));
+    const estoque = produto ? this.carrinhoService.quantidadeDisponivel(produto) : null;
+
+    this.quantidadeDetalhe.set(estoque === null ? valor : Math.min(valor, estoque));
+  }
+
+  alterarObservacaoDetalhe(observacao: string): void {
+    this.observacaoDetalhe.set((observacao ?? '').substring(0, 255));
   }
 
   marcarImagemInvalida(produtoId: number): void {

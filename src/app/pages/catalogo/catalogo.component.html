@@ -172,14 +172,61 @@
             </div>
           </div>
 
-          <app-produto-personalizacao
-            [produto]="produto"
-            [gruposComplementos]="gruposProdutoSelecionado()"
-            [estoqueMaximo]="estoqueMaximo(produto)"
-            [carregando]="carregandoComplementos()"
-            textoConfirmar="Adicionar ao carrinho"
-            (confirmar)="confirmarPersonalizacao($event)"
-          />
+          @if (carregandoComplementos()) {
+            <div class="detalhe-loading">
+              <nz-spin nzSimple></nz-spin>
+              <span>Carregando detalhes...</span>
+            </div>
+          } @else if (gruposProdutoSelecionado().length) {
+            <app-produto-personalizacao
+              [produto]="produto"
+              [gruposComplementos]="gruposProdutoSelecionado()"
+              [estoqueMaximo]="estoqueMaximo(produto)"
+              textoConfirmar="Adicionar ao carrinho"
+              (confirmar)="confirmarPersonalizacao($event)"
+            />
+          } @else {
+            <section class="detalhe-compra-simples" aria-label="Adicionar produto ao carrinho">
+              <div class="quantidade-bloco">
+                <label class="quantidade-label" for="quantidadeProduto">Quantidade</label>
+                <nz-input-number
+                  id="quantidadeProduto"
+                  [ngModel]="quantidadeDetalhe()"
+                  [nzMin]="1"
+                  [nzMax]="estoqueMaximo(produto)"
+                  [nzStep]="1"
+                  [disabled]="!podeAdicionar(produto)"
+                  (ngModelChange)="alterarQuantidadeDetalhe($event)"
+                ></nz-input-number>
+              </div>
+
+              <div class="observacao-bloco">
+                <label class="quantidade-label" for="observacaoItem">Observacao do item</label>
+                <textarea
+                  nz-input
+                  id="observacaoItem"
+                  rows="3"
+                  maxlength="255"
+                  [ngModel]="observacaoDetalhe()"
+                  placeholder="Ex.: sem cebola, ponto da carne, retirar molho..."
+                  (ngModelChange)="alterarObservacaoDetalhe($event)"
+                ></textarea>
+                <small>{{ observacaoDetalhe().length }}/255</small>
+              </div>
+
+              <button
+                class="detalhe-adicionar"
+                nz-button
+                nzType="primary"
+                type="button"
+                [disabled]="!podeAdicionar(produto)"
+                (click)="adicionarProdutoSimplesSelecionado()"
+              >
+                <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+                Adicionar ao carrinho
+              </button>
+            </section>
+          }
         </section>
       </div>
     }

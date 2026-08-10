@@ -231,6 +231,22 @@
   width: 100%;
 }
 
+.detalhe-loading,
+.detalhe-compra-simples {
+  display: grid;
+  gap: 12px;
+}
+
+.detalhe-loading {
+  place-items: center;
+  padding: 18px 12px;
+  color: var(--cor-texto-suave);
+}
+
+.detalhe-compra-simples {
+  padding-block: 4px;
+}
+
 @media (min-width: 700px) {
   .cabecalho-pagina {
     align-items: flex-end;
