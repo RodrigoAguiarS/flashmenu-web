@@ -8,6 +8,7 @@ import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
@@ -25,15 +26,21 @@ import { NgxMaskDirective } from 'ngx-mask';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CategoriaResponse } from '../../core/models/categoria.model';
+import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { PedidoRequest } from '../../core/models/pedido.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { FormaPagamentoService } from '../../core/services/forma-pagamento.service';
+import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
 import { PdvService } from '../../core/services/pdv.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { ProdutoService } from '../../core/services/produto.service';
+import {
+  ProdutoPersonalizacaoComponent,
+  ProdutoPersonalizacaoConfirmacao
+} from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
 
 @Component({
   selector: 'app-pdv',
@@ -45,6 +52,7 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzAlertModule,
     NzButtonModule,
     NzDividerModule,
+    NzDrawerModule,
     NzEmptyModule,
     NzFormModule,
     NzGridModule,
@@ -57,7 +65,8 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
-    NgxMaskDirective
+    NgxMaskDirective,
+    ProdutoPersonalizacaoComponent
   ],
   templateUrl: './pdv.component.html',
   styleUrl: './pdv.component.scss',
@@ -67,6 +76,7 @@ export class PdvComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
+  private readonly grupoComplementoService = inject(GrupoComplementoService);
   private readonly formaPagamentoService = inject(FormaPagamentoService);
   private readonly pedidoService = inject(PedidoService);
   private readonly message = inject(NzMessageService);
@@ -80,6 +90,10 @@ export class PdvComponent implements OnInit {
   protected readonly formaPagamentoId = signal<number | null>(null);
   protected readonly valorRecebidoDinheiro = signal<number | null>(null);
   protected readonly imagensInvalidas = signal<ReadonlySet<string>>(new Set<string>());
+  protected readonly produtoPersonalizacao = signal<ProdutoResponse | null>(null);
+  protected readonly gruposPersonalizacao = signal<GrupoComplementoResponse[]>([]);
+  protected readonly drawerPersonalizacaoAberto = signal(false);
+  protected readonly carregandoComplementos = signal(false);
   protected readonly carregandoProdutos = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly carregandoPagamento = signal(false);
@@ -168,12 +182,41 @@ export class PdvComponent implements OnInit {
       return;
     }
 
-    if (!this.pdvService.adicionar(produto)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+    this.carregandoComplementos.set(true);
+    this.grupoComplementoService.listarPorProduto(produto.id).pipe(
+      finalize(() => this.carregandoComplementos.set(false))
+    ).subscribe({
+      next: (grupos) => {
+        const gruposAtivos = this.normalizarGrupos(grupos);
+
+        if (!gruposAtivos.length) {
+          this.adicionarProdutoConfigurado(produto, { quantidade: 1, observacao: null, complementos: [], valorEstimado: produto.valorVenda });
+          return;
+        }
+
+        this.produtoPersonalizacao.set(produto);
+        this.gruposPersonalizacao.set(gruposAtivos);
+        this.drawerPersonalizacaoAberto.set(true);
+      },
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
+  protected confirmarPersonalizacao(evento: ProdutoPersonalizacaoConfirmacao): void {
+    const produto = this.produtoPersonalizacao();
+
+    if (!produto) {
       return;
     }
 
-    this.message.success('Produto adicionado a venda.');
+    this.adicionarProdutoConfigurado(produto, evento);
+    this.fecharPersonalizacao();
+  }
+
+  protected fecharPersonalizacao(): void {
+    this.drawerPersonalizacaoAberto.set(false);
+    this.produtoPersonalizacao.set(null);
+    this.gruposPersonalizacao.set([]);
   }
 
   protected incrementar(item: ItemCarrinho): void {
@@ -228,7 +271,11 @@ export class PdvComponent implements OnInit {
       itens: this.pdvService.itens().map((item) => ({
         produtoId: item.produto.id,
         quantidade: item.quantidade,
-        observacao: item.observacao ?? null
+        observacao: item.observacao ?? null,
+        complementos: (item.complementos ?? []).map((complemento) => ({
+          opcaoComplementoId: complemento.opcaoComplementoId,
+          quantidade: complemento.quantidade
+        }))
       }))
     };
 
@@ -265,7 +312,7 @@ export class PdvComponent implements OnInit {
     return estoque > 0 ? `${estoque} em estoque` : 'Sem estoque';
   }
 
-  protected estoqueMaximo(produto: ProdutoCarrinho): number {
+  protected estoqueMaximo(produto: ProdutoCarrinho | ProdutoResponse): number {
     return this.pdvService.quantidadeDisponivel(produto) ?? 999;
   }
 
@@ -278,7 +325,11 @@ export class PdvComponent implements OnInit {
   }
 
   protected subtotalItem(item: ItemCarrinho): number {
-    return this.preco(item.produto) * item.quantidade;
+    return this.pdvService.obterPrecoItem(item) * item.quantidade;
+  }
+
+  protected precoItem(item: ItemCarrinho): number {
+    return this.pdvService.obterPrecoItem(item);
   }
 
   private carregarProdutos(): void {
@@ -334,6 +385,24 @@ export class PdvComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => this.mensagemErro.set(this.extrairMensagemErro(error))
     });
+  }
+
+  private adicionarProdutoConfigurado(produto: ProdutoResponse, evento: ProdutoPersonalizacaoConfirmacao): void {
+    if (!this.pdvService.adicionar(produto, evento.quantidade, evento.complementos)) {
+      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+      return;
+    }
+
+    this.message.success('Produto adicionado a venda.');
+  }
+
+  private normalizarGrupos(grupos: GrupoComplementoResponse[]): GrupoComplementoResponse[] {
+    return grupos
+      .filter((grupo) => grupo.ativo)
+      .map((grupo) => ({
+        ...grupo,
+        opcoes: [...(grupo.opcoes ?? [])].filter((opcao) => opcao.ativo)
+      }));
   }
 
   private atualizarValidacaoValorRecebido(): void {

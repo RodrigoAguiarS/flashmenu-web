@@ -143,6 +143,22 @@
   flex: 0 0 auto;
 }
 
+.complementos-item {
+  display: grid;
+  gap: 2px;
+  margin: 3px 0 0;
+  padding: 0;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  list-style: none;
+}
+
+.complementos-item li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .resumo-financeiro {
   background: var(--cor-campo);
 }

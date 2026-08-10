@@ -1,0 +1,124 @@
+<section class="personalizacao" aria-label="Personalizacao do produto">
+  <header class="produto-topo">
+    <div>
+      <h2>{{ produto.nome }}</h2>
+      <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+    </div>
+    <strong>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</strong>
+  </header>
+
+  @if (carregando) {
+    <nz-alert nzType="info" nzMessage="Carregando complementos..." nzShowIcon></nz-alert>
+  } @else if (!possuiGrupos()) {
+    <nz-empty nzNotFoundContent="Este produto nao possui complementos."></nz-empty>
+  } @else {
+    <div class="grupos">
+      @for (grupo of gruposAtivos(); track grupo.id) {
+        <section class="grupo" [class.grupo-invalido]="!grupoValido(grupo)">
+          <header class="grupo-topo">
+            <div>
+              <h3>{{ grupo.nome }}</h3>
+              @if (grupo.descricao) {
+                <p>{{ grupo.descricao }}</p>
+              }
+              <span>{{ mensagemGrupo(grupo) }}</span>
+            </div>
+
+            @if (grupo.obrigatorio) {
+              <nz-tag nzColor="red">Obrigatorio</nz-tag>
+            }
+          </header>
+
+          <div class="opcoes">
+            @for (opcao of grupo.opcoes; track opcao.id) {
+              <article class="opcao" [class.selecionada]="quantidadeOpcao(opcao.id) > 0">
+                <button
+                  class="opcao-info"
+                  type="button"
+                  [attr.aria-pressed]="quantidadeOpcao(opcao.id) > 0"
+                  (click)="grupo.quantidadeMaxima === 1 ? selecionarUnico(grupo, opcao) : incrementar(grupo, opcao)"
+                >
+                  <span class="indicador" aria-hidden="true">
+                    @if (quantidadeOpcao(opcao.id) > 0) {
+                      <span nz-icon nzType="check" nzTheme="outline"></span>
+                    }
+                  </span>
+
+                  <span class="opcao-texto">
+                    <strong>{{ opcao.nome }}</strong>
+                    @if (opcao.descricao) {
+                      <small>{{ opcao.descricao }}</small>
+                    }
+                  </span>
+                </button>
+
+                <div class="opcao-acao">
+                  <span>{{ opcao.valorAdicional | currency:'BRL':'symbol':'1.2-2' }}</span>
+
+                  @if (grupo.quantidadeMaxima > 1) {
+                    <div class="contador" aria-label="Quantidade do complemento">
+                      <button nz-button nzShape="circle" type="button" [disabled]="quantidadeOpcao(opcao.id) === 0" (click)="decrementar(opcao)">
+                        <span nz-icon nzType="minus" nzTheme="outline"></span>
+                      </button>
+                      <strong>{{ quantidadeOpcao(opcao.id) }}</strong>
+                      <button nz-button nzShape="circle" type="button" [disabled]="!podeIncrementar(grupo, opcao)" (click)="incrementar(grupo, opcao)">
+                        <span nz-icon nzType="plus" nzTheme="outline"></span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+
+  <section class="observacao-bloco">
+    <label for="observacaoPersonalizacao">Observacao do item</label>
+    <textarea
+      nz-input
+      id="observacaoPersonalizacao"
+      rows="3"
+      maxlength="255"
+      [ngModel]="observacao()"
+      placeholder="Ex.: sem cebola, retirar molho..."
+      (ngModelChange)="alterarObservacao($event)"
+    ></textarea>
+    <small>{{ observacao().length }}/255</small>
+  </section>
+
+  <section class="resumo-personalizacao" aria-label="Resumo da personalizacao">
+    <div>
+      <span>Quantidade</span>
+      <nz-input-number
+        [ngModel]="quantidadeItem()"
+        [nzMin]="1"
+        [nzMax]="estoqueMaximo"
+        [nzStep]="1"
+        (ngModelChange)="alterarQuantidadeItem($event)"
+      ></nz-input-number>
+    </div>
+    <div>
+      <span>Complementos</span>
+      <strong>{{ valorComplementos() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+    <div class="total">
+      <span>Total estimado</span>
+      <strong>{{ valorTotalEstimado() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+  </section>
+
+  <button
+    class="botao-confirmar"
+    nz-button
+    nzType="primary"
+    type="button"
+    [disabled]="!configuracaoValida() || carregando"
+    (click)="confirmarConfiguracao()"
+  >
+    <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+    {{ textoConfirmar }}
+  </button>
+</section>

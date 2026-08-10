@@ -4,10 +4,16 @@ import { EnderecoResponse } from './endereco.model';
 export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'PAGO' | 'CANCELADO' | string;
 export type TipoPedido = 'DELIVERY' | 'PDV' | string;
 
+export interface ItemPedidoComplementoRequest {
+  opcaoComplementoId: number;
+  quantidade: number;
+}
+
 export interface ItemPedidoRequest {
   produtoId: number;
   quantidade: number;
   observacao?: string | null;
+  complementos?: ItemPedidoComplementoRequest[];
 }
 
 export interface PedidoRequest {
@@ -35,9 +41,21 @@ export interface ItemPedidoResponse {
   produtoId: number;
   produtoNome: string;
   quantidade: number;
+  valorProduto?: number;
   precoUnitario: number;
+  valorUnitarioFinal?: number;
   subtotal: number;
   observacao?: string | null;
+  complementos?: ItemPedidoComplementoResponse[];
+}
+
+export interface ItemPedidoComplementoResponse {
+  id?: number;
+  opcaoComplementoId?: number;
+  nome: string;
+  quantidade: number;
+  valorUnitario: number;
+  valorTotal: number;
 }
 
 export interface PagamentoResponse {

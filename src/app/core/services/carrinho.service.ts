@@ -1,7 +1,9 @@
 import { Injectable, Signal, computed, signal } from '@angular/core';
 
+import { ComplementoSelecionado } from '../models/complemento.model';
 import { ItemCarrinho, ProdutoCarrinho } from '../models/carrinho.model';
 import { ProdutoResponse } from '../models/produto.model';
+import { chaveComplementos } from '../utils/complemento-config.util';
 
 const CARRINHO_KEY = 'flashmenu_carrinho';
 
@@ -14,14 +16,20 @@ export class CarrinhoService {
   readonly itens: Signal<ItemCarrinho[]> = computed(() => this.itensCarrinho());
   readonly quantidadeTotal = computed(() => this.itensCarrinho().reduce((total, item) => total + item.quantidade, 0));
   readonly valorTotal = computed(() =>
-    this.itensCarrinho().reduce((total, item) => total + this.obterPreco(item.produto) * item.quantidade, 0)
+    this.itensCarrinho().reduce((total, item) => total + this.obterPrecoItem(item) * item.quantidade, 0)
   );
   readonly vazio = computed(() => this.itensCarrinho().length === 0);
 
-  adicionar(produto: ProdutoResponse, quantidade = 1, observacao?: string | null): boolean {
+  adicionar(
+    produto: ProdutoResponse,
+    quantidade = 1,
+    observacao?: string | null,
+    complementos: ComplementoSelecionado[] = []
+  ): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
     const observacaoNormalizada = this.normalizarObservacao(observacao);
-    const itemId = this.criarItemId(produto.id, observacaoNormalizada);
+    const complementosNormalizados = this.normalizarComplementosDetalhados(complementos);
+    const itemId = this.criarItemId(produto.id, observacaoNormalizada, complementosNormalizados);
     const itens = this.itensCarrinho();
     const itemExistente = itens.find((item) => item.id === itemId);
     const quantidadeAtual = itemExistente?.quantidade ?? 0;
@@ -37,10 +45,60 @@ export class CarrinhoService {
         id: itemId,
         produto: this.paraProdutoCarrinho(produto),
         quantidade: quantidadeNormalizada,
-        observacao: observacaoNormalizada
+        observacao: observacaoNormalizada,
+        complementos: complementosNormalizados,
+        valorUnitarioEstimado: this.calcularValorUnitario(produto, complementosNormalizados)
       }];
 
     this.atualizarItens(proximosItens);
+    return true;
+  }
+
+  atualizarConfiguracao(
+    itemId: string,
+    complementos: ComplementoSelecionado[],
+    observacao?: string | null,
+    quantidade?: number
+  ): boolean {
+    const itemAtual = this.itensCarrinho().find((item) => item.id === itemId);
+
+    if (!itemAtual) {
+      return false;
+    }
+
+    const observacaoNormalizada = this.normalizarObservacao(observacao);
+    const complementosNormalizados = this.normalizarComplementosDetalhados(complementos);
+    const novoId = this.criarItemId(itemAtual.produto.id, observacaoNormalizada, complementosNormalizados);
+    const itemAtualizado: ItemCarrinho = {
+      ...itemAtual,
+      id: novoId,
+      quantidade: Math.max(1, Math.trunc(quantidade ?? itemAtual.quantidade)),
+      observacao: observacaoNormalizada,
+      complementos: complementosNormalizados,
+      valorUnitarioEstimado: this.calcularValorUnitario(itemAtual.produto, complementosNormalizados)
+    };
+
+    const itensSemAtual = this.itensCarrinho().filter((item) => item.id !== itemId);
+    const itemIgual = itensSemAtual.find((item) => item.id === novoId);
+
+    if (!itemIgual && !this.quantidadePermitida(itemAtual.produto, itemAtualizado.quantidade, itemId)) {
+      return false;
+    }
+
+    if (itemIgual) {
+      const quantidadeFinal = itemIgual.quantidade + itemAtualizado.quantidade;
+
+      if (!this.quantidadePermitida(itemAtual.produto, quantidadeFinal, novoId)) {
+        return false;
+      }
+
+      this.atualizarItens(
+        itensSemAtual.map((item) => item.id === novoId ? { ...item, quantidade: quantidadeFinal } : item)
+      );
+      return true;
+    }
+
+    this.atualizarItens([...itensSemAtual, itemAtualizado]);
     return true;
   }
 
@@ -96,6 +154,10 @@ export class CarrinhoService {
     return Number(produto.valorVenda ?? 0);
   }
 
+  obterPrecoItem(item: ItemCarrinho): number {
+    return Number(item.valorUnitarioEstimado ?? this.calcularValorUnitario(item.produto, item.complementos ?? []));
+  }
+
   private quantidadePermitida(produto: ProdutoCarrinho | ProdutoResponse, quantidade: number, itemIdAtual?: string): boolean {
     const estoque = this.quantidadeDisponivel(produto);
 
@@ -141,10 +203,19 @@ export class CarrinhoService {
         ? itens
             .filter((item) => item?.produto?.id && item.quantidade > 0)
             .map((item) => ({
-              id: this.criarItemId(item.produto.id, this.normalizarObservacao(item.observacao)),
+              id: this.criarItemId(
+                item.produto.id,
+                this.normalizarObservacao(item.observacao),
+                this.normalizarComplementosDetalhados(item.complementos ?? [])
+              ),
               produto: this.paraProdutoCarrinho(item.produto as ProdutoResponse),
               quantidade: item.quantidade,
-              observacao: this.normalizarObservacao(item.observacao)
+              observacao: this.normalizarObservacao(item.observacao),
+              complementos: this.normalizarComplementosDetalhados(item.complementos ?? []),
+              valorUnitarioEstimado: this.calcularValorUnitario(
+                item.produto as ProdutoResponse,
+                this.normalizarComplementosDetalhados(item.complementos ?? [])
+              )
             }))
         : [];
 
@@ -161,7 +232,28 @@ export class CarrinhoService {
     return valor ? valor.substring(0, 255) : null;
   }
 
-  private criarItemId(produtoId: number, observacao: string | null): string {
-    return `${produtoId}:${observacao ?? ''}`;
+  private criarItemId(produtoId: number, observacao: string | null, complementos: ComplementoSelecionado[]): string {
+    return `${produtoId}:${observacao ?? ''}:${chaveComplementos(complementos)}`;
+  }
+
+  private normalizarComplementosDetalhados(complementos: ComplementoSelecionado[]): ComplementoSelecionado[] {
+    return [...complementos]
+      .filter((complemento) => complemento.opcaoComplementoId > 0 && complemento.quantidade > 0)
+      .map((complemento) => ({
+        opcaoComplementoId: complemento.opcaoComplementoId,
+        quantidade: Math.trunc(complemento.quantidade),
+        nome: complemento.nome,
+        valorAdicional: Number(complemento.valorAdicional ?? 0),
+        grupoComplementoId: complemento.grupoComplementoId
+      }))
+      .sort((a, b) => a.opcaoComplementoId - b.opcaoComplementoId);
+  }
+
+  private calcularValorUnitario(
+    produto: ProdutoCarrinho | ProdutoResponse,
+    complementos: ComplementoSelecionado[]
+  ): number {
+    return this.obterPreco(produto) +
+      complementos.reduce((total, complemento) => total + complemento.valorAdicional * complemento.quantidade, 0);
   }
 }

@@ -53,7 +53,7 @@
 .grade-produtos {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .produto-card,
@@ -64,12 +64,7 @@
   border-radius: 8px;
 }
 
-.produto-card {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  overflow: hidden;
-  min-height: 260px;
-}
+.produto-card { display: grid; grid-template-columns: 82px minmax(0, 1fr); overflow: hidden; }
 
 .produto-imagem,
 .produto-sem-imagem,
@@ -84,17 +79,10 @@
 }
 
 .produto-midia {
-  background: var(--cor-campo);
-  border-bottom: 1px solid var(--cor-borda);
+  border-right: 1px solid var(--cor-borda);
 }
 
-.produto-imagem,
-.produto-sem-imagem {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border: 0;
-  border-radius: 0;
-}
+.produto-imagem, .produto-sem-imagem { width: 82px; height: 100%; border: 0; border-radius: 0; }
 
 .item-imagem,
 .item-sem-imagem {
@@ -122,7 +110,7 @@
   align-content: space-between;
   gap: 12px;
   min-width: 0;
-  padding: 10px;
+  padding: 10px 12px;
 }
 
 .produto-info > div,
@@ -139,15 +127,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.produto-info p {
-  display: -webkit-box;
-  overflow: hidden;
-  min-height: 38px;
-  margin: 2px 0 0;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .produto-tags {
@@ -192,7 +171,7 @@
 .painel-venda {
   display: grid;
   gap: 12px;
-  padding: 14px;
+  padding: 12px;
   max-height: calc(100vh - 120px);
 }
 
@@ -241,15 +220,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  min-width: 30px;
-  height: 30px;
   padding: 0;
 }
 
 .item-controles nz-input-number {
   width: 76px;
 }
+
 
 .venda-vazia,
 .estado-vazio {
@@ -307,6 +284,15 @@
   .grade-produtos {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
+
+  .produto-card { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); min-height: 260px; }
+
+  .produto-midia {
+    border-right: 0;
+    border-bottom: 1px solid var(--cor-borda);
+  }
+
+  .produto-imagem, .produto-sem-imagem { width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; }
 }
 
 @media (max-width: 420px) {

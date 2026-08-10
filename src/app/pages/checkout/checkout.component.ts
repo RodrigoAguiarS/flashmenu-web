@@ -77,6 +77,10 @@ export class CheckoutComponent implements OnInit {
     return Number(preco ?? 0) * quantidade;
   }
 
+  protected precoItem(item: { valorUnitarioEstimado?: number; produto: ProdutoCarrinho }): number {
+    return Number(item.valorUnitarioEstimado ?? item.produto.valorVenda ?? 0);
+  }
+
   protected imagemPrincipal(produto: ProdutoCarrinho): string | null {
     if (this.imagensInvalidas().has(produto.id)) {
       return null;

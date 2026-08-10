@@ -19,7 +19,7 @@
 }
 
 .formulario {
-  padding: 20px;
+  padding: 14px;
 }
 
 .alerta-formulario {
@@ -82,10 +82,168 @@
   margin-top: 16px;
 }
 
+.complementos-produto {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 14px;
+}
+
+.secao-complementos-topo h2,
+.form-card h3,
+.grupo-card h3 {
+  margin: 0;
+  color: var(--cor-texto);
+}
+
+.secao-complementos-topo p,
+.grupo-card p,
+.grupo-card span,
+.opcao-card span,
+.opcao-card small {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.complementos-layout {
+  display: grid;
+  gap: 12px;
+}
+
+.form-card,
+.grupo-card,
+.opcao-card {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.form-card nz-input-number {
+  width: 100%;
+}
+
+.grade-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 10px;
+}
+
+.acoes-complemento,
+.acoes-linha,
+.grupo-card-topo,
+.tags-complemento {
+  display: flex;
+  gap: 8px;
+}
+
+.acoes-complemento {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.acoes-complemento .ant-btn {
+  min-height: 40px;
+}
+
+.lista-complementos,
+.opcoes-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.grupo-card.inativo,
+.opcao-card.inativo {
+  opacity: 0.7;
+}
+
+.grupo-card-topo {
+  display: grid;
+  gap: 8px;
+}
+
+.grupo-card-topo > div,
+.opcao-card > div:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tags-complemento {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.tags-complemento nz-tag {
+  margin: 0;
+}
+
+.opcao-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.opcao-card > .acoes-linha,
+.grupo-card > .acoes-linha {
+  justify-content: flex-end;
+}
+
+.opcao-card > .acoes-linha .ant-btn,
+.grupo-card > .acoes-linha .ant-btn {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+}
+
+.opcao-card > strong {
+  color: var(--cor-texto);
+}
+
+.estado-vazio-complementos {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
 @media (min-width: 900px) {
+  .formulario {
+    padding: 20px;
+  }
+
   .formulario-layout {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
     align-items: start;
+  }
+
+  .complementos-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grade-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .opcao-card {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+  }
+
+  .acoes-complemento {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .grupo-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .tags-complemento {
+    flex: 0 0 auto;
+    justify-content: flex-end;
   }
 }
 

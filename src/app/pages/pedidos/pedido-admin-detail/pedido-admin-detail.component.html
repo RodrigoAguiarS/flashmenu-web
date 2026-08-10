@@ -158,6 +158,17 @@
                 @if (item.observacao) {
                   <small class="observacao-item">Obs: {{ item.observacao }}</small>
                 }
+                <small>Preco base: {{ (item.valorProduto ?? item.precoUnitario) | currency:'BRL':'symbol':'1.2-2' }}</small>
+                @if (item.complementos?.length) {
+                  <ul class="complementos-item">
+                    @for (complemento of item.complementos; track complemento.id ?? complemento.opcaoComplementoId ?? complemento.nome) {
+                      <li>
+                        + {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }
+                        <strong>{{ complemento.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
               <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>

@@ -9,6 +9,249 @@
   </a>
 </section>
 
+@if (editando()) {
+  <section class="complementos-produto cartao-sistema" aria-label="Complementos e personalizacao">
+    <header class="secao-complementos-topo">
+      <div>
+        <h2>Complementos / Personalizacao</h2>
+        <p>Gerencie grupos e opcoes na ordem em que aparecem no catalogo, delivery e PDV.</p>
+      </div>
+    </header>
+
+    <nz-spin [nzSpinning]="carregandoComplementos()">
+      <div class="complementos-layout">
+        <section class="form-card">
+          <h3>{{ grupoEditandoId() ? 'Editar grupo' : 'Novo grupo' }}</h3>
+
+          <form nz-form nzLayout="vertical" [formGroup]="formularioGrupo" (ngSubmit)="salvarGrupo()">
+            <nz-form-item>
+              <nz-form-label nzFor="grupoNome" nzRequired>Nome</nz-form-label>
+              <nz-form-control nzErrorTip="Informe um nome valido." [nzValidateStatus]="formularioGrupo.controls.nome">
+                <input nz-input id="grupoNome" formControlName="nome" placeholder="Ex.: Adicionais" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzFor="grupoDescricao">Descricao</nz-form-label>
+              <nz-form-control [nzValidateStatus]="formularioGrupo.controls.descricao">
+                <textarea nz-input id="grupoDescricao" formControlName="descricao" rows="2" placeholder="Ex.: Escolha ate 5 adicionais"></textarea>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div class="grade-form">
+              <nz-form-item>
+                <nz-form-label nzFor="grupoMinima" nzRequired>Minima</nz-form-label>
+                <nz-form-control nzErrorTip="Informe zero ou mais." [nzValidateStatus]="formularioGrupo.controls.quantidadeMinima">
+                  <nz-input-number id="grupoMinima" formControlName="quantidadeMinima" [nzMin]="0" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="grupoMaxima" nzRequired>Maxima</nz-form-label>
+                <nz-form-control nzErrorTip="Informe zero ou mais." [nzValidateStatus]="formularioGrupo.controls.quantidadeMaxima">
+                  <nz-input-number id="grupoMaxima" formControlName="quantidadeMaxima" [nzMin]="0" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="grupoOrdem" nzRequired>Ordem</nz-form-label>
+                <nz-form-control nzErrorTip="Informe a ordem." [nzValidateStatus]="formularioGrupo.controls.ordem">
+                  <nz-input-number id="grupoOrdem" formControlName="ordem" [nzMin]="0" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <nz-form-item>
+              <nz-form-label nzFor="grupoObrigatorio">Obrigatorio</nz-form-label>
+              <nz-form-control>
+                <nz-switch id="grupoObrigatorio" formControlName="obrigatorio"></nz-switch>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div class="acoes-complemento">
+              @if (grupoEditandoId()) {
+                <button nz-button type="button" (click)="cancelarEdicaoGrupo()">Cancelar</button>
+              }
+              <button nz-button nzType="primary" type="submit" [nzLoading]="salvandoGrupo()">
+                {{ grupoEditandoId() ? 'Salvar grupo' : 'Adicionar grupo' }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="form-card">
+          <h3>{{ opcaoEditandoId() ? 'Editar opcao' : 'Nova opcao' }}</h3>
+
+          <form nz-form nzLayout="vertical" [formGroup]="formularioOpcao" (ngSubmit)="salvarOpcao()">
+            <nz-form-item>
+              <nz-form-label nzFor="opcaoGrupo" nzRequired>Grupo</nz-form-label>
+              <nz-form-control nzErrorTip="Selecione um grupo." [nzValidateStatus]="formularioOpcao.controls.grupoComplementoId">
+                <nz-select id="opcaoGrupo" formControlName="grupoComplementoId" nzPlaceHolder="Selecione">
+                  @for (grupo of gruposComplementos(); track grupo.id) {
+                    <nz-option [nzValue]="grupo.id" [nzLabel]="grupo.nome"></nz-option>
+                  }
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzFor="opcaoNome" nzRequired>Nome</nz-form-label>
+              <nz-form-control nzErrorTip="Informe um nome valido." [nzValidateStatus]="formularioOpcao.controls.nome">
+                <input nz-input id="opcaoNome" formControlName="nome" placeholder="Ex.: Bacon extra" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzFor="opcaoDescricao">Descricao</nz-form-label>
+              <nz-form-control [nzValidateStatus]="formularioOpcao.controls.descricao">
+                <textarea nz-input id="opcaoDescricao" formControlName="descricao" rows="2" placeholder="Descricao opcional"></textarea>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div class="grade-form">
+              <nz-form-item>
+                <nz-form-label nzFor="opcaoValor" nzRequired>Valor adicional</nz-form-label>
+                <nz-form-control nzErrorTip="Informe zero ou mais." [nzValidateStatus]="formularioOpcao.controls.valorAdicional">
+                  <input
+                    nz-input
+                    id="opcaoValor"
+                    formControlName="valorAdicional"
+                    mask="separator.2"
+                    prefix="R$ "
+                    thousandSeparator="."
+                    decimalMarker=","
+                    [leadZero]="true"
+                    [typeFromDecimals]="true"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    placeholder="R$ 0,00"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="opcaoMaxima" nzRequired>Maxima</nz-form-label>
+                <nz-form-control nzErrorTip="Informe ao menos 1." [nzValidateStatus]="formularioOpcao.controls.quantidadeMaxima">
+                  <nz-input-number id="opcaoMaxima" formControlName="quantidadeMaxima" [nzMin]="1" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="opcaoOrdem" nzRequired>Ordem</nz-form-label>
+                <nz-form-control nzErrorTip="Informe a ordem." [nzValidateStatus]="formularioOpcao.controls.ordem">
+                  <nz-input-number id="opcaoOrdem" formControlName="ordem" [nzMin]="0" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <div class="acoes-complemento">
+              @if (opcaoEditandoId()) {
+                <button nz-button type="button" (click)="cancelarEdicaoOpcao()">Cancelar</button>
+              }
+              <button nz-button nzType="primary" type="submit" [nzLoading]="salvandoOpcao()" [disabled]="!gruposComplementos().length">
+                {{ opcaoEditandoId() ? 'Salvar opcao' : 'Adicionar opcao' }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <nz-divider></nz-divider>
+
+      @if (gruposComplementos().length) {
+        <div class="lista-complementos">
+          @for (grupo of gruposComplementos(); track grupo.id) {
+            <article class="grupo-card" [class.inativo]="!grupo.ativo">
+              <header class="grupo-card-topo">
+                <div>
+                  <h3>{{ grupo.ordem }} - {{ grupo.nome }}</h3>
+                  <p>{{ grupo.descricao || 'Sem descricao.' }}</p>
+                  <span>{{ grupo.quantidadeMinima }} a {{ grupo.quantidadeMaxima }} escolhas</span>
+                </div>
+                <div class="tags-complemento">
+                  @if (grupo.obrigatorio) {
+                    <nz-tag nzColor="red">Obrigatorio</nz-tag>
+                  }
+                  <nz-tag [nzColor]="grupo.ativo ? 'success' : 'default'">{{ grupo.ativo ? 'Ativo' : 'Inativo' }}</nz-tag>
+                </div>
+              </header>
+
+              <div class="acoes-linha">
+                <button nz-button nzShape="circle" type="button" aria-label="Editar grupo" (click)="editarGrupo(grupo)">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button nz-button nzShape="circle" type="button" aria-label="Selecionar grupo para nova opcao" (click)="selecionarGrupoOpcao(grupo.id)">
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                </button>
+                <button nz-button nzShape="circle" type="button" aria-label="Ativar ou desativar grupo" (click)="alternarGrupo(grupo)">
+                  <span nz-icon [nzType]="grupo.ativo ? 'pause-circle' : 'play-circle'" nzTheme="outline"></span>
+                </button>
+                <button
+                  nz-button
+                  nzShape="circle"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Excluir este grupo?"
+                  nzOkText="Excluir"
+                  nzCancelText="Cancelar"
+                  aria-label="Excluir grupo"
+                  (nzOnConfirm)="excluirGrupo(grupo)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </div>
+
+              @if (grupo.opcoes?.length) {
+                <div class="opcoes-lista">
+                  @for (opcao of grupo.opcoes; track opcao.id) {
+                    <article class="opcao-card" [class.inativo]="!opcao.ativo">
+                      <div>
+                        <strong>{{ opcao.ordem }} - {{ opcao.nome }}</strong>
+                        <span>{{ opcao.descricao || 'Sem descricao.' }}</span>
+                        <small>Maximo {{ opcao.quantidadeMaxima }}</small>
+                      </div>
+                      <strong>{{ opcao.valorAdicional | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                      <div class="acoes-linha">
+                        <button nz-button nzShape="circle" type="button" aria-label="Editar opcao" (click)="editarOpcao(grupo, opcao)">
+                          <span nz-icon nzType="edit" nzTheme="outline"></span>
+                        </button>
+                        <button nz-button nzShape="circle" type="button" aria-label="Ativar ou desativar opcao" (click)="alternarOpcao(opcao)">
+                          <span nz-icon [nzType]="opcao.ativo ? 'pause-circle' : 'play-circle'" nzTheme="outline"></span>
+                        </button>
+                        <button
+                          nz-button
+                          nzShape="circle"
+                          nzDanger
+                          type="button"
+                          nz-popconfirm
+                          nzPopconfirmTitle="Excluir esta opcao?"
+                          nzOkText="Excluir"
+                          nzCancelText="Cancelar"
+                          aria-label="Excluir opcao"
+                          (nzOnConfirm)="excluirOpcao(opcao)"
+                        >
+                          <span nz-icon nzType="delete" nzTheme="outline"></span>
+                        </button>
+                      </div>
+                    </article>
+                  }
+                </div>
+              } @else {
+                <nz-empty nzNotFoundContent="Nenhuma opcao cadastrada para este grupo."></nz-empty>
+              }
+            </article>
+          }
+        </div>
+      } @else {
+        <section class="estado-vazio-complementos">
+          <nz-empty nzNotFoundContent="Nenhum grupo de complementos cadastrado."></nz-empty>
+        </section>
+      }
+    </nz-spin>
+  </section>
+}
+
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {
     <nz-alert class="alerta-formulario" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

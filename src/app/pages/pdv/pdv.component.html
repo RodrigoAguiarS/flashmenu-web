@@ -164,7 +164,14 @@
               <div class="item-cabecalho">
                 <div>
                   <strong>{{ item.produto.nome }}</strong>
-                  <span>{{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                  <span>{{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                  @if (item.complementos?.length) {
+                    <ul class="complementos-item">
+                      @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
+                        <li>+ {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
+                      }
+                    </ul>
+                  }
                 </div>
 
                 <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
@@ -300,3 +307,24 @@
     </form>
   </aside>
 </section>
+
+<nz-drawer
+  [nzVisible]="drawerPersonalizacaoAberto()"
+  nzTitle="Personalizar produto"
+  nzPlacement="right"
+  [nzWidth]="'min(100vw, 460px)'"
+  (nzOnClose)="fecharPersonalizacao()"
+>
+  <ng-container *nzDrawerContent>
+    @if (produtoPersonalizacao(); as produto) {
+      <app-produto-personalizacao
+        [produto]="produto"
+        [gruposComplementos]="gruposPersonalizacao()"
+        [estoqueMaximo]="estoqueMaximo(produto)"
+        [carregando]="carregandoComplementos()"
+        textoConfirmar="Adicionar a venda"
+        (confirmar)="confirmarPersonalizacao($event)"
+      />
+    }
+  </ng-container>
+</nz-drawer>

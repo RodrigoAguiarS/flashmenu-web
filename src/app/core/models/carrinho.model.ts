@@ -1,4 +1,5 @@
 import { CategoriaResponse } from './categoria.model';
+import { ComplementoSelecionado } from './complemento.model';
 
 export interface ProdutoCarrinho {
   id: number;
@@ -16,4 +17,6 @@ export interface ItemCarrinho {
   produto: ProdutoCarrinho;
   quantidade: number;
   observacao?: string | null;
+  complementos?: ComplementoSelecionado[];
+  valorUnitarioEstimado?: number;
 }

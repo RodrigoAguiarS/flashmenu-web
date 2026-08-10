@@ -1,4 +1,5 @@
 import { CategoriaResponse } from './categoria.model';
+import { GrupoComplementoResponse } from './complemento.model';
 
 export interface ProdutoResponse {
   id: number;
@@ -10,8 +11,10 @@ export interface ProdutoResponse {
   arquivosUrl: string[];
   valorFornecedor: number;
   quantidadeEstoque: number;
+  ativo?: boolean;
   criadoEm: string;
   atualizadoEm: string;
+  gruposComplementos?: GrupoComplementoResponse[];
 }
 
 export interface ProdutoRequest {

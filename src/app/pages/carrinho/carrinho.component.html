@@ -41,6 +41,13 @@
                   @if (item.observacao) {
                     <small class="observacao-item">Obs: {{ item.observacao }}</small>
                   }
+                  @if (item.complementos?.length) {
+                    <ul class="complementos-item">
+                      @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
+                        <li>+ {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
+                      }
+                    </ul>
+                  }
                 </div>
 
               </div>
@@ -49,7 +56,7 @@
                 <div class="item-valores">
                   <span>
                     <small>Preco</small>
-                    {{ preco(item.produto) | currency:'BRL':'symbol':'1.2-2' }}
+                    {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}
                   </span>
                   <strong>
                     <small>Subtotal</small>
@@ -84,6 +91,16 @@
                     (click)="incrementar(item)"
                   >
                     <span nz-icon nzType="plus" nzTheme="outline"></span>
+                  </button>
+
+                  <button
+                    class="botao-editar"
+                    nz-button
+                    nzType="text"
+                    type="button"
+                    (click)="editarPersonalizacao(item)"
+                  >
+                    Editar adicionais
                   </button>
 
                   <button
@@ -181,3 +198,27 @@
     </nz-card>
   </section>
 }
+
+<nz-drawer
+  [nzVisible]="drawerEdicaoAberto()"
+  nzTitle="Editar personalizacao"
+  nzPlacement="right"
+  [nzWidth]="'min(100vw, 460px)'"
+  (nzOnClose)="fecharEdicao()"
+>
+  <ng-container *nzDrawerContent>
+    @if (itemEditando(); as item) {
+      <app-produto-personalizacao
+        [produto]="item.produto"
+        [gruposComplementos]="gruposItemEditando()"
+        [configuracaoInicial]="item.complementos ?? []"
+        [quantidadeInicial]="item.quantidade"
+        [observacaoInicial]="item.observacao ?? null"
+        [estoqueMaximo]="estoqueMaximo(item.produto)"
+        [carregando]="carregandoComplementos()"
+        textoConfirmar="Salvar personalizacao"
+        (confirmar)="confirmarEdicao($event)"
+      />
+    }
+  </ng-container>
+</nz-drawer>

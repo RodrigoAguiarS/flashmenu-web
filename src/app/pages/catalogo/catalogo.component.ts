@@ -24,10 +24,16 @@ import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { CategoriaResponse } from '../../core/models/categoria.model';
+import { GrupoComplementoResponse, ComplementoSelecionado } from '../../core/models/complemento.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { CategoriaService } from '../../core/services/categoria.service';
+import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
 import { ProdutoService } from '../../core/services/produto.service';
+import {
+  ProdutoPersonalizacaoComponent,
+  ProdutoPersonalizacaoConfirmacao
+} from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
 
 @Component({
   selector: 'app-catalogo',
@@ -51,7 +57,8 @@ import { ProdutoService } from '../../core/services/produto.service';
     NzSelectModule,
     NzSpinModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    ProdutoPersonalizacaoComponent
   ],
   templateUrl: './catalogo.component.html',
   styleUrl: './catalogo.component.scss',
@@ -61,6 +68,7 @@ export class CatalogoComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
+  private readonly grupoComplementoService = inject(GrupoComplementoService);
   private readonly carrinhoService = inject(CarrinhoService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -68,10 +76,10 @@ export class CatalogoComponent implements OnInit {
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly produtoSelecionado = signal<ProdutoResponse | null>(null);
+  protected readonly gruposProdutoSelecionado = signal<GrupoComplementoResponse[]>([]);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly drawerAberto = signal(false);
-  protected readonly quantidadeDetalhe = signal(1);
-  protected readonly observacaoDetalhe = signal('');
+  protected readonly carregandoComplementos = signal(false);
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly total = signal(0);
@@ -114,52 +122,71 @@ export class CatalogoComponent implements OnInit {
 
   abrirDetalhes(produto: ProdutoResponse): void {
     this.produtoSelecionado.set(produto);
-    this.quantidadeDetalhe.set(1);
-    this.observacaoDetalhe.set('');
+    this.gruposProdutoSelecionado.set([]);
     this.drawerAberto.set(true);
+    this.carregarComplementosProduto(produto);
   }
 
   fecharDetalhes(): void {
     this.drawerAberto.set(false);
     this.produtoSelecionado.set(null);
-    this.quantidadeDetalhe.set(1);
-    this.observacaoDetalhe.set('');
+    this.gruposProdutoSelecionado.set([]);
   }
 
-  adicionarProduto(produto: ProdutoResponse, quantidade = 1, observacao?: string | null): void {
+  adicionarProduto(
+    produto: ProdutoResponse,
+    quantidade = 1,
+    observacao?: string | null,
+    complementos: ComplementoSelecionado[] = []
+  ): void {
     if (!this.carrinhoService.possuiEstoque(produto)) {
       this.message.warning('Produto sem estoque disponivel.');
       return;
     }
 
-    if (!this.carrinhoService.adicionar(produto, quantidade, observacao)) {
+    if (!this.carrinhoService.adicionar(produto, quantidade, observacao, complementos)) {
       this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
       return;
     }
 
     this.message.success('Produto adicionado ao carrinho.');
+    this.fecharDetalhes();
   }
 
-  alterarObservacaoDetalhe(observacao: string): void {
-    this.observacaoDetalhe.set((observacao ?? '').substring(0, 255));
+  adicionarOuPersonalizar(produto: ProdutoResponse): void {
+    if (!this.carrinhoService.possuiEstoque(produto)) {
+      this.message.warning('Produto sem estoque disponivel.');
+      return;
+    }
+
+    this.carregandoComplementos.set(true);
+    this.grupoComplementoService.listarPorProduto(produto.id).pipe(
+      finalize(() => this.carregandoComplementos.set(false))
+    ).subscribe({
+      next: (grupos) => {
+        const gruposAtivos = this.normalizarGrupos(grupos);
+
+        if (!gruposAtivos.length) {
+          this.adicionarProduto(produto);
+          return;
+        }
+
+        this.produtoSelecionado.set(produto);
+        this.gruposProdutoSelecionado.set(gruposAtivos);
+        this.drawerAberto.set(true);
+      },
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
-  alterarQuantidadeDetalhe(quantidade: number | null): void {
-    const produto = this.produtoSelecionado();
-    const valor = Math.max(1, Math.trunc(quantidade ?? 1));
-    const estoque = produto ? this.carrinhoService.quantidadeDisponivel(produto) : null;
-
-    this.quantidadeDetalhe.set(estoque === null ? valor : Math.min(valor, estoque));
-  }
-
-  adicionarProdutoSelecionado(): void {
+  confirmarPersonalizacao(evento: ProdutoPersonalizacaoConfirmacao): void {
     const produto = this.produtoSelecionado();
 
     if (!produto) {
       return;
     }
 
-    this.adicionarProduto(produto, this.quantidadeDetalhe(), this.observacaoDetalhe());
+    this.adicionarProduto(produto, evento.quantidade, evento.observacao, evento.complementos);
   }
 
   marcarImagemInvalida(produtoId: number): void {
@@ -230,6 +257,26 @@ export class CatalogoComponent implements OnInit {
       next: (page) => this.categorias.set(page.content),
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
+  }
+
+  private carregarComplementosProduto(produto: ProdutoResponse): void {
+    this.carregandoComplementos.set(true);
+    this.gruposProdutoSelecionado.set([]);
+    this.grupoComplementoService.listarPorProduto(produto.id).pipe(
+      finalize(() => this.carregandoComplementos.set(false))
+    ).subscribe({
+      next: (grupos) => this.gruposProdutoSelecionado.set(this.normalizarGrupos(grupos)),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
+  private normalizarGrupos(grupos: GrupoComplementoResponse[]): GrupoComplementoResponse[] {
+    return grupos
+      .filter((grupo) => grupo.ativo)
+      .map((grupo) => ({
+        ...grupo,
+        opcoes: [...(grupo.opcoes ?? [])].filter((opcao) => opcao.ativo)
+      }));
   }
 
   private extrairMensagemErro(error: HttpErrorResponse): string {

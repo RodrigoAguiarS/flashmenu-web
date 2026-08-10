@@ -141,7 +141,11 @@ export class CheckoutFacade {
       itens: this.carrinhoService.itens().map((item) => ({
         produtoId: item.produto.id,
         quantidade: item.quantidade,
-        observacao: item.observacao ?? null
+        observacao: item.observacao ?? null,
+        complementos: (item.complementos ?? []).map((complemento) => ({
+          opcaoComplementoId: complemento.opcaoComplementoId,
+          quantidade: complemento.quantidade
+        }))
       }))
     };
 

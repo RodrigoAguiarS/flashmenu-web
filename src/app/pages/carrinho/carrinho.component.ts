@@ -2,9 +2,11 @@ import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
@@ -13,7 +15,13 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
+import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import {
+  ProdutoPersonalizacaoComponent,
+  ProdutoPersonalizacaoConfirmacao
+} from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
 
 @Component({
   selector: 'app-carrinho',
@@ -25,11 +33,13 @@ import { CarrinhoService } from '../../core/services/carrinho.service';
     NzButtonModule,
     NzCardModule,
     NzDividerModule,
+    NzDrawerModule,
     NzEmptyModule,
     NzIconModule,
     NzInputNumberModule,
     NzPopconfirmModule,
-    NzTagModule
+    NzTagModule,
+    ProdutoPersonalizacaoComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',
@@ -39,7 +49,12 @@ export class CarrinhoComponent {
   protected readonly carrinhoService = inject(CarrinhoService);
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
+  private readonly grupoComplementoService = inject(GrupoComplementoService);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
+  protected readonly itemEditando = signal<ItemCarrinho | null>(null);
+  protected readonly gruposItemEditando = signal<GrupoComplementoResponse[]>([]);
+  protected readonly drawerEdicaoAberto = signal(false);
+  protected readonly carregandoComplementos = signal(false);
 
   incrementar(item: ItemCarrinho): void {
     if (!this.carrinhoService.incrementar(item.id)) {
@@ -62,6 +77,41 @@ export class CarrinhoComponent {
   remover(item: ItemCarrinho): void {
     this.carrinhoService.remover(item.id);
     this.message.success('Produto removido do carrinho.');
+  }
+
+  editarPersonalizacao(item: ItemCarrinho): void {
+    this.itemEditando.set(item);
+    this.drawerEdicaoAberto.set(true);
+    this.carregandoComplementos.set(true);
+
+    this.grupoComplementoService.listarPorProduto(item.produto.id).pipe(
+      finalize(() => this.carregandoComplementos.set(false))
+    ).subscribe({
+      next: (grupos) => this.gruposItemEditando.set(this.normalizarGrupos(grupos)),
+      error: () => this.message.error('Nao foi possivel carregar os complementos do produto.')
+    });
+  }
+
+  fecharEdicao(): void {
+    this.drawerEdicaoAberto.set(false);
+    this.itemEditando.set(null);
+    this.gruposItemEditando.set([]);
+  }
+
+  confirmarEdicao(evento: ProdutoPersonalizacaoConfirmacao): void {
+    const item = this.itemEditando();
+
+    if (!item) {
+      return;
+    }
+
+    if (!this.carrinhoService.atualizarConfiguracao(item.id, evento.complementos, evento.observacao, evento.quantidade)) {
+      this.message.warning('Nao foi possivel atualizar a personalizacao com o estoque atual.');
+      return;
+    }
+
+    this.message.success('Personalizacao atualizada.');
+    this.fecharEdicao();
   }
 
   limpar(): void {
@@ -95,10 +145,23 @@ export class CarrinhoComponent {
   }
 
   protected subtotal(item: ItemCarrinho): number {
-    return this.preco(item.produto) * item.quantidade;
+    return this.carrinhoService.obterPrecoItem(item) * item.quantidade;
+  }
+
+  protected precoItem(item: ItemCarrinho): number {
+    return this.carrinhoService.obterPrecoItem(item);
   }
 
   protected estoqueMaximo(produto: ProdutoCarrinho): number {
     return this.carrinhoService.quantidadeDisponivel(produto) ?? 999;
+  }
+
+  private normalizarGrupos(grupos: GrupoComplementoResponse[]): GrupoComplementoResponse[] {
+    return grupos
+      .filter((grupo) => grupo.ativo)
+      .map((grupo) => ({
+        ...grupo,
+        opcoes: [...(grupo.opcoes ?? [])].filter((opcao) => opcao.ativo)
+      }));
   }
 }

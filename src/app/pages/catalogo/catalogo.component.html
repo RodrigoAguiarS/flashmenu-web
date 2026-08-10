@@ -106,7 +106,7 @@
                     [disabled]="!podeAdicionar(produto)"
                     nz-tooltip
                     nzTooltipTitle="Adicionar ao carrinho"
-                    (click)="adicionarProduto(produto)"
+                    (click)="adicionarOuPersonalizar(produto)"
                     aria-label="Adicionar produto ao carrinho"
                   >
                     <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -172,47 +172,15 @@
             </div>
           </div>
 
-          <div class="quantidade-bloco">
-            <label class="quantidade-label" for="quantidadeProduto">Quantidade</label>
-            <nz-input-number
-              id="quantidadeProduto"
-              [ngModel]="quantidadeDetalhe()"
-              [nzMin]="1"
-              [nzMax]="estoqueMaximo(produto)"
-              [nzStep]="1"
-              [disabled]="!podeAdicionar(produto)"
-              (ngModelChange)="alterarQuantidadeDetalhe($event)"
-            ></nz-input-number>
-          </div>
-
-          <div class="observacao-bloco">
-            <label class="quantidade-label" for="observacaoItem">Observacao do item</label>
-            <textarea
-              nz-input
-              id="observacaoItem"
-              rows="3"
-              maxlength="255"
-              [ngModel]="observacaoDetalhe()"
-              placeholder="Ex.: sem cebola, ponto da carne, retirar molho..."
-              (ngModelChange)="alterarObservacaoDetalhe($event)"
-            ></textarea>
-            <small>{{ observacaoDetalhe().length }}/255</small>
-          </div>
+          <app-produto-personalizacao
+            [produto]="produto"
+            [gruposComplementos]="gruposProdutoSelecionado()"
+            [estoqueMaximo]="estoqueMaximo(produto)"
+            [carregando]="carregandoComplementos()"
+            textoConfirmar="Adicionar ao carrinho"
+            (confirmar)="confirmarPersonalizacao($event)"
+          />
         </section>
-
-        <footer class="detalhe-rodape">
-          <button
-            class="detalhe-adicionar"
-            nz-button
-            nzType="primary"
-            type="button"
-            [disabled]="!podeAdicionar(produto)"
-            (click)="adicionarProdutoSelecionado()"
-          >
-            <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
-            Adicionar ao carrinho
-          </button>
-        </footer>
       </div>
     }
   </ng-container>
