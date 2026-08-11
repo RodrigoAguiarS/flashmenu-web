@@ -55,7 +55,7 @@ export class UnidadeFormComponent implements OnInit {
   protected readonly textoBotao = computed(() => this.editando() ? 'Salvar alteracoes' : 'Cadastrar unidade');
   protected readonly linkPreview = computed(() => {
     const slug = this.formulario.controls.slug.value.trim();
-    return slug ? `${window.location.origin}/cardapio/${slug}` : `${window.location.origin}/cardapio/slug-da-unidade`;
+    return slug ? `${window.location.origin}/loja/${slug}` : `${window.location.origin}/loja/slug-da-unidade`;
   });
 
   protected readonly formulario = this.fb.group({

@@ -82,7 +82,7 @@ export class UnidadeListComponent implements OnInit {
   }
 
   protected linkPublico(unidade: UnidadeResponse): string {
-    return `${window.location.origin}/cardapio/${unidade.slug}`;
+    return `${window.location.origin}/loja/${unidade.slug}`;
   }
 
   protected statusColor(unidade: UnidadeResponse): string {

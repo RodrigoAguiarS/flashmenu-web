@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -10,6 +11,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { EmpresaResponse } from '../../core/models/empresa.model';
+import { CarrinhoService } from '../../core/services/carrinho.service';
 import { EmpresaService } from '../../core/services/empresa.service';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 
@@ -31,12 +33,20 @@ import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LojaPublicaComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly carrinhoService = inject(CarrinhoService);
   private readonly empresaService = inject(EmpresaService);
+  private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly unidadeSlug = signal<string | null>(null);
   protected readonly empresa = signal<EmpresaResponse | null>(null);
   protected readonly carregando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly horariosVisiveis = signal(false);
+  protected readonly linkCardapio = computed(() => {
+    const slug = this.unidadeSlug();
+    return slug ? ['/cardapio', slug] : this.carrinhoService.cardapioLink();
+  });
 
   protected readonly iniciaisEmpresa = computed(() => {
     const nome = this.empresa()?.nomeFantasia?.trim();
@@ -66,6 +76,7 @@ export class LojaPublicaComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.observarUnidadeSlug();
     this.carregarEmpresa();
   }
 
@@ -101,6 +112,20 @@ export class LojaPublicaComponent implements OnInit {
       }),
       finalize(() => this.carregando.set(false))
     ).subscribe((empresa) => this.empresa.set(empresa));
+  }
+
+  private observarUnidadeSlug(): void {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const slug = params.get('unidadeSlug')?.trim() || null;
+
+        this.unidadeSlug.set(slug);
+
+        if (slug) {
+          this.carrinhoService.definirUnidadeSlug(slug);
+        }
+      });
   }
 
   private normalizarTelefone(telefone: string | null | undefined): string | null {

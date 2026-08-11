@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -24,6 +24,8 @@ import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+
+const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
 
 @Component({
   selector: 'app-usuario-form',
@@ -104,12 +106,16 @@ export class UsuarioFormComponent implements OnInit {
       this.idUsuario.set(idNumerico);
       this.formulario.controls.senha.clearValidators();
       this.formulario.controls.novaSenha.setValidators([Validators.minLength(6)]);
+      this.formulario.controls.senha.updateValueAndValidity({ emitEvent: false });
+      this.formulario.controls.novaSenha.updateValueAndValidity({ emitEvent: false });
       this.carregarDadosEdicao(idNumerico);
       return;
     }
 
     this.formulario.controls.senha.setValidators([Validators.required, Validators.minLength(6)]);
     this.formulario.controls.novaSenha.clearValidators();
+    this.formulario.controls.senha.updateValueAndValidity({ emitEvent: false });
+    this.formulario.controls.novaSenha.updateValueAndValidity({ emitEvent: false });
     this.aplicarValidadoresEnderecoCadastro();
     this.observarCep();
     this.carregarPerfis();
@@ -124,6 +130,8 @@ export class UsuarioFormComponent implements OnInit {
 
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.mensagemErro.set('Revise os campos obrigatorios antes de salvar.');
+      this.errosValidacao.set(this.coletarErrosFormulario(this.formulario));
       return;
     }
 
@@ -221,11 +229,11 @@ export class UsuarioFormComponent implements OnInit {
       nome: valor.nome.trim(),
       login: valor.login.trim(),
       telefone: valor.telefone.trim(),
-      idPerfil: valor.idPerfil ?? 0
+      idPerfil: valor.idPerfil ?? 0,
+      senha: this.editando() ? SENHA_NAO_ALTERADA : valor.senha
     };
 
     if (!this.editando()) {
-      request.senha = valor.senha;
       request.endereco = this.montarEnderecoRequest();
     }
 
@@ -316,6 +324,44 @@ export class UsuarioFormComponent implements OnInit {
     );
   }
 
+  private coletarErrosFormulario(formGroup: FormGroup, prefixo = ''): string[] {
+    return Object.entries(formGroup.controls).flatMap(([nomeControle, controle]) => {
+      const caminho = prefixo ? `${prefixo}.${nomeControle}` : nomeControle;
+
+      if (controle instanceof FormGroup) {
+        return this.coletarErrosFormulario(controle, caminho);
+      }
+
+      return controle.invalid ? [this.formatarErroControle(caminho, controle)] : [];
+    });
+  }
+
+  private formatarErroControle(fieldName: string, control: AbstractControl): string {
+    if (control.hasError('required')) {
+      return `${this.labelCampo(fieldName)}: Campo obrigatorio`;
+    }
+
+    if (control.hasError('email')) {
+      return `${this.labelCampo(fieldName)}: Informe um e-mail valido`;
+    }
+
+    if (control.hasError('minlength')) {
+      const tamanhoMinimo = control.getError('minlength')?.requiredLength;
+      return `${this.labelCampo(fieldName)}: Informe pelo menos ${tamanhoMinimo} caracteres`;
+    }
+
+    if (control.hasError('maxlength')) {
+      const tamanhoMaximo = control.getError('maxlength')?.requiredLength;
+      return `${this.labelCampo(fieldName)}: Informe no maximo ${tamanhoMaximo} caracteres`;
+    }
+
+    if (control.hasError('pattern')) {
+      return `${this.labelCampo(fieldName)}: Formato invalido`;
+    }
+
+    return `${this.labelCampo(fieldName)}: Valor invalido`;
+  }
+
   private tratarErro(error: HttpErrorResponse): void {
     const body = error.error;
 
@@ -334,6 +380,10 @@ export class UsuarioFormComponent implements OnInit {
   }
 
   private formatarErroCampo(fieldName: string, message: string): string {
+    return `${this.labelCampo(fieldName)}: ${message}`;
+  }
+
+  private labelCampo(fieldName: string): string {
     const labels: Record<string, string> = {
       nome: 'Nome',
       login: 'E-mail',
@@ -352,7 +402,7 @@ export class UsuarioFormComponent implements OnInit {
       endereco: 'Endereco'
     };
 
-    return `${labels[fieldName] ?? fieldName}: ${message}`;
+    return labels[fieldName] ?? fieldName;
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {

@@ -25,6 +25,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/catalogo/catalogo.component').then((component) => component.CatalogoComponent)
   },
   {
+    path: 'loja/:unidadeSlug',
+    loadComponent: () => import('./pages/loja-publica/loja-publica.component').then((component) => component.LojaPublicaComponent)
+  },
+  {
     path: 'loja',
     loadComponent: () => import('./pages/loja-publica/loja-publica.component').then((component) => component.LojaPublicaComponent)
   },
