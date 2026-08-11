@@ -368,7 +368,7 @@ export class CatalogoComponent implements OnInit {
   }
 
   private redirecionarParaUnidadeLogadaOuExibirErro(): void {
-    const slug = this.carrinhoService.unidadeSlug() ?? this.authService.obterUsuarioAtual()?.unidade?.slug;
+    const slug = this.authService.obterUsuarioAtual()?.unidade?.slug ?? this.carrinhoService.unidadeSlug();
 
     if (slug) {
       void this.router.navigate(['/cardapio', slug], { replaceUrl: true });

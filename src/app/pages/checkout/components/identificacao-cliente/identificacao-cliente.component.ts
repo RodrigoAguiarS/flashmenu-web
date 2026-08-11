@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize, map } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -10,6 +10,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzStepsModule } from 'ng-zorro-antd/steps';
 
 import { StandardError, ValidationError } from '../../../../core/models/api-error.model';
 import { ClienteCheckoutRequest } from '../../../../core/models/auth.model';
@@ -28,9 +29,11 @@ import { DocumentoMaskDirective } from '../../../../shared/directives/documento-
     NzGridModule,
     NzIconModule,
     NzInputModule,
+    NzStepsModule,
     DocumentoMaskDirective
   ],
   templateUrl: './identificacao-cliente.component.html',
+  styleUrl: './identificacao-cliente.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IdentificacaoClienteComponent {
@@ -51,6 +54,8 @@ export class IdentificacaoClienteComponent {
   protected readonly clienteEncontrado = signal<boolean | null>(null);
   protected readonly enderecoEncontrado = signal(false);
   protected readonly senhaVisivel = signal(false);
+  protected readonly etapaCadastro = signal<0 | 1>(0);
+  protected readonly etapaCadastroAtual = computed(() => this.etapaCadastro());
 
   protected readonly identificacaoForm = this.fb.group({
     telefone: ['', [Validators.required, Validators.pattern(/^\(?[1-9]{2}\)?\s?(9?[0-9]{4})-?[0-9]{4}$/)]],
@@ -117,6 +122,26 @@ export class IdentificacaoClienteComponent {
     });
   }
 
+  protected avancarEtapaCadastro(): void {
+    this.mensagemErro.set(null);
+
+    if (!this.validarControles([
+      this.identificacaoForm.controls.telefone,
+      this.identificacaoForm.controls.nome,
+      this.identificacaoForm.controls.login
+    ])) {
+      this.mensagemErro.set('Revise os dados de acesso antes de continuar.');
+      return;
+    }
+
+    this.etapaCadastro.set(1);
+  }
+
+  protected voltarEtapaCadastro(): void {
+    this.mensagemErro.set(null);
+    this.etapaCadastro.set(0);
+  }
+
   protected alternarVisibilidadeSenha(): void {
     this.senhaVisivel.update((visivel) => !visivel);
   }
@@ -149,6 +174,7 @@ export class IdentificacaoClienteComponent {
     ).subscribe((telefone) => {
       if (telefone.length < 10) {
         this.clienteEncontrado.set(null);
+        this.etapaCadastro.set(0);
         this.mensagemIdentificacao.set(null);
         this.limparDadosIdentificacao();
         this.aplicarValidadoresIdentificacao();
@@ -160,6 +186,7 @@ export class IdentificacaoClienteComponent {
       }
 
       this.clienteEncontrado.set(null);
+      this.etapaCadastro.set(0);
       this.limparDadosIdentificacao();
       this.aplicarValidadoresIdentificacao();
       this.buscarClientePorTelefone(telefone);
@@ -216,6 +243,7 @@ export class IdentificacaoClienteComponent {
         }
 
         this.limparDadosIdentificacao();
+        this.etapaCadastro.set(0);
         this.aplicarValidadoresIdentificacao();
         this.mensagemIdentificacao.set('Nao encontramos cadastro com esse telefone. Complete seus dados para continuar.');
       },
@@ -337,6 +365,15 @@ export class IdentificacaoClienteComponent {
 
       control.updateValueAndValidity({ emitEvent: false });
     });
+  }
+
+  private validarControles(controls: AbstractControl[]): boolean {
+    controls.forEach((control) => {
+      control.markAsTouched();
+      control.updateValueAndValidity({ emitEvent: false });
+    });
+
+    return controls.every((control) => control.valid);
   }
 
   private extrairMensagemErro(error: HttpErrorResponse, mensagemPadrao: string): string {

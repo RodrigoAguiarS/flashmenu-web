@@ -65,7 +65,7 @@ export class App implements OnInit {
   }
 
   protected linkCatalogo(): RouterLinkValue {
-    const slug = this.carrinhoService.unidadeSlug() ?? this.authService.usuarioAutenticado()?.unidade?.slug;
+    const slug = this.authService.usuarioAutenticado()?.unidade?.slug ?? this.carrinhoService.unidadeSlug();
     return slug ? ['/cardapio', slug] : '/catalogo';
   }
 

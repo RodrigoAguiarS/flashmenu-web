@@ -1,0 +1,93 @@
+.identificacao-cliente {
+  display: grid;
+  gap: 12px;
+  color: var(--cor-texto);
+}
+
+.identificacao-cabecalho {
+  display: grid;
+  gap: 4px;
+}
+
+.identificacao-cabecalho h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.identificacao-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.alerta-identificacao {
+  margin: 0;
+}
+
+.checkout-bloco {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.checkout-bloco nz-form-item,
+.checkout-endereco nz-form-item {
+  margin-bottom: 0;
+}
+
+.cadastro-etapas {
+  gap: 16px;
+}
+
+.cadastro-etapas ::ng-deep .ant-steps {
+  max-width: 420px;
+}
+
+.cadastro-etapas ::ng-deep .ant-steps-item-title,
+.cadastro-etapas ::ng-deep .ant-steps-item-description {
+  color: var(--cor-texto);
+}
+
+.checkout-endereco {
+  display: grid;
+  gap: 12px;
+}
+
+.botao-senha {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  color: var(--cor-texto-suave);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.acoes-identificacao {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  justify-content: end;
+}
+
+.acoes-identificacao button {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+@media (min-width: 520px) {
+  .acoes-identificacao {
+    display: flex;
+  }
+
+  .acoes-identificacao button {
+    width: auto;
+    min-width: 132px;
+  }
+}

@@ -119,7 +119,7 @@ export class PerfilFormComponent implements OnInit {
   private carregarPermissoes(): void {
     this.carregando.set(true);
 
-    this.permissaoService.listar({ page: 0, size: 200, sort: 'authority' }).pipe(
+    this.permissaoService.listar({ page: 0, size: 100, sort: 'authority' }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
       next: (page) => this.permissoes.set(page.content),
@@ -132,7 +132,7 @@ export class PerfilFormComponent implements OnInit {
 
     forkJoin({
       perfil: this.perfilService.buscarPorId(id),
-      permissoes: this.permissaoService.listar({ page: 0, size: 200, sort: 'authority' })
+      permissoes: this.permissaoService.listar({ page: 0, size: 100, sort: 'authority' })
     }).pipe(
       catchError((error: HttpErrorResponse) => {
         this.tratarErro(error);

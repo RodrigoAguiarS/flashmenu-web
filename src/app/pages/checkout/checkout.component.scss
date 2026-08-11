@@ -233,16 +233,17 @@
 }
 
 .acoes-checkout {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   margin-top: 12px;
 }
 
 .acoes-checkout a,
-.acoes-checkout button {
-  min-width: 92px;
-  min-height: 34px;
+.acoes-checkout button,
+.estado-vazio a {
+  width: 100%;
+  min-height: 40px;
   border-radius: 8px;
 }
 
@@ -255,5 +256,16 @@
   .resumo {
     position: sticky;
     top: 84px;
+  }
+
+  .acoes-checkout {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .acoes-checkout a,
+  .acoes-checkout button {
+    width: auto;
+    min-width: 112px;
   }
 }
