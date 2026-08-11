@@ -1,16 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Perfis</h1>
-    <p>Gerencie grupos de permissao e acesso ao sistema.</p>
-  </div>
-
+<app-page-header titulo="Perfis" descricao="Gerencie grupos de permissao e acesso ao sistema.">
   @if (podeCriarPerfil()) {
     <a nz-button nzType="primary" routerLink="/perfis/novo">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Novo perfil
     </a>
   }
-</section>
+</app-page-header>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de perfis">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">

@@ -25,6 +25,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { CategoriaResponse } from '../../../core/models/categoria.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-categoria-list',
@@ -45,7 +46,8 @@ import { CategoriaService } from '../../../core/services/categoria.service';
     NzPopconfirmModule,
     NzTableModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    PageHeaderComponent
   ],
   templateUrl: './categoria-list.component.html',
   styleUrl: './categoria-list.component.scss',

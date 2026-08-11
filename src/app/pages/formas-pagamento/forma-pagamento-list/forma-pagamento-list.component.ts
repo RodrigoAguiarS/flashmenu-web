@@ -16,6 +16,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { FormaPagamentoResponse, TipoFormaPagamento } from '../../../core/models/forma-pagamento.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { FormaPagamentoService } from '../../../core/services/forma-pagamento.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-forma-pagamento-list',
@@ -28,7 +29,8 @@ import { FormaPagamentoService } from '../../../core/services/forma-pagamento.se
     NzIconModule,
     NzInputNumberModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './forma-pagamento-list.component.html',
   styleUrl: './forma-pagamento-list.component.scss',

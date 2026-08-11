@@ -1,13 +1,8 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Meus pedidos</h1>
-    <p>Acompanhe seus pedidos realizados.</p>
-  </div>
-
+<app-page-header titulo="Meus pedidos" descricao="Acompanhe seus pedidos realizados.">
   <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Comprar novamente">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <nz-spin [nzSpinning]="carregando()">
   @if (possuiPedidos()) {

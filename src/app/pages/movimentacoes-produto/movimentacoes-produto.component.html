@@ -1,9 +1,7 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Movimentacoes de estoque</h1>
-    <p>Registre entradas, ajustes e acompanhe o historico de cada produto.</p>
-  </div>
-</section>
+<app-page-header
+  titulo="Movimentacoes de estoque"
+  descricao="Registre entradas, ajustes e acompanhe o historico de cada produto."
+/>
 
 @if (mensagemErro()) {
   <nz-alert class="alerta-estoque" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

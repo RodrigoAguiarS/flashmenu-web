@@ -30,6 +30,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { GrupoComplementoService } from '../../../core/services/grupo-complemento.service';
 import { OpcaoComplementoService } from '../../../core/services/opcao-complemento.service';
 import { ProdutoService } from '../../../core/services/produto.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 const TIPOS_IMAGEM_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
 const TAMANHO_MAXIMO_IMAGEM = 5 * 1024 * 1024;
@@ -56,7 +57,8 @@ const TAMANHO_MAXIMO_IMAGEM = 5 * 1024 * 1024;
     NzSwitchModule,
     NzTagModule,
     NzUploadModule,
-    NgxMaskDirective
+    NgxMaskDirective,
+    PageHeaderComponent
   ],
   templateUrl: './produto-form.component.html',
   styleUrl: './produto-form.component.scss',

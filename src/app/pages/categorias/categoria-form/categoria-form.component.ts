@@ -15,6 +15,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { CategoriaRequest } from '../../../core/models/categoria.model';
 import { CategoriaService } from '../../../core/services/categoria.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-categoria-form',
@@ -28,7 +29,8 @@ import { CategoriaService } from '../../../core/services/categoria.service';
     NzGridModule,
     NzIconModule,
     NzInputModule,
-    NzSpinModule
+    NzSpinModule,
+    PageHeaderComponent
   ],
   templateUrl: './categoria-form.component.html',
   styleUrl: './categoria-form.component.scss',

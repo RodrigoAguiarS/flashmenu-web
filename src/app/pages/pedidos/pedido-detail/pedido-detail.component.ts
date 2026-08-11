@@ -16,6 +16,7 @@ import { ProdutoResponse } from '../../../core/models/produto.model';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProdutoService } from '../../../core/services/produto.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-pedido-detail',
@@ -28,7 +29,8 @@ import { salvarArquivo } from '../../../core/utils/download-file';
     NzEmptyModule,
     NzIconModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './pedido-detail.component.html',
   styleUrl: './pedido-detail.component.scss',

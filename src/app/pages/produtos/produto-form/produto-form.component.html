@@ -1,13 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>{{ titulo() }}</h1>
-    <p>{{ editando() ? 'Atualize dados, estoque e imagem do produto.' : 'Cadastre um produto com preco, estoque e imagem.' }}</p>
-  </div>
-
+<app-page-header
+  [titulo]="titulo()"
+  [descricao]="editando() ? 'Atualize dados, estoque e imagem do produto.' : 'Cadastre um produto com preco, estoque e imagem.'"
+>
   <a class="botao-voltar" nz-button nzType="text" routerLink="/produtos" aria-label="Voltar para produtos">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 @if (editando()) {
   <section class="complementos-produto cartao-sistema" aria-label="Complementos e personalizacao">

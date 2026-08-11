@@ -1,0 +1,13 @@
+<section class="page-header">
+  <div class="page-header__texto">
+    <h1>{{ titulo() }}</h1>
+
+    @if (descricao()) {
+      <p>{{ descricao() }}</p>
+    }
+  </div>
+
+  <div class="page-header__acoes">
+    <ng-content />
+  </div>
+</section>

@@ -1,13 +1,8 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Checkout</h1>
-    <p>Revise seu pedido e confirme a finalizacao.</p>
-  </div>
-
+<app-page-header titulo="Checkout" descricao="Revise seu pedido e confirme a finalizacao.">
   <a class="botao-voltar" nz-button nzType="text" routerLink="/carrinho" aria-label="Voltar ao carrinho">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">

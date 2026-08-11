@@ -25,6 +25,8 @@ import {
   VendaPorFormaPagamentoResponse
 } from '../../core/models/dashboard.model';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,11 +47,13 @@ import { DashboardService } from '../../core/services/dashboard.service';
     NzSpinModule,
     NzStatisticModule,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent,
+    RouterLink,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Dashboard implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
@@ -63,24 +67,28 @@ export class Dashboard implements OnInit {
   protected readonly vendasPorFormaPagamento = signal<VendaPorFormaPagamentoResponse[]>([]);
   protected readonly produtosEstoqueBaixo = signal<ProdutoEstoqueBaixoResponse[]>([]);
   protected readonly possuiVendasPorDia = computed(() => this.vendasPorDia().length > 0);
-  protected readonly possuiProdutosMaisVendidos = computed(() => this.produtosMaisVendidos().length > 0);
-  protected readonly possuiFormasPagamento = computed(() => this.vendasPorFormaPagamento().length > 0);
+  protected readonly possuiProdutosMaisVendidos = computed(
+    () => this.produtosMaisVendidos().length > 0,
+  );
+  protected readonly possuiFormasPagamento = computed(
+    () => this.vendasPorFormaPagamento().length > 0,
+  );
   protected readonly possuiEstoqueBaixo = computed(() => this.produtosEstoqueBaixo().length > 0);
   protected readonly maiorFaturamentoDia = computed(() =>
-    Math.max(...this.vendasPorDia().map((venda) => Number(venda.faturamento)), 0)
+    Math.max(...this.vendasPorDia().map((venda) => Number(venda.faturamento)), 0),
   );
   protected readonly maiorQuantidadeVendida = computed(() =>
-    Math.max(...this.produtosMaisVendidos().map((produto) => Number(produto.quantidadeVendida)), 0)
+    Math.max(...this.produtosMaisVendidos().map((produto) => Number(produto.quantidadeVendida)), 0),
   );
   protected readonly maiorFaturamentoFormaPagamento = computed(() =>
-    Math.max(...this.vendasPorFormaPagamento().map((forma) => Number(forma.faturamento)), 0)
+    Math.max(...this.vendasPorFormaPagamento().map((forma) => Number(forma.faturamento)), 0),
   );
 
   protected readonly filtros = this.fb.group({
     dataInicio: [this.dataInicialPadrao(), [Validators.required]],
     dataFim: [this.hoje(), [Validators.required]],
     limiteProdutos: this.fb.control<number | null>(10, [Validators.min(1), Validators.max(100)]),
-    limiteEstoque: this.fb.control<number | null>(5, [Validators.min(0)])
+    limiteEstoque: this.fb.control<number | null>(5, [Validators.min(0)]),
   });
 
   ngOnInit(): void {
@@ -116,7 +124,7 @@ export class Dashboard implements OnInit {
 
     const periodo = {
       dataInicio: filtros.dataInicio,
-      dataFim: filtros.dataFim
+      dataFim: filtros.dataFim,
     };
 
     this.carregando.set(true);
@@ -124,24 +132,29 @@ export class Dashboard implements OnInit {
     forkJoin({
       resumo: this.dashboardService.buscarResumo(periodo),
       vendasPorDia: this.dashboardService.buscarVendasPorDia(periodo),
-      produtosMaisVendidos: this.dashboardService.buscarProdutosMaisVendidos(periodo, filtros.limiteProdutos ?? undefined),
+      produtosMaisVendidos: this.dashboardService.buscarProdutosMaisVendidos(
+        periodo,
+        filtros.limiteProdutos ?? undefined,
+      ),
       vendasPorFormaPagamento: this.dashboardService.buscarVendasPorFormaPagamento(periodo),
-      produtosEstoqueBaixo: this.dashboardService.buscarProdutosComEstoqueBaixo(filtros.limiteEstoque ?? undefined)
-    }).pipe(
-      finalize(() => this.carregando.set(false))
-    ).subscribe({
-      next: (dados) => {
-        this.resumo.set(dados.resumo);
-        this.vendasPorDia.set(dados.vendasPorDia);
-        this.produtosMaisVendidos.set(dados.produtosMaisVendidos);
-        this.vendasPorFormaPagamento.set(dados.vendasPorFormaPagamento);
-        this.produtosEstoqueBaixo.set(dados.produtosEstoqueBaixo);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.limparDados();
-        this.mensagemErro.set(this.extrairMensagemErro(error));
-      }
-    });
+      produtosEstoqueBaixo: this.dashboardService.buscarProdutosComEstoqueBaixo(
+        filtros.limiteEstoque ?? undefined,
+      ),
+    })
+      .pipe(finalize(() => this.carregando.set(false)))
+      .subscribe({
+        next: (dados) => {
+          this.resumo.set(dados.resumo);
+          this.vendasPorDia.set(dados.vendasPorDia);
+          this.produtosMaisVendidos.set(dados.produtosMaisVendidos);
+          this.vendasPorFormaPagamento.set(dados.vendasPorFormaPagamento);
+          this.produtosEstoqueBaixo.set(dados.produtosEstoqueBaixo);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.limparDados();
+          this.mensagemErro.set(this.extrairMensagemErro(error));
+        },
+      });
   }
 
   private limparDados(): void {

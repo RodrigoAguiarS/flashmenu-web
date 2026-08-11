@@ -29,6 +29,7 @@ import { ProdutoResponse } from '../../../core/models/produto.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { ProdutoService } from '../../../core/services/produto.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-produto-list',
@@ -52,7 +53,8 @@ import { ProdutoService } from '../../../core/services/produto.service';
     NzSelectModule,
     NzTableModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    PageHeaderComponent
   ],
   templateUrl: './produto-list.component.html',
   styleUrl: './produto-list.component.scss',

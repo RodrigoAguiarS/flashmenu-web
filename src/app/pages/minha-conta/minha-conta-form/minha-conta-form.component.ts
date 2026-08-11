@@ -25,6 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
 
 const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
@@ -47,7 +48,8 @@ const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
     NzSpinModule,
     NzSwitchModule,
     NzTabsModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './minha-conta-form.component.html',
   styleUrl: './minha-conta-form.component.scss',

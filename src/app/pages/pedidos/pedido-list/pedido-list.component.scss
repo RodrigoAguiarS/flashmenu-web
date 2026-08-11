@@ -1,22 +1,3 @@
-.cabecalho-pagina {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.cabecalho-pagina h1 {
-  margin: 0 0 4px;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.cabecalho-pagina p {
-  margin: 0;
-  color: var(--cor-texto-suave);
-}
-
 .botao-voltar {
   display: inline-grid;
   place-items: center;
@@ -132,15 +113,6 @@
 }
 
 @media (min-width: 700px) {
-  .cabecalho-pagina {
-    align-items: flex-end;
-    margin-bottom: 24px;
-  }
-
-  .cabecalho-pagina h1 {
-    font-size: 28px;
-  }
-
   .lista-pedidos {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   }

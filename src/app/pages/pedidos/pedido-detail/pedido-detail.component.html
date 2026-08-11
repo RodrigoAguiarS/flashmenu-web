@@ -1,9 +1,4 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Detalhes do pedido</h1>
-    <p>Confira os produtos, pagamento e valores do seu pedido.</p>
-  </div>
-
+<app-page-header titulo="Detalhes do pedido" descricao="Confira os produtos, pagamento e valores do seu pedido.">
   <div class="acoes-cabecalho">
     <button
       class="botao-voltar"
@@ -23,7 +18,7 @@
       <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
     </a>
   </div>
-</section>
+</app-page-header>
 
 <nz-spin [nzSpinning]="carregando()">
   @if (pedido(); as pedidoDetalhe) {

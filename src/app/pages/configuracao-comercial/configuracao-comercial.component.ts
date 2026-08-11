@@ -22,6 +22,7 @@ import {
 } from '../../core/models/configuracao-comercial.model';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfiguracaoComercialService } from '../../core/services/configuracao-comercial.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-configuracao-comercial',
@@ -39,7 +40,8 @@ import { ConfiguracaoComercialService } from '../../core/services/configuracao-c
     NzIconModule,
     NzInputNumberModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './configuracao-comercial.component.html',
   styleUrl: './configuracao-comercial.component.scss',

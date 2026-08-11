@@ -23,6 +23,7 @@ import { PerfilService } from '../../../core/services/perfil.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-usuario-form',
@@ -39,7 +40,8 @@ import { DocumentoMaskDirective } from '../../../shared/directives/documento-mas
     NzInputModule,
     NzSelectModule,
     NzSpinModule,
-    NzSwitchModule
+    NzSwitchModule,
+    PageHeaderComponent
   ],
   templateUrl: './usuario-form.component.html',
   styleUrl: './usuario-form.component.scss',

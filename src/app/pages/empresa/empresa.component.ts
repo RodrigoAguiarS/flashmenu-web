@@ -19,6 +19,7 @@ import { EmpresaRequest, EmpresaResponse } from '../../core/models/empresa.model
 import { AuthService } from '../../core/services/auth.service';
 import { EmpresaService } from '../../core/services/empresa.service';
 import { DocumentoMaskDirective } from '../../shared/directives/documento-mask.directive';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { CnpjPipe } from '../../shared/pipes/cnpj.pipe';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 
@@ -38,7 +39,8 @@ import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
     NzIconModule,
     NzInputModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './empresa.component.html',
   styleUrl: './empresa.component.scss',

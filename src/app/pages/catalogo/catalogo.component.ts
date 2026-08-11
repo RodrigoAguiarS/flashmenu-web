@@ -34,6 +34,7 @@ import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
 } from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-catalogo',
@@ -58,7 +59,8 @@ import {
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
-    ProdutoPersonalizacaoComponent
+    ProdutoPersonalizacaoComponent,
+    PageHeaderComponent
   ],
   templateUrl: './catalogo.component.html',
   styleUrl: './catalogo.component.scss',

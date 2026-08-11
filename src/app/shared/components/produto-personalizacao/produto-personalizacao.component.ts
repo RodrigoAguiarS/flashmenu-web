@@ -47,6 +47,7 @@ export class ProdutoPersonalizacaoComponent implements OnChanges {
   @Input() estoqueMaximo = 999;
   @Input() textoConfirmar = 'Adicionar ao carrinho';
   @Input() carregando = false;
+  @Input() mostrarProdutoTopo = true;
   @Output() confirmar = new EventEmitter<ProdutoPersonalizacaoConfirmacao>();
 
   protected readonly quantidades = signal<Record<number, number>>({});

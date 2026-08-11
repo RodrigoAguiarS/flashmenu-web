@@ -1,14 +1,12 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Configuracao comercial</h1>
-    <p>Defina margem, desconto padrao e taxa fixa usados no calculo de venda dos produtos.</p>
-  </div>
-
+<app-page-header
+  titulo="Configuracao comercial"
+  descricao="Defina margem, desconto padrao e taxa fixa usados no calculo de venda dos produtos."
+>
   <button nz-button type="button" [disabled]="carregando()" (click)="recarregar()">
     <span nz-icon nzType="reload" nzTheme="outline"></span>
     Atualizar
   </button>
-</section>
+</app-page-header>
 
 @if (mensagemErro()) {
   <nz-alert class="alerta-configuracao" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

@@ -1,9 +1,4 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Formas de pagamento</h1>
-    <p>Configure o percentual de acrescimo aplicado ao checkout.</p>
-  </div>
-</section>
+<app-page-header titulo="Formas de pagamento" descricao="Configure o percentual de acrescimo aplicado ao checkout." />
 
 <nz-spin [nzSpinning]="carregando()">
   @if (possuiFormasPagamento()) {

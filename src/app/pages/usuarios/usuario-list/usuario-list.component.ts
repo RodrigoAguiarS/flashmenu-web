@@ -27,6 +27,7 @@ import { UsuarioResponse } from '../../../core/models/usuario.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 
 type StatusFiltro = boolean | null;
@@ -51,7 +52,8 @@ type StatusFiltro = boolean | null;
     NzSelectModule,
     NzTableModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    PageHeaderComponent
   ],
   templateUrl: './usuario-list.component.html',
   styleUrl: './usuario-list.component.scss',

@@ -14,6 +14,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-pedido-list',
@@ -26,7 +27,8 @@ import { salvarArquivo } from '../../../core/utils/download-file';
     NzEmptyModule,
     NzIconModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './pedido-list.component.html',
   styleUrl: './pedido-list.component.scss',

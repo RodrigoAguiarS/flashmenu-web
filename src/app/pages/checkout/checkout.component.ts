@@ -19,6 +19,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 import { CheckoutFacade } from './checkout.facade';
 import { IdentificacaoClienteComponent } from './components/identificacao-cliente/identificacao-cliente.component';
@@ -44,6 +45,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzSpinModule,
     NzTagModule,
     NgxMaskDirective,
+    PageHeaderComponent,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],

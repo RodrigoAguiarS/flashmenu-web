@@ -1,9 +1,7 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Gerenciar pedidos</h1>
-    <p>Confirme pagamentos, cancele pedidos e acompanhe todos os pedidos.</p>
-  </div>
-</section>
+<app-page-header
+  titulo="Gerenciar pedidos"
+  descricao="Confirme pagamentos, cancele pedidos e acompanhe todos os pedidos."
+/>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de pedidos">
   <form nz-form nzLayout="vertical" [formGroup]="filtros" (ngSubmit)="filtrar()">

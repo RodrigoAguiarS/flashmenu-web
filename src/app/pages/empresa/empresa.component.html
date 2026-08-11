@@ -1,14 +1,9 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Empresa</h1>
-    <p>Configure os dados comerciais usados pelos usuarios do sistema.</p>
-  </div>
-
+<app-page-header titulo="Empresa" descricao="Configure os dados comerciais usados pelos usuarios do sistema.">
   <button nz-button type="button" [disabled]="carregando()" (click)="recarregar()">
     <span nz-icon nzType="reload" nzTheme="outline"></span>
     Atualizar
   </button>
-</section>
+</app-page-header>
 
 @if (mensagemErro()) {
   <nz-alert class="alerta-empresa" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

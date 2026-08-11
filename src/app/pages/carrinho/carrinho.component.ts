@@ -18,6 +18,7 @@ import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model'
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
@@ -39,7 +40,8 @@ import {
     NzInputNumberModule,
     NzPopconfirmModule,
     NzTagModule,
-    ProdutoPersonalizacaoComponent
+    ProdutoPersonalizacaoComponent,
+    PageHeaderComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',

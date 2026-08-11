@@ -1,16 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Categorias</h1>
-    <p>Gerencie os grupos usados para organizar os produtos do catalogo.</p>
-  </div>
-
+<app-page-header titulo="Categorias" descricao="Gerencie os grupos usados para organizar os produtos do catalogo.">
   @if (podeCriarCategoria()) {
     <a nz-button nzType="primary" routerLink="/categorias/novo">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Nova categoria
     </a>
   }
-</section>
+</app-page-header>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de categorias">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">

@@ -1,13 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>{{ titulo() }}</h1>
-    <p>{{ editando() ? 'Atualize dados de acesso e perfil.' : 'Cadastre um novo usuario no sistema.' }}</p>
-  </div>
-
+<app-page-header
+  [titulo]="titulo()"
+  [descricao]="editando() ? 'Atualize dados de acesso e perfil.' : 'Cadastre um novo usuario no sistema.'"
+>
   <a class="botao-voltar" nz-button nzType="text" routerLink="/usuarios" aria-label="Voltar para usuarios">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {

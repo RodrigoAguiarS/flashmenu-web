@@ -37,6 +37,7 @@ import { GrupoComplementoService } from '../../core/services/grupo-complemento.s
 import { PdvService } from '../../core/services/pdv.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { ProdutoService } from '../../core/services/produto.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
@@ -66,7 +67,8 @@ import {
     NzTagModule,
     NzTooltipModule,
     NgxMaskDirective,
-    ProdutoPersonalizacaoComponent
+    ProdutoPersonalizacaoComponent,
+    PageHeaderComponent
   ],
   templateUrl: './pdv.component.html',
   styleUrl: './pdv.component.scss',

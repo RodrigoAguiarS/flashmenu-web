@@ -27,6 +27,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-usuario-endereco',
@@ -46,7 +47,8 @@ import { ViaCepService } from '../../../core/services/via-cep.service';
     NzSpinModule,
     NzSwitchModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    PageHeaderComponent
   ],
   templateUrl: './usuario-endereco.component.html',
   styleUrl: './usuario-endereco.component.scss',
@@ -71,6 +73,10 @@ export class UsuarioEnderecoComponent implements OnInit {
   protected readonly processandoId = signal<number | null>(null);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly buscandoCep = signal(false);
+  protected readonly descricaoCabecalho = computed(() => {
+    const usuario = this.usuario();
+    return usuario ? `Gerencie os enderecos de ${usuario.nome}.` : 'Gerencie os enderecos do usuario.';
+  });
   protected readonly podeEditar = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_EDITAR));
   protected readonly possuiEnderecos = computed(() => this.enderecos().length > 0);
   protected readonly tituloFormulario = computed(() => this.enderecoEditando() ? 'Editar endereco' : 'Novo endereco');

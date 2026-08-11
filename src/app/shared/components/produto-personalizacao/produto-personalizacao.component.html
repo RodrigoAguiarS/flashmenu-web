@@ -1,11 +1,13 @@
 <section class="personalizacao" aria-label="Personalizacao do produto">
-  <header class="produto-topo">
-    <div>
-      <h2>{{ produto.nome }}</h2>
-      <p>{{ produto.descricao || 'Sem descricao.' }}</p>
-    </div>
-    <strong>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</strong>
-  </header>
+  @if (mostrarProdutoTopo) {
+    <header class="produto-topo">
+      <div>
+        <h2>{{ produto.nome }}</h2>
+        <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+      </div>
+      <strong>{{ produto.valorVenda | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </header>
+  }
 
   @if (carregando) {
     <nz-alert nzType="info" nzMessage="Carregando complementos..." nzShowIcon></nz-alert>

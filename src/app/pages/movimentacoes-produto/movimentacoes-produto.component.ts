@@ -27,6 +27,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { MovimentacaoProdutoService } from '../../core/services/movimentacao-produto.service';
 import { ProdutoService } from '../../core/services/produto.service';
 import { salvarArquivo } from '../../core/utils/download-file';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-movimentacoes-produto',
@@ -46,7 +47,8 @@ import { salvarArquivo } from '../../core/utils/download-file';
     NzSelectModule,
     NzSpinModule,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './movimentacoes-produto.component.html',
   styleUrl: './movimentacoes-produto.component.scss',

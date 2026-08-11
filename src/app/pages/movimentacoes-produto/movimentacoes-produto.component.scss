@@ -1,18 +1,3 @@
-.cabecalho-pagina {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.cabecalho-pagina h1 {
-  margin: 0 0 4px;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.cabecalho-pagina p,
 .cabecalho-card p,
 .cabecalho-listagem p,
 .resumo-produto span,
@@ -196,7 +181,6 @@
 }
 
 @media (max-width: 720px) {
-  .cabecalho-pagina,
   .cabecalho-card,
   .cabecalho-listagem {
     align-items: stretch;

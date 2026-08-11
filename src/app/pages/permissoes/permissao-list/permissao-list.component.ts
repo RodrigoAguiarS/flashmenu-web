@@ -18,6 +18,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PermissaoResponse } from '../../../core/models/permissao.model';
 import { PermissaoService } from '../../../core/services/permissao.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-permissao-list',
@@ -33,7 +34,8 @@ import { PermissaoService } from '../../../core/services/permissao.service';
     NzInputNumberModule,
     NzPaginationModule,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './permissao-list.component.html',
   styleUrl: './permissao-list.component.scss',

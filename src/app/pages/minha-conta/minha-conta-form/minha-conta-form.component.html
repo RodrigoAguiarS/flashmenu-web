@@ -1,13 +1,8 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Meus dados</h1>
-    <p>Atualize suas informacoes de contato.</p>
-  </div>
-
+<app-page-header titulo="Meus dados" descricao="Atualize suas informacoes de contato.">
   <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Voltar para catalogo">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <nz-spin [nzSpinning]="carregando()">
   <main class="conta-layout">

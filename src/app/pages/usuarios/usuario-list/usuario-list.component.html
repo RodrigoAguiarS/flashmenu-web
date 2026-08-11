@@ -1,16 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Usuarios</h1>
-    <p>Gerencie acessos, perfis e status dos usuarios do sistema.</p>
-  </div>
-
+<app-page-header titulo="Usuarios" descricao="Gerencie acessos, perfis e status dos usuarios do sistema.">
   @if (podeCriarUsuario()) {
     <a nz-button nzType="primary" routerLink="/usuarios/novo">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Novo usuario
     </a>
   }
-</section>
+</app-page-header>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de usuarios">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">

@@ -1,11 +1,6 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>PDV</h1>
-    <p>Venda presencial vinculada ao usuario logado.</p>
-  </div>
-
+<app-page-header titulo="PDV" descricao="Venda presencial vinculada ao usuario logado.">
   <nz-tag nzColor="purple">PDV</nz-tag>
-</section>
+</app-page-header>
 
 @if (mensagemErro()) {
   <nz-alert class="alerta-pdv" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

@@ -1,16 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Produtos</h1>
-    <p>Gerencie cadastro, estoque, precos e imagens dos produtos.</p>
-  </div>
-
+<app-page-header titulo="Produtos" descricao="Gerencie cadastro, estoque, precos e imagens dos produtos.">
   @if (podeCriarProduto()) {
     <a nz-button nzType="primary" routerLink="/produtos/novo">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Novo produto
     </a>
   }
-</section>
+</app-page-header>
 
 <section class="filtros cartao-sistema" aria-label="Filtros de produtos">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">

@@ -1,13 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Carrinho</h1>
-    <p>Revise os produtos antes de finalizar o pedido.</p>
-  </div>
-
-  <a class="botao-voltar" nz-button nzType="text" routerLink="/catalogo" aria-label="Continuar comprando">
+<app-page-header titulo="Carrinho" descricao="Revise os produtos antes de finalizar o pedido.">
+  <a class="botao-voltar"
+     nz-button nzType="text"
+     routerLink="/catalogo"
+     aria-label="Continuar comprando">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">

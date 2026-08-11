@@ -1,18 +1,3 @@
-.cabecalho-pagina {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.cabecalho-pagina h1 {
-  margin: 0 0 4px;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.cabecalho-pagina p,
 .indicador span,
 .linha-barra span,
 .linha-barra small,
@@ -214,11 +199,6 @@
 }
 
 @media (max-width: 720px) {
-  .cabecalho-pagina {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
   .filtros nz-form-item {
     margin-bottom: 12px;
   }

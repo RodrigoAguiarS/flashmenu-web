@@ -19,6 +19,7 @@ import { PerfilRequest, PerfilUpdateRequest } from '../../../core/models/perfil.
 import { PermissaoResponse } from '../../../core/models/permissao.model';
 import { PerfilService } from '../../../core/services/perfil.service';
 import { PermissaoService } from '../../../core/services/permissao.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-perfil-form',
@@ -34,7 +35,8 @@ import { PermissaoService } from '../../../core/services/permissao.service';
     NzInputModule,
     NzSelectModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './perfil-form.component.html',
   styleUrl: './perfil-form.component.scss',

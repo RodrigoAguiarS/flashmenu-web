@@ -1,13 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>{{ titulo() }}</h1>
-    <p>{{ editando() ? 'Atualize as permissoes deste perfil.' : 'Cadastre um perfil com permissoes de acesso.' }}</p>
-  </div>
-
+<app-page-header
+  [titulo]="titulo()"
+  [descricao]="editando() ? 'Atualize as permissoes deste perfil.' : 'Cadastre um perfil com permissoes de acesso.'"
+>
   <a class="botao-voltar" nz-button nzType="text" routerLink="/perfis" aria-label="Voltar para perfis">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {

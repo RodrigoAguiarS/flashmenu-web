@@ -1,13 +1,11 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>{{ titulo() }}</h1>
-    <p>{{ editando() ? 'Atualize os dados da categoria.' : 'Cadastre uma categoria para organizar produtos.' }}</p>
-  </div>
-
+<app-page-header
+  [titulo]="titulo()"
+  [descricao]="editando() ? 'Atualize os dados da categoria.' : 'Cadastre uma categoria para organizar produtos.'"
+>
   <a class="botao-voltar" nz-button nzType="text" routerLink="/categorias" aria-label="Voltar para categorias">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {

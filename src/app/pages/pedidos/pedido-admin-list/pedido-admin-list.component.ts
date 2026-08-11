@@ -23,6 +23,7 @@ import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/p
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-pedido-admin-list',
@@ -42,7 +43,8 @@ import { salvarArquivo } from '../../../core/utils/download-file';
     NzPopconfirmModule,
     NzSelectModule,
     NzSpinModule,
-    NzTagModule
+    NzTagModule,
+    PageHeaderComponent
   ],
   templateUrl: './pedido-admin-list.component.html',
   styleUrl: './pedido-admin-list.component.scss',

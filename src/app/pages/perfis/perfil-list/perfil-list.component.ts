@@ -24,6 +24,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { PerfilResponse } from '../../../core/models/perfil.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-perfil-list',
@@ -43,7 +44,8 @@ import { PerfilService } from '../../../core/services/perfil.service';
     NzPopconfirmModule,
     NzTableModule,
     NzTagModule,
-    NzTooltipModule
+    NzTooltipModule,
+    PageHeaderComponent
   ],
   templateUrl: './perfil-list.component.html',
   styleUrl: './perfil-list.component.scss',

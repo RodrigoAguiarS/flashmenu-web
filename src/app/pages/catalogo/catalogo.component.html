@@ -1,9 +1,4 @@
-<section class="cabecalho-pagina">
-  <div>
-    <h1>Catalogo</h1>
-    <p>Escolha os produtos e monte seu pedido.</p>
-  </div>
-
+<app-page-header titulo="Catalogo" descricao="Escolha os produtos e monte seu pedido.">
   <a
     class="atalho-carrinho"
     nz-button
@@ -14,7 +9,7 @@
   >
     <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
   </a>
-</section>
+</app-page-header>
 
 <section class="filtros" aria-label="Filtros do catalogo">
   <form nz-form nzLayout="vertical" [formGroup]="filtros">
@@ -182,6 +177,7 @@
               [produto]="produto"
               [gruposComplementos]="gruposProdutoSelecionado()"
               [estoqueMaximo]="estoqueMaximo(produto)"
+              [mostrarProdutoTopo]="false"
               textoConfirmar="Adicionar ao carrinho"
               (confirmar)="confirmarPersonalizacao($event)"
             />
