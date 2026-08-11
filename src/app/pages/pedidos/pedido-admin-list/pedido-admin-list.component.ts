@@ -167,6 +167,15 @@ export class PedidoAdminListComponent implements OnInit {
 
   private carregarPedidos(): void {
     const filtros = this.filtros.getRawValue();
+    const unidadeId = this.authService.usuarioAutenticado()?.unidade?.id;
+
+    if (!unidadeId) {
+      this.pedidos.set([]);
+      this.total.set(0);
+      this.message.warning('Nao foi possivel identificar a unidade do usuario logado.');
+      return;
+    }
+
     this.carregando.set(true);
 
     this.pedidoService.listarTodosPaginado({
@@ -175,6 +184,7 @@ export class PedidoAdminListComponent implements OnInit {
       sort: 'id',
       id: filtros.id ?? undefined,
       usuarioId: filtros.usuarioId ?? undefined,
+      unidadeId,
       status: filtros.status ?? undefined,
       tipo: filtros.tipo ?? undefined
     }).pipe(

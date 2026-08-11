@@ -8,6 +8,21 @@
   </div>
 
   <div class="page-header__acoes">
+    @if (mostrarVoltar()) {
+      <button
+        class="botao-voltar"
+        nz-button
+        nzType="text"
+        type="button"
+        nz-tooltip
+        nzTooltipTitle="Voltar"
+        aria-label="Voltar para a tela anterior"
+        (click)="voltar()"
+      >
+        <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+      </button>
+    }
+
     <ng-content />
   </div>
 </section>

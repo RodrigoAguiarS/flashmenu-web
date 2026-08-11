@@ -11,6 +11,7 @@ import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import { NAV_ITEMS, NavItem } from './core/auth/permissoes';
 import { AuthService } from './core/services/auth.service';
 import { CarrinhoService } from './core/services/carrinho.service';
+import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 
 type RouterLinkValue = string | readonly unknown[];
@@ -35,6 +36,7 @@ type RouterLinkValue = string | readonly unknown[];
 })
 export class App implements OnInit {
   private readonly router = inject(Router);
+  private readonly navigationHistoryService = inject(NavigationHistoryService);
   protected readonly authService = inject(AuthService);
   protected readonly carrinhoService = inject(CarrinhoService);
   protected readonly itensNavegacao = computed(() =>
@@ -51,6 +53,8 @@ export class App implements OnInit {
   );
 
   ngOnInit(): void {
+    this.navigationHistoryService.inicializar();
+
     if (!this.authService.estaAutenticado()) {
       return;
     }

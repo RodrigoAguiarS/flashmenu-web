@@ -20,7 +20,7 @@ export class PdvService {
   );
   readonly vazio = computed(() => this.itensVenda().length === 0);
 
-  adicionar(produto: ProdutoResponse, quantidade = 1, complementos: ComplementoSelecionado[] = []): boolean {
+  adicionar(produto: ProdutoCarrinho | ProdutoResponse, quantidade = 1, complementos: ComplementoSelecionado[] = []): boolean {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
     const complementosNormalizados = this.normalizarComplementosDetalhados(complementos);
     const itemId = this.criarItemId(produto.id, complementosNormalizados);
@@ -29,7 +29,7 @@ export class PdvService {
     const quantidadeAtual = itemExistente?.quantidade ?? 0;
     const novaQuantidade = quantidadeAtual + quantidadeNormalizada;
 
-    if (!this.quantidadePermitida(produto, novaQuantidade)) {
+    if (!this.quantidadePermitida(produto, novaQuantidade, itemId)) {
       return false;
     }
 
@@ -66,7 +66,7 @@ export class PdvService {
     const quantidadeNormalizada = Math.max(1, Math.trunc(quantidade));
     const item = this.itensVenda().find((itemVenda) => itemVenda.id === itemId);
 
-    if (!item || !this.quantidadePermitida(item.produto, quantidadeNormalizada)) {
+    if (!item || !this.quantidadePermitida(item.produto, quantidadeNormalizada, itemId)) {
       return false;
     }
 
@@ -75,6 +75,51 @@ export class PdvService {
         itemVenda.id === itemId ? { ...itemVenda, quantidade: quantidadeNormalizada } : itemVenda
       )
     );
+    return true;
+  }
+
+  atualizarConfiguracao(
+    itemId: string,
+    complementos: ComplementoSelecionado[],
+    quantidade?: number
+  ): boolean {
+    const itemAtual = this.itensVenda().find((item) => item.id === itemId);
+
+    if (!itemAtual) {
+      return false;
+    }
+
+    const complementosNormalizados = this.normalizarComplementosDetalhados(complementos);
+    const novoId = this.criarItemId(itemAtual.produto.id, complementosNormalizados);
+    const itemAtualizado: ItemCarrinho = {
+      ...itemAtual,
+      id: novoId,
+      quantidade: Math.max(1, Math.trunc(quantidade ?? itemAtual.quantidade)),
+      complementos: complementosNormalizados,
+      valorUnitarioEstimado: this.calcularValorUnitario(itemAtual.produto, complementosNormalizados)
+    };
+
+    const itensSemAtual = this.itensVenda().filter((item) => item.id !== itemId);
+    const itemIgual = itensSemAtual.find((item) => item.id === novoId);
+
+    if (itemIgual) {
+      const quantidadeFinal = itemIgual.quantidade + itemAtualizado.quantidade;
+
+      if (!this.quantidadePermitida(itemAtual.produto, quantidadeFinal, novoId)) {
+        return false;
+      }
+
+      this.atualizarItens(
+        itensSemAtual.map((item) => item.id === novoId ? { ...item, quantidade: quantidadeFinal } : item)
+      );
+      return true;
+    }
+
+    if (!this.quantidadePermitida(itemAtual.produto, itemAtualizado.quantidade, itemId)) {
+      return false;
+    }
+
+    this.atualizarItens([...itensSemAtual, itemAtualizado]);
     return true;
   }
 
@@ -118,12 +163,21 @@ export class PdvService {
     return Number(item.valorUnitarioEstimado ?? this.calcularValorUnitario(item.produto, item.complementos ?? []));
   }
 
-  private quantidadePermitida(produto: ProdutoCarrinho | ProdutoResponse, quantidade: number): boolean {
+  private quantidadePermitida(produto: ProdutoCarrinho | ProdutoResponse, quantidade: number, itemIdAtual?: string): boolean {
     const estoque = this.quantidadeDisponivel(produto);
-    return estoque === null || quantidade <= estoque;
+
+    if (estoque === null) {
+      return true;
+    }
+
+    const quantidadeOutrosItens = this.itensVenda()
+      .filter((item) => item.produto.id === produto.id && item.id !== itemIdAtual)
+      .reduce((total, item) => total + item.quantidade, 0);
+
+    return quantidadeOutrosItens + quantidade <= estoque;
   }
 
-  private paraProdutoCarrinho(produto: ProdutoResponse): ProdutoCarrinho {
+  private paraProdutoCarrinho(produto: ProdutoCarrinho | ProdutoResponse): ProdutoCarrinho {
     return {
       id: produto.id,
       nome: produto.nome,

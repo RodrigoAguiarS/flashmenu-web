@@ -187,6 +187,19 @@
                   <span nz-icon nzType="plus" nzTheme="outline"></span>
                 </button>
                 <button
+                  class="botao-editar"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Editar adicionais"
+                  aria-label="Editar adicionais"
+                  (click)="editarPersonalizacao(item)"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button
                   nz-button
                   nzShape="circle"
                   nzDanger
@@ -305,7 +318,7 @@
 
 <nz-drawer
   [nzVisible]="drawerPersonalizacaoAberto()"
-  nzTitle="Personalizar produto"
+  [nzTitle]="tituloDrawerPersonalizacao()"
   nzPlacement="right"
   [nzWidth]="'min(100vw, 460px)'"
   (nzOnClose)="fecharPersonalizacao()"
@@ -315,9 +328,12 @@
       <app-produto-personalizacao
         [produto]="produto"
         [gruposComplementos]="gruposPersonalizacao()"
+        [configuracaoInicial]="itemEditando()?.complementos ?? []"
+        [quantidadeInicial]="itemEditando()?.quantidade ?? 1"
+        [observacaoInicial]="itemEditando()?.observacao ?? null"
         [estoqueMaximo]="estoqueMaximo(produto)"
         [carregando]="carregandoComplementos()"
-        textoConfirmar="Adicionar a venda"
+        [textoConfirmar]="textoConfirmarPersonalizacao()"
         (confirmar)="confirmarPersonalizacao($event)"
       />
     }

@@ -26,7 +26,6 @@ import {
 } from '../../core/models/dashboard.model';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,8 +47,7 @@ import { RouterLink } from '@angular/router';
     NzStatisticModule,
     NzTableModule,
     NzTagModule,
-    PageHeaderComponent,
-    RouterLink,
+    PageHeaderComponent
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

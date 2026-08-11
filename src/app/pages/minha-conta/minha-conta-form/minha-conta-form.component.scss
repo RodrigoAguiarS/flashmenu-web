@@ -5,20 +5,6 @@
   color: var(--cor-texto-suave);
 }
 
-.botao-voltar {
-  display: inline-grid;
-  place-items: center;
-  align-self: flex-start;
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  padding: 0;
-  color: var(--cor-texto);
-  background: var(--cor-superficie);
-  border: 1px solid var(--cor-borda);
-  border-radius: 999px;
-}
-
 .conta-layout {
   display: grid;
   gap: 12px;
@@ -205,11 +191,6 @@
 }
 
 @media (max-width: 560px) {
-  .botao-voltar {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
   .endereco-card-topo {
     align-items: stretch;
     flex-direction: column;

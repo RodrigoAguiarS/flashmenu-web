@@ -1,11 +1,7 @@
 <app-page-header
   [titulo]="titulo()"
   [descricao]="editando() ? 'Atualize dados de acesso e perfil.' : 'Cadastre um novo usuario no sistema.'"
->
-  <a class="botao-voltar" nz-button nzType="text" routerLink="/usuarios" aria-label="Voltar para usuarios">
-    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-  </a>
-</app-page-header>
+/>
 
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {

@@ -109,7 +109,7 @@ export class AuthService {
 
   possuiPermissao(authority: string): boolean {
     const permissoes = this.permissoes();
-    return permissoes.has(PERMISSOES.ADMIN) || permissoes.has(authority);
+    return this.possuiPermissaoAdministrativa(permissoes) || permissoes.has(authority);
   }
 
   possuiAlgumaPermissao(authorities: readonly string[]): boolean {
@@ -118,11 +118,17 @@ export class AuthService {
     }
 
     const permissoes = this.permissoes();
-    if (permissoes.has(PERMISSOES.ADMIN)) {
+    if (this.possuiPermissaoAdministrativa(permissoes)) {
       return true;
     }
 
     return authorities.some((authority) => permissoes.has(authority));
+  }
+
+  private possuiPermissaoAdministrativa(permissoes: ReadonlySet<string>): boolean {
+    return permissoes.has(PERMISSOES.ADMIN) ||
+      permissoes.has(PERMISSOES.ADMINISTRATIVO_CRIAR) ||
+      permissoes.has(PERMISSOES.ADMINSTRATIVO_CRIAR);
   }
 
   private persistirSessao(response: LoginResponse): void {

@@ -1,11 +1,7 @@
 <app-page-header
   [titulo]="titulo()"
   [descricao]="editando() ? 'Atualize os dados da unidade.' : 'Cadastre uma unidade para gerar um cardapio publico.'"
->
-  <a class="botao-voltar" nz-button nzType="text" routerLink="/unidades" aria-label="Voltar para unidades">
-    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-  </a>
-</app-page-header>
+/>
 
 <section class="formulario cartao-sistema">
   @if (mensagemErro()) {

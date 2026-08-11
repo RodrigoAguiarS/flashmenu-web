@@ -7,11 +7,13 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -26,6 +28,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     NzButtonModule,
     NzEmptyModule,
     NzIconModule,
+    NzPaginationModule,
     NzSpinModule,
     NzTagModule,
     PageHeaderComponent
@@ -36,12 +39,16 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 })
 export class PedidoListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
   protected readonly pdfProcessandoId = signal<number | null>(null);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
+  protected readonly total = signal(0);
+  protected readonly pageIndex = signal(1);
+  protected readonly pageSize = signal(10);
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
 
   ngOnInit(): void {
@@ -91,6 +98,11 @@ export class PedidoListComponent implements OnInit {
     void this.router.navigate(['/pedidos', id]);
   }
 
+  protected alterarPagina(pageIndex: number): void {
+    this.pageIndex.set(pageIndex);
+    this.carregarPedidos();
+  }
+
   protected exportarPdf(pedido: PedidoResponse, event: Event): void {
     event.stopPropagation();
     this.pdfProcessandoId.set(pedido.id);
@@ -104,12 +116,28 @@ export class PedidoListComponent implements OnInit {
   }
 
   private carregarPedidos(): void {
+    const usuarioId = this.authService.usuarioAutenticado()?.id;
+
+    if (!usuarioId) {
+      this.pedidos.set([]);
+      this.total.set(0);
+      this.message.warning('Nao foi possivel identificar seu usuario.');
+      return;
+    }
+
     this.carregando.set(true);
 
-    this.pedidoService.listarMeusPedidos().pipe(
+    this.pedidoService.listarMeusPedidosPaginado(usuarioId, {
+      page: this.pageIndex() - 1,
+      size: this.pageSize(),
+      sort: 'id'
+    }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
-      next: (pedidos) => this.pedidos.set(pedidos),
+      next: (page) => {
+        this.pedidos.set(page.content);
+        this.total.set(page.totalElements);
+      },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }

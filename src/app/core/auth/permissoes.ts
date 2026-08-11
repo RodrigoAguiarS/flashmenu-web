@@ -1,5 +1,7 @@
 export const PERMISSOES = {
   ADMIN: 'administrador.criar',
+  ADMINISTRATIVO_CRIAR: 'administrativo.criar',
+  ADMINSTRATIVO_CRIAR: 'adminstrativo.criar',
   DASHBOARD_VISUALIZAR: 'dashboard.visualizar',
   PRODUTO_LISTAR: 'produto.listar',
   PRODUTO_CRIAR: 'produto.criar',
@@ -74,7 +76,31 @@ export const PERMISSOES_ROTAS = {
   UNIDADES: [PERMISSOES.UNIDADE_LISTAR, PERMISSOES.ADMIN],
   UNIDADE_CRIAR: [PERMISSOES.UNIDADE_CRIAR, PERMISSOES.ADMIN],
   UNIDADE_EDITAR: [PERMISSOES.UNIDADE_EDITAR, PERMISSOES.ADMIN],
-  UNIDADE_DELETAR: [PERMISSOES.UNIDADE_DELETAR, PERMISSOES.ADMIN]
+  UNIDADE_DELETAR: [PERMISSOES.UNIDADE_DELETAR, PERMISSOES.ADMIN],
+  ADMINISTRATIVO: [
+    PERMISSOES.DASHBOARD_VISUALIZAR,
+    PERMISSOES.PDV_CRIAR,
+    PERMISSOES.PEDIDO_ALTERAR_STATUS,
+    PERMISSOES.PAGAMENTO_CONFIRMAR,
+    PERMISSOES.PRODUTO_LISTAR,
+    PERMISSOES.CATEGORIA_LISTAR,
+    PERMISSOES.MOVIMENTACAO_LISTAR,
+    PERMISSOES.MOVIMENTACAO_CRIAR,
+    PERMISSOES.USUARIO_LISTAR,
+    PERMISSOES.PERFIL_LISTAR,
+    PERMISSOES.PERMISSAO_LISTAR,
+    PERMISSOES.FORMA_PAGAMENTO_EDITAR,
+    PERMISSOES.CONFIGURACAO_COMERCIAL_DETALHAR,
+    PERMISSOES.CONFIGURACAO_COMERCIAL_CRIAR,
+    PERMISSOES.CONFIGURACAO_COMERCIAL_EDITAR,
+    PERMISSOES.EMPRESA_DETALHAR,
+    PERMISSOES.EMPRESA_CRIAR,
+    PERMISSOES.EMPRESA_EDITAR,
+    PERMISSOES.UNIDADE_LISTAR,
+    PERMISSOES.ADMIN,
+    PERMISSOES.ADMINISTRATIVO_CRIAR,
+    PERMISSOES.ADMINSTRATIVO_CRIAR
+  ]
 } as const satisfies Record<string, readonly PermissaoAuthority[]>;
 
 export interface NavItem {
@@ -87,22 +113,26 @@ export interface NavItem {
   permissoes?: readonly PermissaoAuthority[];
 }
 
-export const NAV_ITEMS: readonly NavItem[] = [
-  { id: 'catalogo', label: 'Catalogo', route: '/catalogo', icon: 'appstore', exact: true },
+export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', route: '/dashboard', icon: 'appstore', exact: true, permissoes: PERMISSOES_ROTAS.DASHBOARD },
-  { id: 'carrinho', label: 'Carrinho', route: '/carrinho', icon: 'shopping-cart', exact: true },
   { id: 'pdv', label: 'PDV', route: '/pdv', icon: 'credit-card', exact: true, permissoes: PERMISSOES_ROTAS.PDV },
-  { id: 'pedidos', label: 'Pedidos', route: '/pedidos', icon: 'unordered-list', exact: true, permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },
   { id: 'gerenciar-pedidos', label: 'Gerenciar', route: '/pedidos/gerenciar', icon: 'check-circle', exact: false, permissoes: PERMISSOES_ROTAS.GERENCIAR_PEDIDOS },
   { id: 'produtos', label: 'Produtos', route: '/produtos', icon: 'shop', permissoes: PERMISSOES_ROTAS.PRODUTOS },
   { id: 'categorias', label: 'Categorias', route: '/categorias', icon: 'tags', permissoes: PERMISSOES_ROTAS.CATEGORIAS },
   { id: 'movimentacoes', label: 'Estoque', route: '/movimentacoes', icon: 'unordered-list', permissoes: PERMISSOES_ROTAS.MOVIMENTACOES },
   { id: 'usuarios', label: 'Usuarios', route: '/usuarios', icon: 'team', permissoes: PERMISSOES_ROTAS.USUARIOS },
-  { id: 'minha-conta', label: 'Meus dados', route: '/minha-conta', icon: 'user', authOnly: true },
   { id: 'perfis', label: 'Perfis', route: '/perfis', icon: 'safety-certificate', permissoes: PERMISSOES_ROTAS.PERFIS },
   { id: 'permissoes', label: 'Permissoes', route: '/permissoes', icon: 'key', permissoes: PERMISSOES_ROTAS.PERMISSOES },
   { id: 'formas-pagamento', label: 'Pagamentos', route: '/formas-pagamento', icon: 'credit-card', permissoes: PERMISSOES_ROTAS.FORMAS_PAGAMENTO },
   { id: 'configuracao-comercial', label: 'Comercial', route: '/configuracao-comercial', icon: 'setting', permissoes: PERMISSOES_ROTAS.CONFIGURACAO_COMERCIAL },
   { id: 'empresa', label: 'Empresa', route: '/empresa', icon: 'shop', permissoes: PERMISSOES_ROTAS.EMPRESA },
   { id: 'unidades', label: 'Unidades', route: '/unidades', icon: 'shop', permissoes: PERMISSOES_ROTAS.UNIDADES }
+];
+
+export const NAV_ITEMS: readonly NavItem[] = [
+  { id: 'catalogo', label: 'Catalogo', route: '/catalogo', icon: 'appstore', exact: true },
+  { id: 'carrinho', label: 'Carrinho', route: '/carrinho', icon: 'shopping-cart', exact: true },
+  { id: 'pedidos', label: 'Pedidos', route: '/pedidos', icon: 'unordered-list', exact: true, permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },
+  { id: 'minha-conta', label: 'Meus dados', route: '/minha-conta', icon: 'user', authOnly: true },
+  { id: 'administrativo', label: 'Administrativo', route: '/administrativo', icon: 'setting', exact: true, permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO }
 ];

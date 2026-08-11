@@ -14,6 +14,7 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
@@ -42,6 +43,7 @@ import {
     NzInputNumberModule,
     NzPopconfirmModule,
     NzTagModule,
+    NzTooltipModule,
     ProdutoPersonalizacaoComponent,
     PageHeaderComponent
   ],

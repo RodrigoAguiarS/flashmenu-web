@@ -93,6 +93,13 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'administrativo',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO },
+    loadComponent: () =>
+      import('./pages/administrativo/administrativo.component').then((component) => component.AdministrativoComponent)
+  },
+  {
     path: 'produtos',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.PRODUTOS },

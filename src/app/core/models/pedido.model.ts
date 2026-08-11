@@ -32,6 +32,7 @@ export interface PedidoFiltros {
   sort?: string;
   id?: number;
   usuarioId?: number;
+  unidadeId?: number;
   status?: StatusPedido;
   tipo?: TipoPedido;
 }

@@ -92,7 +92,8 @@ export class PdvComponent implements OnInit {
   protected readonly formaPagamentoId = signal<number | null>(null);
   protected readonly valorRecebidoDinheiro = signal<number | null>(null);
   protected readonly imagensInvalidas = signal<ReadonlySet<string>>(new Set<string>());
-  protected readonly produtoPersonalizacao = signal<ProdutoResponse | null>(null);
+  protected readonly produtoPersonalizacao = signal<ProdutoResponse | ProdutoCarrinho | null>(null);
+  protected readonly itemEditando = signal<ItemCarrinho | null>(null);
   protected readonly gruposPersonalizacao = signal<GrupoComplementoResponse[]>([]);
   protected readonly drawerPersonalizacaoAberto = signal(false);
   protected readonly carregandoComplementos = signal(false);
@@ -105,6 +106,12 @@ export class PdvComponent implements OnInit {
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(12);
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
+  protected readonly tituloDrawerPersonalizacao = computed(() =>
+    this.itemEditando() ? 'Editar adicionais' : 'Personalizar produto'
+  );
+  protected readonly textoConfirmarPersonalizacao = computed(() =>
+    this.itemEditando() ? 'Salvar adicionais' : 'Adicionar a venda'
+  );
   protected readonly formaPagamentoSelecionada = computed(() => {
     const formaPagamentoId = this.formaPagamentoId();
     return this.formasPagamento().find((forma) => forma.id === formaPagamentoId) ?? null;
@@ -196,6 +203,7 @@ export class PdvComponent implements OnInit {
           return;
         }
 
+        this.itemEditando.set(null);
         this.produtoPersonalizacao.set(produto);
         this.gruposPersonalizacao.set(gruposAtivos);
         this.drawerPersonalizacaoAberto.set(true);
@@ -205,6 +213,19 @@ export class PdvComponent implements OnInit {
   }
 
   protected confirmarPersonalizacao(evento: ProdutoPersonalizacaoConfirmacao): void {
+    const item = this.itemEditando();
+
+    if (item) {
+      if (!this.pdvService.atualizarConfiguracao(item.id, evento.complementos, evento.quantidade)) {
+        this.message.warning('Nao foi possivel atualizar os adicionais com o estoque atual.');
+        return;
+      }
+
+      this.message.success('Adicionais atualizados.');
+      this.fecharPersonalizacao();
+      return;
+    }
+
     const produto = this.produtoPersonalizacao();
 
     if (!produto) {
@@ -218,6 +239,7 @@ export class PdvComponent implements OnInit {
   protected fecharPersonalizacao(): void {
     this.drawerPersonalizacaoAberto.set(false);
     this.produtoPersonalizacao.set(null);
+    this.itemEditando.set(null);
     this.gruposPersonalizacao.set([]);
   }
 
@@ -237,6 +259,21 @@ export class PdvComponent implements OnInit {
     if (!this.pdvService.definirQuantidade(item.id, quantidade ?? 1)) {
       this.message.warning('Quantidade maior que o estoque disponivel.');
     }
+  }
+
+  protected editarPersonalizacao(item: ItemCarrinho): void {
+    this.itemEditando.set(item);
+    this.produtoPersonalizacao.set(item.produto);
+    this.gruposPersonalizacao.set([]);
+    this.drawerPersonalizacaoAberto.set(true);
+    this.carregandoComplementos.set(true);
+
+    this.grupoComplementoService.listarPorProduto(item.produto.id).pipe(
+      finalize(() => this.carregandoComplementos.set(false))
+    ).subscribe({
+      next: (grupos) => this.gruposPersonalizacao.set(this.normalizarGrupos(grupos)),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   protected removerProduto(itemId: string): void {
@@ -389,7 +426,7 @@ export class PdvComponent implements OnInit {
     });
   }
 
-  private adicionarProdutoConfigurado(produto: ProdutoResponse, evento: ProdutoPersonalizacaoConfirmacao): void {
+  private adicionarProdutoConfigurado(produto: ProdutoCarrinho | ProdutoResponse, evento: ProdutoPersonalizacaoConfirmacao): void {
     if (!this.pdvService.adicionar(produto, evento.quantidade, evento.complementos)) {
       this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
       return;

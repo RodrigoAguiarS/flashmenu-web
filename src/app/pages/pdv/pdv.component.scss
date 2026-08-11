@@ -212,6 +212,16 @@
   width: 76px;
 }
 
+.item-controles .botao-editar {
+  color: var(--cor-primaria);
+  background: transparent;
+}
+
+.item-controles .botao-editar:hover,
+.item-controles .botao-editar:focus-visible {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
+}
 
 .venda-vazia,
 .estado-vazio {

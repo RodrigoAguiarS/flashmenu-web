@@ -1,8 +1,4 @@
-<app-page-header titulo="Enderecos" [descricao]="descricaoCabecalho()">
-  <a class="botao-voltar" nz-button nzType="text" routerLink="/usuarios" aria-label="Voltar para usuarios">
-    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-  </a>
-</app-page-header>
+<app-page-header titulo="Enderecos" [descricao]="descricaoCabecalho()" />
 
 @if (mensagemErro()) {
   <nz-alert class="alerta-endereco" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>

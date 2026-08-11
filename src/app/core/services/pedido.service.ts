@@ -22,6 +22,14 @@ export class PedidoService {
     return this.http.get<PedidoResponse[]>(this.baseUrl);
   }
 
+  listarMeusPedidosPaginado(usuarioId: number, filtros: Pick<PedidoFiltros, 'page' | 'size' | 'sort'>): Observable<PageResponse<PedidoResponse>> {
+    return this.listarTodosPaginado({
+      ...filtros,
+      usuarioId,
+      tipo: 'DELIVERY'
+    });
+  }
+
   listarTodosPaginado(filtros: PedidoFiltros): Observable<PageResponse<PedidoResponse>> {
     return this.http.get<PageResponse<PedidoResponse>>(`${this.baseUrl}/listarTodosPaginado`, {
       params: this.criarParametros(filtros)
@@ -73,6 +81,7 @@ export class PedidoService {
       sort: filtros.sort,
       id: filtros.id,
       usuarioId: filtros.usuarioId,
+      unidadeId: filtros.unidadeId,
       status: filtros.status,
       tipo: filtros.tipo
     };
