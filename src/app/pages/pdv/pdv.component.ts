@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -27,17 +26,21 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CategoriaResponse } from '../../core/models/categoria.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
+import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { PedidoRequest } from '../../core/models/pedido.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { CategoriaService } from '../../core/services/categoria.service';
+import { ConfiguracaoComercialService } from '../../core/services/configuracao-comercial.service';
 import { FormaPagamentoService } from '../../core/services/forma-pagamento.service';
 import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import { PedidoFinanceiroService } from '../../core/services/pedido-financeiro.service';
 import { PdvService } from '../../core/services/pdv.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { ProdutoService } from '../../core/services/produto.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
@@ -52,7 +55,6 @@ import {
     ReactiveFormsModule,
     NzAlertModule,
     NzButtonModule,
-    NzDividerModule,
     NzDrawerModule,
     NzEmptyModule,
     NzFormModule,
@@ -68,6 +70,7 @@ import {
     NzTooltipModule,
     NgxMaskDirective,
     ProdutoPersonalizacaoComponent,
+    PedidoResumoFinanceiroComponent,
     PageHeaderComponent
   ],
   templateUrl: './pdv.component.html',
@@ -79,6 +82,8 @@ export class PdvComponent implements OnInit {
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly grupoComplementoService = inject(GrupoComplementoService);
+  private readonly configuracaoComercialService = inject(ConfiguracaoComercialService);
+  private readonly pedidoFinanceiroService = inject(PedidoFinanceiroService);
   private readonly formaPagamentoService = inject(FormaPagamentoService);
   private readonly pedidoService = inject(PedidoService);
   private readonly message = inject(NzMessageService);
@@ -89,6 +94,7 @@ export class PdvComponent implements OnInit {
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
+  protected readonly configuracaoComercial = signal<ConfiguracaoComercialResponse | null>(null);
   protected readonly formaPagamentoId = signal<number | null>(null);
   protected readonly valorRecebidoDinheiro = signal<number | null>(null);
   protected readonly imagensInvalidas = signal<ReadonlySet<string>>(new Set<string>());
@@ -117,8 +123,16 @@ export class PdvComponent implements OnInit {
     return this.formasPagamento().find((forma) => forma.id === formaPagamentoId) ?? null;
   });
   protected readonly percentualAcrescimo = computed(() => Number(this.formaPagamentoSelecionada()?.percentualAcrescimo ?? 0));
-  protected readonly valorAcrescimo = computed(() => this.pdvService.valorTotal() * (this.percentualAcrescimo() / 100));
-  protected readonly totalPrevisto = computed(() => this.pdvService.valorTotal() + this.valorAcrescimo());
+  protected readonly resumoFinanceiro = computed(() =>
+    this.pedidoFinanceiroService.calcularPrevia(
+      this.pdvService.valorTotal(),
+      this.configuracaoComercial()?.percentualDescontoPadrao,
+      this.configuracaoComercial()?.valorTaxaFixa,
+      this.percentualAcrescimo()
+    )
+  );
+  protected readonly valorAcrescimo = computed(() => this.resumoFinanceiro().valorAcrescimo ?? 0);
+  protected readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
   protected readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
   protected readonly troco = computed(() => {
     const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
@@ -146,6 +160,7 @@ export class PdvComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.carregarConfiguracaoComercial();
     this.carregarCategorias();
     this.carregarFormasPagamento();
     this.carregarProdutos();
@@ -423,6 +438,13 @@ export class PdvComponent implements OnInit {
         }
       },
       error: (error: HttpErrorResponse) => this.mensagemErro.set(this.extrairMensagemErro(error))
+    });
+  }
+
+  private carregarConfiguracaoComercial(): void {
+    this.configuracaoComercialService.buscar().subscribe({
+      next: (configuracao) => this.configuracaoComercial.set(configuracao),
+      error: () => this.configuracaoComercial.set(null)
     });
   }
 

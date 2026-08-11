@@ -9,17 +9,22 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { EnderecoResponse } from '../../core/models/endereco.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
+import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
 import { PedidoRequest } from '../../core/models/pedido.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { ConfiguracaoComercialService } from '../../core/services/configuracao-comercial.service';
 import { EnderecoService } from '../../core/services/endereco.service';
 import { FormaPagamentoService } from '../../core/services/forma-pagamento.service';
+import { PedidoFinanceiroService } from '../../core/services/pedido-financeiro.service';
 import { PedidoService } from '../../core/services/pedido.service';
 
 @Injectable()
 export class CheckoutFacade {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly formaPagamentoService = inject(FormaPagamentoService);
+  private readonly configuracaoComercialService = inject(ConfiguracaoComercialService);
+  private readonly pedidoFinanceiroService = inject(PedidoFinanceiroService);
   private readonly pedidoService = inject(PedidoService);
   private readonly authService = inject(AuthService);
   private readonly carrinhoService = inject(CarrinhoService);
@@ -29,6 +34,7 @@ export class CheckoutFacade {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
+  readonly configuracaoComercial = signal<ConfiguracaoComercialResponse | null>(null);
   readonly enderecos = signal<EnderecoResponse[]>([]);
   readonly carregandoEnderecos = signal(false);
   readonly formaPagamentoId = signal<number | null>(null);
@@ -44,11 +50,16 @@ export class CheckoutFacade {
     return this.formasPagamento().find((forma) => forma.id === formaPagamentoId) ?? null;
   });
   readonly percentualAcrescimo = computed(() => Number(this.formaPagamentoSelecionada()?.percentualAcrescimo ?? 0));
-  readonly valorAcrescimo = computed(() => {
-    const subtotal = this.carrinhoService.valorTotal();
-    return subtotal * (this.percentualAcrescimo() / 100);
-  });
-  readonly totalPrevisto = computed(() => this.carrinhoService.valorTotal() + this.valorAcrescimo());
+  readonly resumoFinanceiro = computed(() =>
+    this.pedidoFinanceiroService.calcularPrevia(
+      this.carrinhoService.valorTotal(),
+      this.configuracaoComercial()?.percentualDescontoPadrao,
+      this.configuracaoComercial()?.valorTaxaFixa,
+      this.percentualAcrescimo()
+    )
+  );
+  readonly valorAcrescimo = computed(() => this.resumoFinanceiro().valorAcrescimo ?? 0);
+  readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
   readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
   readonly troco = computed(() => {
     const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
@@ -79,6 +90,7 @@ export class CheckoutFacade {
 
   inicializar(unidadeSlug: string | null = null): void {
     this.unidadeSlug.set(unidadeSlug);
+    this.carregarConfiguracaoComercial();
     this.carregarFormasPagamento();
     this.carregarEnderecosEntrega();
 
@@ -182,6 +194,13 @@ export class CheckoutFacade {
       },
       error: (error: HttpErrorResponse) =>
         this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel finalizar o pedido.'))
+    });
+  }
+
+  private carregarConfiguracaoComercial(): void {
+    this.configuracaoComercialService.buscar().subscribe({
+      next: (configuracao) => this.configuracaoComercial.set(configuracao),
+      error: () => this.configuracaoComercial.set(null)
     });
   }
 

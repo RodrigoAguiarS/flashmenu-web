@@ -107,24 +107,10 @@
           }
         </div>
 
-        <div class="grade-valores">
-          <span>
-            <small>Subtotal</small>
-            {{ pedidoDetalhe.subtotal | currency:'BRL':'symbol':'1.2-2' }}
-          </span>
-          <span>
-            <small>Acrescimo</small>
-            {{ pedidoDetalhe.percentualAcrescimo }}%
-          </span>
-          <span>
-            <small>Valor do acrescimo</small>
-            {{ pedidoDetalhe.valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
-          </span>
-          <strong>
-            <small>{{ pedidoDetalhe.pagamento ? 'Total pago' : 'Total do pedido' }}</small>
-            {{ pedidoDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
-          </strong>
-        </div>
+        <app-pedido-resumo-financeiro
+          [resumo]="pedidoDetalhe"
+          [rotuloTotal]="pedidoDetalhe.pagamento ? 'Total pago' : 'Total do pedido'"
+        />
 
         @if (!pedidoDetalhe.pagamento) {
           <div class="linha-pagamento pendente">

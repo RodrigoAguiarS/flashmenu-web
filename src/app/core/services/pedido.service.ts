@@ -18,10 +18,6 @@ export class PedidoService {
     return this.http.post<PedidoResponse>(this.baseUrl, request);
   }
 
-  listarMeusPedidos(): Observable<PedidoResponse[]> {
-    return this.http.get<PedidoResponse[]>(this.baseUrl);
-  }
-
   listarMeusPedidosPaginado(usuarioId: number, filtros: Pick<PedidoFiltros, 'page' | 'size' | 'sort'>): Observable<PageResponse<PedidoResponse>> {
     return this.listarTodosPaginado({
       ...filtros,
@@ -52,10 +48,6 @@ export class PedidoService {
         return pedido;
       })
     );
-  }
-
-  alterarStatus(id: number, request: AlterarStatusPedidoRequest): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/status`, request);
   }
 
   confirmarPagamento(id: number): Observable<PedidoResponse> {

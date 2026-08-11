@@ -40,16 +40,6 @@ export class PerfilService {
     return this.http.delete<MensagemResponse>(`${this.baseUrl}/deletarPerfil/${id}`);
   }
 
-  adicionarPermissao(id: number, permissaoId: number): Observable<PerfilResponse> {
-    return this.http.post<PerfilResponse>(`${this.baseUrl}/${id}/adicionarPermissao`, { permissaoId });
-  }
-
-  removerPermissao(id: number, permissaoId: number): Observable<PerfilResponse> {
-    return this.http.delete<PerfilResponse>(`${this.baseUrl}/${id}/removerPermissao`, {
-      body: { permissaoId }
-    });
-  }
-
   private criarParametros(filtros: PerfilFiltros): HttpParams {
     let params = new HttpParams()
       .set('page', filtros.page)

@@ -6,7 +6,6 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -20,6 +19,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 import { CheckoutFacade } from './checkout.facade';
 import { IdentificacaoClienteComponent } from './components/identificacao-cliente/identificacao-cliente.component';
@@ -36,7 +36,6 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzButtonModule,
     NzCardModule,
     NzCollapseModule,
-    NzDividerModule,
     NzEmptyModule,
     NzFormModule,
     NzIconModule,
@@ -46,6 +45,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzTagModule,
     NgxMaskDirective,
     PageHeaderComponent,
+    PedidoResumoFinanceiroComponent,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],

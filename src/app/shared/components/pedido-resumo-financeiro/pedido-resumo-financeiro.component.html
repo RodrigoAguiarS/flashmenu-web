@@ -1,0 +1,32 @@
+<div class="resumo-financeiro-lista">
+  <div class="linha-resumo">
+    <span>Subtotal</span>
+    <strong>{{ valor(resumo().subtotal) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+  </div>
+
+  @if (exibirDesconto()) {
+    <div class="linha-resumo ajuste desconto">
+      <span>Desconto ({{ valor(resumo().percentualDesconto) }}%)</span>
+      <strong>- {{ valor(resumo().valorDesconto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+  }
+
+  @if (exibirTaxaFixa()) {
+    <div class="linha-resumo ajuste">
+      <span>Taxa fixa</span>
+      <strong>+ {{ valor(resumo().valorTaxaFixa) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+  }
+
+  @if (exibirAcrescimo()) {
+    <div class="linha-resumo ajuste">
+      <span>Acrescimo pagamento ({{ valor(resumo().percentualAcrescimo) }}%)</span>
+      <strong>+ {{ valor(resumo().valorAcrescimo) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+  }
+
+  <div class="linha-resumo total">
+    <span>{{ rotuloTotal() }}</span>
+    <strong>{{ valor(resumo().valorTotal) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+  </div>
+</div>

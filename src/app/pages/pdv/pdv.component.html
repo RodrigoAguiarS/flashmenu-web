@@ -269,24 +269,7 @@
       }
 
       <div class="resumo-venda">
-        <div>
-          <span>Subtotal</span>
-          <strong>{{ pdvService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-
-        @if (formaPagamentoSelecionada(); as formaPagamento) {
-          <div>
-            <span>{{ formaPagamento.nome }} - acrescimo {{ percentualAcrescimo() }}%</span>
-            <strong>{{ valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-        }
-
-        <nz-divider></nz-divider>
-
-        <div class="total">
-          <span>Total</span>
-          <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
+        <app-pedido-resumo-financeiro [resumo]="resumoFinanceiro()" />
 
         @if (pagamentoEmDinheiro()) {
           <div>

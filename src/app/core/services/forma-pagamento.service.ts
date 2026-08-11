@@ -16,10 +16,6 @@ export class FormaPagamentoService {
     return this.http.get<FormaPagamentoResponse[]>(this.baseUrl);
   }
 
-  buscarPorId(id: number): Observable<FormaPagamentoResponse> {
-    return this.http.get<FormaPagamentoResponse>(`${this.baseUrl}/${id}`);
-  }
-
   atualizarPercentualAcrescimo(
     id: number,
     request: FormaPagamentoPercentualRequest

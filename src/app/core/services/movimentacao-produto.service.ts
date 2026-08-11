@@ -45,12 +45,6 @@ export class MovimentacaoProdutoService {
     });
   }
 
-  exportarAuditoriaMovimentacaoPdf(produtoId: number, movimentacaoId: number): Observable<Blob> {
-    return this.http.get(`${this.movimentacoesUrl(produtoId)}/${movimentacaoId}/auditoria/pdf`, {
-      responseType: 'blob'
-    });
-  }
-
   private movimentacoesUrl(produtoId: number): string {
     return `${this.baseUrl}/${produtoId}/movimentacoes`;
   }

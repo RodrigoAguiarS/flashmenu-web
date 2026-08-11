@@ -17,6 +17,7 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { ProdutoService } from '../../../core/services/produto.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 
 @Component({
   selector: 'app-pedido-detail',
@@ -29,7 +30,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     NzIconModule,
     NzSpinModule,
     NzTagModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    PedidoResumoFinanceiroComponent
   ],
   templateUrl: './pedido-detail.component.html',
   styleUrl: './pedido-detail.component.scss',

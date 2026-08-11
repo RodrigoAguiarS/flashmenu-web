@@ -93,6 +93,10 @@ export class PedidoListComponent implements OnInit {
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
+  protected nomeUnidade(pedido: PedidoResponse): string {
+    return pedido.unidade?.nome ?? 'Unidade nao informada';
+  }
+
   protected abrirDetalhe(id: number, event?: Event): void {
     event?.stopPropagation();
     void this.router.navigate(['/pedidos', id]);

@@ -165,6 +165,10 @@ export class PedidoAdminListComponent implements OnInit {
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
+  protected nomeUnidade(pedido: PedidoResponse): string {
+    return pedido.unidade?.nome ?? 'Unidade nao informada';
+  }
+
   private carregarPedidos(): void {
     const filtros = this.filtros.getRawValue();
     const unidadeId = this.authService.usuarioAutenticado()?.unidade?.id;

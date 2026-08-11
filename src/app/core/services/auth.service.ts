@@ -30,26 +30,12 @@ export class AuthService {
     );
   }
 
-  buscarClientePorTelefone(telefone: string): Observable<ClienteIdentificacaoResponse> {
-    return this.http.get<ClienteIdentificacaoResponse>(`${environment.apiUrl}/auth/clientes/por-telefone`, {
-      params: {
-        telefone
-      }
-    });
-  }
-
   buscarClientePorTelefoneUnidade(unidadeSlug: string, telefone: string): Observable<ClienteIdentificacaoResponse> {
     return this.http.get<ClienteIdentificacaoResponse>(
       `${environment.apiUrl}/auth/unidades/${encodeURIComponent(unidadeSlug)}/clientes/por-telefone`,
       {
         params: { telefone }
       }
-    );
-  }
-
-  cadastrarClienteCheckout(request: ClienteCheckoutRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/clientes`, request).pipe(
-      tap((response) => this.persistirSessao(response))
     );
   }
 

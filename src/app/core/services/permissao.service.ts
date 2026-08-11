@@ -19,10 +19,6 @@ export class PermissaoService {
     });
   }
 
-  buscarPorId(id: number): Observable<PermissaoResponse> {
-    return this.http.get<PermissaoResponse>(`${this.baseUrl}/buscarPorId/${id}`);
-  }
-
   private criarParametros(filtros: PermissaoFiltros): HttpParams {
     let params = new HttpParams()
       .set('page', filtros.page)

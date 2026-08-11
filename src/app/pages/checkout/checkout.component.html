@@ -119,11 +119,6 @@
             <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
           </div>
 
-          <div class="linha-resumo">
-            <span>Subtotal</span>
-            <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-
           <nz-form-item class="campo-pagamento">
             <nz-form-label nzFor="formaPagamentoId" nzRequired>Forma de pagamento</nz-form-label>
             <nz-form-control
@@ -179,15 +174,10 @@
               </div>
             }
 
-            <div class="linha-resumo">
-              <span>Acrescimo</span>
-              <strong>{{ checkout.percentualAcrescimo() }}%</strong>
-            </div>
-
-            <div class="linha-resumo">
-              <span>Valor do acrescimo</span>
-              <strong>{{ checkout.valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-            </div>
+            <app-pedido-resumo-financeiro
+              [resumo]="checkout.resumoFinanceiro()"
+              rotuloTotal="Total previsto"
+            />
 
             @if (checkout.pagamentoEmDinheiro()) {
               <div class="linha-resumo">
@@ -200,13 +190,6 @@
                 <strong>{{ checkout.troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
               </div>
             }
-          </div>
-
-          <nz-divider></nz-divider>
-
-          <div class="linha-resumo total">
-            <span>Total previsto</span>
-            <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
           </div>
 
           <div class="acoes-checkout">

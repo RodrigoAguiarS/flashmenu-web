@@ -47,10 +47,6 @@ export class GrupoComplementoService {
     return this.http.put<GrupoComplementoResponse>(`${this.baseUrl}/${id}`, request);
   }
 
-  listarOpcoes(grupoId: number): Observable<OpcaoComplementoResponse[]> {
-    return this.http.get<OpcaoComplementoResponse[]>(`${this.baseUrl}/${grupoId}/opcoes`);
-  }
-
   ativar(id: number): Observable<GrupoComplementoResponse> {
     return this.http.patch<GrupoComplementoResponse>(`${this.baseUrl}/${id}/ativar`, {});
   }

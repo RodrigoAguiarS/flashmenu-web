@@ -56,6 +56,24 @@
   color: var(--cor-texto-suave);
 }
 
+.pedido-unidade {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--cor-texto);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pedido-unidade .anticon {
+  flex: 0 0 auto;
+  color: var(--cor-primaria);
+}
+
 .pedido-resumo {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -16,6 +16,10 @@
           <header class="pedido-topo">
             <div>
               <strong>Pedido #{{ pedido.id }}</strong>
+              <span class="pedido-unidade">
+                <span nz-icon nzType="shop" nzTheme="outline"></span>
+                {{ nomeUnidade(pedido) }}
+              </span>
               <span>{{ pedido.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
 

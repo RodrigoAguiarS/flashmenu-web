@@ -1,5 +1,6 @@
 import { FormaPagamentoResponse } from './forma-pagamento.model';
 import { EnderecoResponse } from './endereco.model';
+import { UnidadeResumo } from './unidade.model';
 
 export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'PAGO' | 'CANCELADO' | string;
 export type TipoPedido = 'DELIVERY' | 'PDV' | string;
@@ -80,6 +81,9 @@ export interface PedidoResponse {
   tipo: TipoPedido | null;
   dataCriacao: string;
   subtotal: number;
+  percentualDesconto: number;
+  valorDesconto: number;
+  valorTaxaFixa: number;
   percentualAcrescimo: number;
   valorAcrescimo: number;
   valorTotal: number;
@@ -88,5 +92,16 @@ export interface PedidoResponse {
   pagamento: PagamentoResponse | null;
   cliente?: PedidoParticipanteResponse | null;
   vendedor?: PedidoParticipanteResponse | null;
+  unidade?: UnidadeResumo | null;
   enderecoEntrega?: EnderecoResponse | null;
+}
+
+export interface PedidoResumoFinanceiro {
+  subtotal: number;
+  percentualDesconto?: number | null;
+  valorDesconto?: number | null;
+  valorTaxaFixa?: number | null;
+  percentualAcrescimo?: number | null;
+  valorAcrescimo?: number | null;
+  valorTotal: number;
 }
