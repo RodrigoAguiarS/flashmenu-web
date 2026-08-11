@@ -225,6 +225,28 @@ a {
   display: none;
 }
 
+.ant-spin-nested-loading > div > .ant-spin {
+  color: var(--cor-primaria);
+}
+
+.ant-spin-nested-loading > div > .ant-spin .ant-spin-dot-item {
+  background-color: var(--cor-primaria);
+}
+
+.ant-spin-nested-loading > div > .ant-spin .ant-spin-text {
+  color: var(--cor-texto);
+}
+
+.ant-spin-blur {
+  opacity: 1;
+  filter: none;
+}
+
+.ant-spin-blur::after {
+  background: color-mix(in srgb, var(--cor-fundo) 42%, transparent);
+  opacity: 1;
+}
+
 .mobile-card {
   display: grid;
   gap: 10px;
@@ -342,11 +364,6 @@ a {
 
 .entrega-card.pendente {
   display: grid;
-}
-
-.entrega-card.pendente a {
-  justify-self: start;
-  margin-top: 6px;
 }
 
 .acoes-linha .ant-btn .anticon,

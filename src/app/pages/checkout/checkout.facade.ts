@@ -62,7 +62,6 @@ export class CheckoutFacade {
   readonly checkoutValido = computed(() =>
     !this.carrinhoService.vazio() &&
     !!this.usuario() &&
-    !!this.enderecoEntrega() &&
     !!this.formaPagamentoId() &&
     (!this.pagamentoEmDinheiro() || (!!this.valorRecebidoDinheiro() && !this.valorRecebidoInsuficiente())) &&
     !this.finalizando()
@@ -130,11 +129,6 @@ export class CheckoutFacade {
 
     if (!this.usuario()) {
       this.mensagemErro.set('Identifique o cliente antes de confirmar o pedido.');
-      return;
-    }
-
-    if (!this.enderecoEntrega()) {
-      this.mensagemErro.set('Informe um endereco de entrega antes de confirmar o pedido.');
       return;
     }
 
@@ -207,7 +201,9 @@ export class CheckoutFacade {
       next: (enderecos) => this.enderecos.set(enderecos.filter((endereco) => endereco.ativo)),
       error: (error: HttpErrorResponse) => {
         this.enderecos.set([]);
-        this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel carregar o endereco de entrega.'));
+        if (error.status !== 404) {
+          this.message.warning(this.extrairMensagemErro(error, 'Nao foi possivel carregar o endereco do cliente.'));
+        }
       }
     });
   }

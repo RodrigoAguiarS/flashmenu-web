@@ -71,11 +71,6 @@ code {
   color: #ff4d4f;
 }
 
-.mensagem-erro {
-  margin: 0 0 12px;
-  color: #ff4d4f;
-}
-
 :host ::ng-deep .secao-tabela .ant-table-content {
   overflow-x: auto;
 }
@@ -91,4 +86,5 @@ code {
     align-items: stretch;
     flex-direction: column;
   }
+
 }

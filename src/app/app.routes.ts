@@ -228,6 +228,20 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'unidades/novo',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.UNIDADE_CRIAR },
+    loadComponent: () =>
+      import('./pages/unidades/unidade-form/unidade-form.component').then((component) => component.UnidadeFormComponent)
+  },
+  {
+    path: 'unidades/:id/editar',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.UNIDADE_EDITAR },
+    loadComponent: () =>
+      import('./pages/unidades/unidade-form/unidade-form.component').then((component) => component.UnidadeFormComponent)
+  },
+  {
     path: 'unidades',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.UNIDADES },

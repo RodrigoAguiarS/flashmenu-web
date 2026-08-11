@@ -1,9 +1,9 @@
 <app-page-header titulo="Unidades" descricao="Gerencie filiais e links publicos de cardapio por unidade.">
   @if (podeCriar()) {
-    <button nz-button nzType="primary" type="button" (click)="abrirCadastro()">
+    <a nz-button nzType="primary" routerLink="/unidades/novo">
       <span nz-icon nzType="plus" nzTheme="outline"></span>
       Nova unidade
-    </button>
+    </a>
   }
 </app-page-header>
 
@@ -67,19 +67,18 @@
               </button>
 
               @if (podeEditar()) {
-                <button
+                <a
                   class="acao-botao"
                   nz-button
                   nzType="text"
                   nzShape="circle"
-                  type="button"
+                  [routerLink]="['/unidades', unidade.id, 'editar']"
                   nz-tooltip
                   nzTooltipTitle="Editar"
                   aria-label="Editar unidade"
-                  (click)="editar(unidade)"
                 >
                   <span nz-icon nzType="edit" nzTheme="outline"></span>
-                </button>
+                </a>
               }
 
               @if (podeExcluir()) {
@@ -130,9 +129,9 @@
           </button>
 
           @if (podeEditar()) {
-            <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Editar unidade" (click)="editar(unidade)">
+            <a nz-button nzType="text" nzShape="circle" [routerLink]="['/unidades', unidade.id, 'editar']" aria-label="Editar unidade">
               <span nz-icon nzType="edit" nzTheme="outline"></span>
-            </button>
+            </a>
           }
 
           @if (podeExcluir()) {
@@ -162,50 +161,3 @@
     }
   </div>
 </section>
-
-<nz-modal
-  [nzVisible]="modalAberto()"
-  [nzTitle]="tituloModal()"
-  [nzOkLoading]="salvando()"
-  nzOkText="Salvar"
-  nzCancelText="Cancelar"
-  (nzOnOk)="salvar()"
-  (nzOnCancel)="fecharModal()"
->
-  <ng-container *nzModalContent>
-    @if (mensagemErro()) {
-      <p class="mensagem-erro">{{ mensagemErro() }}</p>
-    }
-
-    <form nz-form nzLayout="vertical" [formGroup]="form">
-      <nz-row [nzGutter]="16">
-        <nz-col nzXs="24">
-          <nz-form-item>
-            <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
-            <nz-form-control nzErrorTip="Informe o nome da unidade.">
-              <input nz-input id="nome" formControlName="nome" placeholder="Loja Centro" />
-            </nz-form-control>
-          </nz-form-item>
-        </nz-col>
-
-        <nz-col nzXs="24">
-          <nz-form-item>
-            <nz-form-label nzFor="slug" nzRequired>Slug publico</nz-form-label>
-            <nz-form-control nzErrorTip="Use letras minusculas, numeros e hifens.">
-              <input nz-input id="slug" formControlName="slug" placeholder="loja-centro" (blur)="normalizarSlug()" />
-            </nz-form-control>
-          </nz-form-item>
-        </nz-col>
-
-        <nz-col nzXs="24">
-          <nz-form-item>
-            <nz-form-label nzFor="ativo">Ativa</nz-form-label>
-            <nz-form-control>
-              <nz-switch id="ativo" formControlName="ativo"></nz-switch>
-            </nz-form-control>
-          </nz-form-item>
-        </nz-col>
-      </nz-row>
-    </form>
-  </ng-container>
-</nz-modal>

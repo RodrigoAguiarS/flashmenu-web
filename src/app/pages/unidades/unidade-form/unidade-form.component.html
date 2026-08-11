@@ -1,0 +1,96 @@
+<app-page-header
+  [titulo]="titulo()"
+  [descricao]="editando() ? 'Atualize os dados da unidade.' : 'Cadastre uma unidade para gerar um cardapio publico.'"
+>
+  <a class="botao-voltar" nz-button nzType="text" routerLink="/unidades" aria-label="Voltar para unidades">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+  </a>
+</app-page-header>
+
+<section class="formulario cartao-sistema">
+  @if (mensagemErro()) {
+    <nz-alert class="alerta-formulario" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+  }
+
+  @if (errosValidacao().length) {
+    <ng-template #descricaoValidacao>
+      <ul>
+        @for (erroValidacao of errosValidacao(); track erroValidacao) {
+          <li>{{ erroValidacao }}</li>
+        }
+      </ul>
+    </ng-template>
+
+    <nz-alert
+      class="alerta-formulario"
+      nzType="warning"
+      nzMessage="Revise os campos informados"
+      [nzDescription]="descricaoValidacao"
+      nzShowIcon
+    ></nz-alert>
+  }
+
+  <nz-spin [nzSpinning]="carregando()">
+    <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="enviar()">
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24" nzMd="12">
+          <nz-form-item>
+            <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Informe um nome entre 2 e 120 caracteres."
+              [nzValidateStatus]="formulario.controls.nome"
+            >
+              <input nz-input id="nome" formControlName="nome" placeholder="Ex.: Loja Centro" autocomplete="off" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="12">
+          <nz-form-item>
+            <nz-form-label nzFor="slug" nzRequired>Slug publico</nz-form-label>
+            <nz-form-control
+              nzErrorTip="Use letras minusculas, numeros e hifens, sem espacos."
+              [nzValidateStatus]="formulario.controls.slug"
+            >
+              <input
+                nz-input
+                id="slug"
+                formControlName="slug"
+                placeholder="Ex.: loja-centro"
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                (blur)="normalizarSlug()"
+              />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="12">
+          <section class="link-publico" aria-label="Link publico do cardapio">
+            <span>Link publico</span>
+            <strong>{{ linkPreview() }}</strong>
+          </section>
+        </nz-col>
+
+        <nz-col nzXs="24" nzMd="12">
+          <div class="campo-switch">
+            <div>
+              <label for="ativo">Unidade ativa</label>
+              <span>Unidades inativas nao devem aparecer no cardapio publico.</span>
+            </div>
+
+            <nz-switch id="ativo" formControlName="ativo"></nz-switch>
+          </div>
+        </nz-col>
+      </nz-row>
+
+      <div class="acoes-formulario">
+        <a nz-button routerLink="/unidades">Cancelar</a>
+        <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando() || carregando()">
+          {{ textoBotao() }}
+        </button>
+      </div>
+    </form>
+  </nz-spin>
+</section>

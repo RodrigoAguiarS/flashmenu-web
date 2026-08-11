@@ -65,16 +65,16 @@
             </div>
           </nz-collapse-panel>
 
-          <nz-collapse-panel nzHeader="Cliente e entrega" [nzActive]="true">
+          <nz-collapse-panel nzHeader="Cliente" [nzActive]="true">
             @if (checkout.carregandoEnderecos()) {
               <div class="entrega-card">
-                <span>Carregando endereco de entrega...</span>
+                <span>Carregando dados do cliente...</span>
               </div>
             } @else if (checkout.usuario(); as usuarioAtual) {
               <div class="entrega-card">
                 <div class="entrega-card__conteudo">
                   <div class="entrega-card__topo">
-                    <strong>Dados para entrega</strong>
+                    <strong>Dados do cliente</strong>
                     @if (checkout.enderecoEntrega()?.principal) {
                       <nz-tag nzColor="success">Principal</nz-tag>
                     }
@@ -99,7 +99,7 @@
                           }
                           - {{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }} - CEP {{ endereco.cep }}
                         } @else {
-                          Endereco de entrega pendente
+                          Nao informado
                         }
                       </dd>
                     </div>
@@ -108,9 +108,8 @@
               </div>
             } @else {
               <div class="entrega-card pendente">
-                <strong>Endereco de entrega pendente</strong>
-                <span>Informe ou cadastre um endereco para liberar a confirmacao do pedido.</span>
-                <a nz-button routerLink="/minha-conta">Adicionar endereco</a>
+                <strong>Cliente pendente</strong>
+                <span>Identifique o cliente para liberar a confirmacao do pedido.</span>
               </div>
             }
           </nz-collapse-panel>
