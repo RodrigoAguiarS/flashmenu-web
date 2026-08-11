@@ -5,7 +5,7 @@
     [nzSubTitle]="pedido ? 'Pedido #' + pedido.id + ' - status ' + pedido.status : 'Seu pedido foi criado.'"
   >
     <div nz-result-extra>
-      <a nz-button nzType="primary" routerLink="/catalogo">Continuar comprando</a>
+      <a nz-button nzType="primary" [routerLink]="carrinhoService.cardapioLink()">Continuar comprando</a>
     </div>
   </nz-result>
 

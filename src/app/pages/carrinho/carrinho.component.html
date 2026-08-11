@@ -1,7 +1,7 @@
 <app-page-header titulo="Carrinho" descricao="Revise os produtos antes de finalizar o pedido.">
   <a class="botao-voltar"
      nz-button nzType="text"
-     routerLink="/catalogo"
+     [routerLink]="carrinhoService.cardapioLink()"
      aria-label="Continuar comprando">
     <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
   </a>
@@ -10,7 +10,7 @@
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">
     <nz-empty nzNotFoundContent="Seu carrinho esta vazio."></nz-empty>
-    <a nz-button nzType="primary" routerLink="/catalogo">Ver produtos</a>
+    <a nz-button nzType="primary" [routerLink]="carrinhoService.cardapioLink()">Ver produtos</a>
   </section>
 } @else {
   <section class="layout-carrinho">

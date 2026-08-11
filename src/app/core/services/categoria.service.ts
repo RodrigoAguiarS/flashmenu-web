@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { CategoriaFiltros, CategoriaRequest, CategoriaResponse } from '../models/categoria.model';
@@ -26,6 +27,18 @@ export class CategoriaService {
 
   buscarPorId(id: number): Observable<CategoriaResponse> {
     return this.http.get<CategoriaResponse>(`${this.baseUrl}/buscarCategoriaPorId/${id}`);
+  }
+
+  listarPublicoPorUnidade(
+    unidadeSlug: string,
+    filtros: CategoriaFiltros = { page: 0, size: 100, sort: 'nome' }
+  ): Observable<CategoriaResponse[]> {
+    return this.http.get<CategoriaResponse[] | PageResponse<CategoriaResponse>>(
+      `${environment.apiUrl}/api/publico/unidades/${encodeURIComponent(unidadeSlug)}/categorias`,
+      { params: this.criarParametros(filtros) }
+    ).pipe(
+      map((response) => Array.isArray(response) ? response : response.content ?? [])
+    );
   }
 
   cadastrar(request: CategoriaRequest): Observable<CategoriaResponse> {

@@ -1,5 +1,6 @@
 import { PerfilResponse } from './perfil.model';
 import { EnderecoRequest } from './endereco.model';
+import { UnidadeResumo } from './unidade.model';
 
 export interface UsuarioRequest {
   nome: string;
@@ -32,9 +33,10 @@ export interface UsuarioResponse {
   email: string;
   telefone: string | null;
   ativo: boolean;
+  unidade: UnidadeResumo | null;
   perfil: PerfilResponse | null;
   empresaId?: number | null;
   empresaNome?: string | null;
-  criadoEm: string;
-  atualizadoEm: string;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }

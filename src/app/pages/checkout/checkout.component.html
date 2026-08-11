@@ -7,7 +7,7 @@
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">
     <nz-empty nzNotFoundContent="Seu carrinho esta vazio."></nz-empty>
-    <a nz-button nzType="primary" routerLink="/catalogo">Ver produtos</a>
+    <a nz-button nzType="primary" [routerLink]="carrinhoService.cardapioLink()">Ver produtos</a>
   </section>
 } @else {
   <nz-spin [nzSpinning]="checkout.carregando()">
@@ -18,7 +18,10 @@
         }
 
         @if (!checkout.usuario()) {
-          <app-identificacao-cliente (clienteIdentificado)="checkout.atualizarClienteIdentificado()" />
+          <app-identificacao-cliente
+            [unidadeSlug]="checkout.unidadeSlug()"
+            (clienteIdentificado)="checkout.atualizarClienteIdentificado()"
+          />
         }
 
         <nz-collapse nzGhost>

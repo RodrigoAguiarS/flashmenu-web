@@ -99,6 +99,27 @@
   gap: 8px;
 }
 
+.unidade-atual {
+  display: none;
+  max-width: min(42vw, 260px);
+  padding: 7px 10px;
+  overflow: hidden;
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unidade-inativa {
+  color: #ff4d4f;
+  border-color: color-mix(in srgb, #ff4d4f 42%, var(--cor-borda));
+}
+
 .acao-icone {
   display: inline-flex;
   align-items: center;
@@ -167,6 +188,10 @@
   .navegacao-principal {
     justify-content: center;
     flex-wrap: nowrap;
+  }
+
+  .unidade-atual {
+    display: inline-block;
   }
 
   .conteudo-app {

@@ -36,6 +36,7 @@ export class CheckoutFacade {
   readonly carregando = signal(false);
   readonly finalizando = signal(false);
   readonly mensagemErro = signal<string | null>(null);
+  readonly unidadeSlug = signal<string | null>(null);
   readonly usuario = computed(() => this.authService.usuarioAutenticado());
   readonly enderecoEntrega = computed(() => this.enderecos().find((endereco) => endereco.principal) ?? this.enderecos()[0] ?? null);
   readonly formaPagamentoSelecionada = computed(() => {
@@ -77,7 +78,8 @@ export class CheckoutFacade {
     this.atualizarValidacaoValorRecebido();
   });
 
-  inicializar(): void {
+  inicializar(unidadeSlug: string | null = null): void {
+    this.unidadeSlug.set(unidadeSlug);
     this.carregarFormasPagamento();
     this.carregarEnderecosEntrega();
 

@@ -23,6 +23,19 @@ export class ProdutoService {
     return this.http.get<ProdutoResponse>(`${this.baseUrl}/buscarProdutoPorId/${id}`);
   }
 
+  listarPublicoPorUnidade(unidadeSlug: string, filtros: ProdutoFiltros): Observable<PageResponse<ProdutoResponse>> {
+    return this.http.get<PageResponse<ProdutoResponse>>(
+      `${environment.apiUrl}/api/publico/unidades/${encodeURIComponent(unidadeSlug)}/produtos`,
+      { params: this.criarParametros(filtros) }
+    );
+  }
+
+  buscarPublicoPorUnidade(unidadeSlug: string, id: number): Observable<ProdutoResponse> {
+    return this.http.get<ProdutoResponse>(
+      `${environment.apiUrl}/api/publico/unidades/${encodeURIComponent(unidadeSlug)}/produtos/${id}`
+    );
+  }
+
   cadastrar(request: ProdutoRequest, imagem?: File | null): Observable<ProdutoResponse> {
     if (imagem) {
       return this.http.post<ProdutoResponse>(`${this.baseUrl}/criarProdutoComImagem`, this.criarFormData(request, imagem));

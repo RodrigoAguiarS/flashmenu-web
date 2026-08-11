@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize, map } from 'rxjs';
@@ -12,6 +12,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { StandardError, ValidationError } from '../../../../core/models/api-error.model';
+import { ClienteCheckoutRequest } from '../../../../core/models/auth.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ViaCepService } from '../../../../core/services/via-cep.service';
 import { DocumentoMaskDirective } from '../../../../shared/directives/documento-mask.directive';
@@ -40,6 +41,7 @@ export class IdentificacaoClienteComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly clienteIdentificado = output<void>();
+  readonly unidadeSlug = input<string | null>(null);
 
   protected readonly identificando = signal(false);
   protected readonly buscandoTelefone = signal(false);
@@ -86,27 +88,20 @@ export class IdentificacaoClienteComponent {
     const valor = this.identificacaoForm.getRawValue();
     this.identificando.set(true);
 
+    const slug = this.unidadeSlug();
+
+    if (!slug && !this.clienteEncontrado()) {
+      this.identificando.set(false);
+      this.mensagemErro.set('Acesse o checkout pelo link do cardapio da unidade.');
+      return;
+    }
+
     const operacao$ = this.clienteEncontrado()
       ? this.authService.entrar({
           email: valor.login.trim(),
           senha: valor.senha
         })
-      : this.authService.cadastrarClienteCheckout({
-          nome: valor.nome.trim(),
-          login: valor.login.trim(),
-          telefone: valor.telefone.trim(),
-          senha: valor.senha,
-          endereco: {
-            cep: valor.endereco.cep.trim(),
-            logradouro: valor.endereco.logradouro.trim(),
-            numero: valor.endereco.numero.trim(),
-            complemento: valor.endereco.complemento.trim() || null,
-            bairro: valor.endereco.bairro.trim(),
-            cidade: valor.endereco.cidade.trim(),
-            estado: valor.endereco.estado.trim(),
-            principal: valor.endereco.principal
-          }
-        });
+      : this.authService.cadastrarClienteCheckoutUnidade(slug ?? '', this.montarRequestCadastro(valor));
 
     operacao$.pipe(
       finalize(() => this.identificando.set(false))
@@ -124,6 +119,25 @@ export class IdentificacaoClienteComponent {
 
   protected alternarVisibilidadeSenha(): void {
     this.senhaVisivel.update((visivel) => !visivel);
+  }
+
+  private montarRequestCadastro(valor: ReturnType<IdentificacaoClienteComponent['identificacaoForm']['getRawValue']>): ClienteCheckoutRequest {
+    return {
+      nome: valor.nome.trim(),
+      login: valor.login.trim(),
+      telefone: valor.telefone.trim(),
+      senha: valor.senha,
+      endereco: {
+        cep: valor.endereco.cep.trim(),
+        logradouro: valor.endereco.logradouro.trim(),
+        numero: valor.endereco.numero.trim(),
+        complemento: valor.endereco.complemento.trim() || null,
+        bairro: valor.endereco.bairro.trim(),
+        cidade: valor.endereco.cidade.trim(),
+        estado: valor.endereco.estado.trim(),
+        principal: valor.endereco.principal
+      }
+    };
   }
 
   private observarTelefone(): void {
@@ -156,7 +170,17 @@ export class IdentificacaoClienteComponent {
     this.buscandoTelefone.set(true);
     this.mensagemIdentificacao.set('Buscando cadastro...');
 
-    this.authService.buscarClientePorTelefone(telefone).pipe(
+    const slug = this.unidadeSlug();
+
+    if (!slug) {
+      this.buscandoTelefone.set(false);
+      this.mensagemIdentificacao.set('Acesse o checkout pelo link do cardapio da unidade.');
+      return;
+    }
+
+    const operacao$ = this.authService.buscarClientePorTelefoneUnidade(slug, telefone);
+
+    operacao$.pipe(
       finalize(() => this.buscandoTelefone.set(false))
     ).subscribe({
       next: (cliente) => {

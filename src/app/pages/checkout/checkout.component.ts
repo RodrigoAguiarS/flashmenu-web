@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -55,6 +55,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
 })
 export class CheckoutComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly message = inject(NzMessageService);
 
   protected readonly carrinhoService = inject(CarrinhoService);
@@ -62,13 +63,22 @@ export class CheckoutComponent implements OnInit {
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
 
   ngOnInit(): void {
+    const unidadeSlug = this.route.snapshot.paramMap.get('unidadeSlug');
+
+    if (unidadeSlug) {
+      this.carrinhoService.definirUnidadeSlug(unidadeSlug);
+    } else if (this.carrinhoService.unidadeSlug()) {
+      void this.router.navigate(this.carrinhoService.checkoutLink(), { replaceUrl: true });
+      return;
+    }
+
     if (this.carrinhoService.vazio()) {
       this.message.warning('Adicione produtos antes de finalizar o pedido.');
       void this.router.navigate(['/carrinho']);
       return;
     }
 
-    this.checkout.inicializar();
+    this.checkout.inicializar(unidadeSlug);
   }
 
   protected finalizarPedido(): void {

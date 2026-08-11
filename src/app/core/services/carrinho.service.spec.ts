@@ -70,6 +70,23 @@ describe('CarrinhoService complementos', () => {
     expect(service.itens()[0].quantidade).toBe(2);
   });
 
+  it('gera links publicos com slug da unidade do carrinho', () => {
+    service.definirUnidadeSlug('loja-centro');
+
+    expect(service.cardapioLink()).toEqual(['/cardapio', 'loja-centro']);
+    expect(service.checkoutLink()).toEqual(['/cardapio', 'loja-centro', 'checkout']);
+  });
+
+  it('limpa itens ao trocar a unidade do carrinho', () => {
+    service.definirUnidadeSlug('loja-centro');
+    service.adicionar(produto());
+
+    service.definirUnidadeSlug('loja-norte');
+
+    expect(service.itens()).toHaveLength(0);
+    expect(service.unidadeSlug()).toBe('loja-norte');
+  });
+
   function produto(): ProdutoResponse {
     return {
       id: 1,

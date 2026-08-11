@@ -3,7 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -19,6 +19,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
@@ -28,7 +29,7 @@ import { GrupoComplementoResponse, ComplementoSelecionado } from '../../core/mod
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { CategoriaService } from '../../core/services/categoria.service';
-import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ProdutoService } from '../../core/services/produto.service';
 import {
   ProdutoPersonalizacaoComponent,
@@ -55,6 +56,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
     NzInputModule,
     NzInputNumberModule,
     NzPaginationModule,
+    NzResultModule,
     NzSelectModule,
     NzSpinModule,
     NzTagModule,
@@ -70,11 +72,14 @@ export class CatalogoComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
-  private readonly grupoComplementoService = inject(GrupoComplementoService);
+  private readonly authService = inject(AuthService);
   private readonly carrinhoService = inject(CarrinhoService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
+  protected readonly unidadeSlug = signal<string | null>(null);
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly produtoSelecionado = signal<ProdutoResponse | null>(null);
@@ -90,6 +95,14 @@ export class CatalogoComponent implements OnInit {
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(12);
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
+  protected readonly cardapioIndisponivel = signal(false);
+  protected readonly mensagemCardapioIndisponivel = signal('Cardapio nao encontrado.');
+  protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardapio' : 'Catalogo');
+  protected readonly descricaoCatalogo = computed(() =>
+    this.unidadeSlug()
+      ? 'Escolha os produtos desta unidade e monte seu pedido.'
+      : 'Acesse o cardapio pelo link publico da unidade.'
+  );
 
   protected readonly filtros = this.fb.group({
     nome: [''],
@@ -97,8 +110,28 @@ export class CatalogoComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.carregarCategorias();
-    this.carregarProdutos();
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const slug = params.get('unidadeSlug');
+        const produtoId = Number(params.get('produtoId'));
+
+        if (!slug) {
+          this.redirecionarParaUnidadeLogadaOuExibirErro();
+          return;
+        }
+
+        this.unidadeSlug.set(slug);
+        this.carrinhoService.definirUnidadeSlug(slug);
+        this.cardapioIndisponivel.set(false);
+        this.pageIndex.set(1);
+        this.carregarCategorias();
+        this.carregarProdutos();
+
+        if (Number.isFinite(produtoId) && produtoId > 0) {
+          this.carregarProdutoPublico(produtoId, true);
+        }
+      });
 
     this.filtros.valueChanges
       .pipe(
@@ -167,24 +200,7 @@ export class CatalogoComponent implements OnInit {
       return;
     }
 
-    this.carregandoComplementos.set(true);
-    this.grupoComplementoService.listarPorProduto(produto.id).pipe(
-      finalize(() => this.carregandoComplementos.set(false))
-    ).subscribe({
-      next: (grupos) => {
-        const gruposAtivos = this.normalizarGrupos(grupos);
-
-        if (!gruposAtivos.length) {
-          this.adicionarProduto(produto);
-          return;
-        }
-
-        this.produtoSelecionado.set(produto);
-        this.gruposProdutoSelecionado.set(gruposAtivos);
-        this.drawerAberto.set(true);
-      },
-      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
-    });
+    this.carregarProdutoPublico(produto.id, false, true);
   }
 
   confirmarPersonalizacao(evento: ProdutoPersonalizacaoConfirmacao): void {
@@ -254,10 +270,18 @@ export class CatalogoComponent implements OnInit {
   }
 
   private carregarProdutos(): void {
+    const slug = this.unidadeSlug();
+
+    if (!slug) {
+      this.produtos.set([]);
+      this.total.set(0);
+      return;
+    }
+
     const filtros = this.filtros.getRawValue();
     this.carregando.set(true);
 
-    this.produtoService.listar({
+    this.produtoService.listarPublicoPorUnidade(slug, {
       page: this.pageIndex() - 1,
       size: this.pageSize(),
       sort: 'nome',
@@ -273,31 +297,98 @@ export class CatalogoComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.produtos.set([]);
         this.total.set(0);
+        this.tratarErroCardapio(error);
         this.message.error(this.extrairMensagemErro(error));
       }
     });
   }
 
   private carregarCategorias(): void {
+    const slug = this.unidadeSlug();
+
+    if (!slug) {
+      this.categorias.set([]);
+      return;
+    }
+
     this.carregandoCategorias.set(true);
 
-    this.categoriaService.listar({ page: 0, size: 100, sort: 'nome' }).pipe(
+    this.categoriaService.listarPublicoPorUnidade(slug, { page: 0, size: 100, sort: 'nome' }).pipe(
       finalize(() => this.carregandoCategorias.set(false))
     ).subscribe({
-      next: (page) => this.categorias.set(page.content),
-      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+      next: (categorias) => this.categorias.set(categorias),
+      error: (error: HttpErrorResponse) => {
+        this.categorias.set([]);
+        this.tratarErroCardapio(error);
+        this.message.error(this.extrairMensagemErro(error));
+      }
     });
   }
 
   private carregarComplementosProduto(produto: ProdutoResponse): void {
+    this.carregarProdutoPublico(produto.id, true);
+  }
+
+  private carregarProdutoPublico(produtoId: number, abrirDrawer: boolean, adicionarAoCarrinho = false): void {
+    const slug = this.unidadeSlug();
+
+    if (!slug) {
+      this.message.warning('Acesse o cardapio pelo link da unidade.');
+      return;
+    }
+
     this.carregandoComplementos.set(true);
     this.gruposProdutoSelecionado.set([]);
-    this.grupoComplementoService.listarPorProduto(produto.id).pipe(
+
+    this.produtoService.buscarPublicoPorUnidade(slug, produtoId).pipe(
       finalize(() => this.carregandoComplementos.set(false))
     ).subscribe({
-      next: (grupos) => this.gruposProdutoSelecionado.set(this.normalizarGrupos(grupos)),
-      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+      next: (produto) => {
+        const gruposAtivos = this.normalizarGrupos(produto.gruposComplementos ?? []);
+
+        if (adicionarAoCarrinho && !gruposAtivos.length) {
+          this.adicionarProduto(produto);
+          return;
+        }
+
+        this.produtoSelecionado.set(produto);
+        this.gruposProdutoSelecionado.set(gruposAtivos);
+        this.quantidadeDetalhe.set(1);
+        this.observacaoDetalhe.set('');
+
+        if (abrirDrawer || gruposAtivos.length) {
+          this.drawerAberto.set(true);
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.tratarErroCardapio(error);
+        this.message.error(this.extrairMensagemErro(error));
+      }
     });
+  }
+
+  private redirecionarParaUnidadeLogadaOuExibirErro(): void {
+    const slug = this.carrinhoService.unidadeSlug() ?? this.authService.obterUsuarioAtual()?.unidade?.slug;
+
+    if (slug) {
+      void this.router.navigate(['/cardapio', slug], { replaceUrl: true });
+      return;
+    }
+
+    this.carrinhoService.limparContextoUnidade();
+    this.unidadeSlug.set(null);
+    this.produtos.set([]);
+    this.categorias.set([]);
+    this.total.set(0);
+    this.cardapioIndisponivel.set(true);
+    this.mensagemCardapioIndisponivel.set('Acesse o cardapio pelo link publico da unidade.');
+  }
+
+  private tratarErroCardapio(error: HttpErrorResponse): void {
+    if (error.status === 404 || error.status === 410) {
+      this.cardapioIndisponivel.set(true);
+      this.mensagemCardapioIndisponivel.set('Unidade nao encontrada ou cardapio indisponivel.');
+    }
   }
 
   private normalizarGrupos(grupos: GrupoComplementoResponse[]): GrupoComplementoResponse[] {

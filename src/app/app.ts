@@ -13,6 +13,8 @@ import { AuthService } from './core/services/auth.service';
 import { CarrinhoService } from './core/services/carrinho.service';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 
+type RouterLinkValue = string | readonly unknown[];
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -60,6 +62,15 @@ export class App implements OnInit {
 
   sair(): void {
     this.authService.sair();
+  }
+
+  protected linkCatalogo(): RouterLinkValue {
+    const slug = this.carrinhoService.unidadeSlug() ?? this.authService.usuarioAutenticado()?.unidade?.slug;
+    return slug ? ['/cardapio', slug] : '/catalogo';
+  }
+
+  protected linkNavegacao(item: NavItem): RouterLinkValue {
+    return item.id === 'catalogo' ? this.linkCatalogo() : item.route;
   }
 
   private podeExibirItemNavegacao(item: NavItem): boolean {

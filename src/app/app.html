@@ -3,12 +3,18 @@
 } @else {
   <nz-layout class="estrutura-app">
     <nz-header class="cabecalho-app">
-      <a class="marca marca-app" routerLink="/catalogo" aria-label="FlashMenu">
+      <a class="marca marca-app" [routerLink]="linkCatalogo()" aria-label="FlashMenu">
         <span class="marca-simbolo simbolo-app">F</span>
         <span>FlashMenu</span>
       </a>
 
       <div class="acoes-cabecalho">
+        @if (authService.usuarioAutenticado()?.unidade; as unidade) {
+          <span class="unidade-atual" [class.unidade-inativa]="!unidade.ativo">
+            Unidade: {{ unidade.nome }}
+          </span>
+        }
+
         <app-theme-toggle />
 
         @if (authService.usuarioAutenticado()) {
@@ -51,7 +57,7 @@
         @for (item of itensNavegacao(); track item.id) {
           <a
             class="nav-link"
-            [routerLink]="item.route"
+            [routerLink]="linkNavegacao(item)"
             routerLinkActive="ativo"
             ariaCurrentWhenActive="page"
             [routerLinkActiveOptions]="{ exact: item.exact ?? false }"

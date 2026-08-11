@@ -31,7 +31,11 @@ export const PERMISSOES = {
   CONFIGURACAO_COMERCIAL_EDITAR: 'configuracao-comercial.editar',
   EMPRESA_DETALHAR: 'empresa.detalhar',
   EMPRESA_CRIAR: 'empresa.criar',
-  EMPRESA_EDITAR: 'empresa.editar'
+  EMPRESA_EDITAR: 'empresa.editar',
+  UNIDADE_LISTAR: 'unidade.listar',
+  UNIDADE_CRIAR: 'unidade.criar',
+  UNIDADE_EDITAR: 'unidade.editar',
+  UNIDADE_DELETAR: 'unidade.deletar'
 } as const;
 
 export type PermissaoAuthority = typeof PERMISSOES[keyof typeof PERMISSOES];
@@ -66,7 +70,11 @@ export const PERMISSOES_ROTAS = {
     PERMISSOES.CONFIGURACAO_COMERCIAL_CRIAR,
     PERMISSOES.CONFIGURACAO_COMERCIAL_EDITAR
   ],
-  EMPRESA: [PERMISSOES.EMPRESA_DETALHAR, PERMISSOES.EMPRESA_CRIAR, PERMISSOES.EMPRESA_EDITAR]
+  EMPRESA: [PERMISSOES.EMPRESA_DETALHAR, PERMISSOES.EMPRESA_CRIAR, PERMISSOES.EMPRESA_EDITAR],
+  UNIDADES: [PERMISSOES.UNIDADE_LISTAR, PERMISSOES.ADMIN],
+  UNIDADE_CRIAR: [PERMISSOES.UNIDADE_CRIAR, PERMISSOES.ADMIN],
+  UNIDADE_EDITAR: [PERMISSOES.UNIDADE_EDITAR, PERMISSOES.ADMIN],
+  UNIDADE_DELETAR: [PERMISSOES.UNIDADE_DELETAR, PERMISSOES.ADMIN]
 } as const satisfies Record<string, readonly PermissaoAuthority[]>;
 
 export interface NavItem {
@@ -95,5 +103,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: 'permissoes', label: 'Permissoes', route: '/permissoes', icon: 'key', permissoes: PERMISSOES_ROTAS.PERMISSOES },
   { id: 'formas-pagamento', label: 'Pagamentos', route: '/formas-pagamento', icon: 'credit-card', permissoes: PERMISSOES_ROTAS.FORMAS_PAGAMENTO },
   { id: 'configuracao-comercial', label: 'Comercial', route: '/configuracao-comercial', icon: 'setting', permissoes: PERMISSOES_ROTAS.CONFIGURACAO_COMERCIAL },
-  { id: 'empresa', label: 'Empresa', route: '/empresa', icon: 'shop', permissoes: PERMISSOES_ROTAS.EMPRESA }
+  { id: 'empresa', label: 'Empresa', route: '/empresa', icon: 'shop', permissoes: PERMISSOES_ROTAS.EMPRESA },
+  { id: 'unidades', label: 'Unidades', route: '/unidades', icon: 'shop', permissoes: PERMISSOES_ROTAS.UNIDADES }
 ];

@@ -2,6 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -18,6 +19,7 @@ import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model'
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import { ProdutoService } from '../../core/services/produto.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import {
   ProdutoPersonalizacaoComponent,
@@ -52,6 +54,7 @@ export class CarrinhoComponent {
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   private readonly grupoComplementoService = inject(GrupoComplementoService);
+  private readonly produtoService = inject(ProdutoService);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly itemEditando = signal<ItemCarrinho | null>(null);
   protected readonly gruposItemEditando = signal<GrupoComplementoResponse[]>([]);
@@ -86,10 +89,18 @@ export class CarrinhoComponent {
     this.drawerEdicaoAberto.set(true);
     this.carregandoComplementos.set(true);
 
-    this.grupoComplementoService.listarPorProduto(item.produto.id).pipe(
+    const slug = this.carrinhoService.unidadeSlug();
+    const operacao$: Observable<ProdutoCarrinhoComComplementos | GrupoComplementoResponse[]> = slug
+      ? this.produtoService.buscarPublicoPorUnidade(slug, item.produto.id)
+      : this.grupoComplementoService.listarPorProduto(item.produto.id);
+
+    operacao$.pipe(
       finalize(() => this.carregandoComplementos.set(false))
     ).subscribe({
-      next: (grupos) => this.gruposItemEditando.set(this.normalizarGrupos(grupos)),
+      next: (resultado) => {
+        const grupos = Array.isArray(resultado) ? resultado : resultado.gruposComplementos ?? [];
+        this.gruposItemEditando.set(this.normalizarGrupos(grupos));
+      },
       error: () => this.message.error('Nao foi possivel carregar os complementos do produto.')
     });
   }
@@ -127,7 +138,7 @@ export class CarrinhoComponent {
       return;
     }
 
-    void this.router.navigate(['/checkout']);
+    void this.router.navigate(this.carrinhoService.checkoutLink());
   }
 
   protected imagemPrincipal(produto: ProdutoCarrinho): string | null {
@@ -167,3 +178,7 @@ export class CarrinhoComponent {
       }));
   }
 }
+
+type ProdutoCarrinhoComComplementos = ProdutoCarrinho & {
+  gruposComplementos?: GrupoComplementoResponse[];
+};

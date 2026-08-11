@@ -9,6 +9,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then((component) => component.LoginComponent)
   },
   {
+    path: 'cardapio/:unidadeSlug/produto/:produtoId',
+    loadComponent: () => import('./pages/catalogo/catalogo.component').then((component) => component.CatalogoComponent)
+  },
+  {
+    path: 'cardapio/:unidadeSlug/checkout',
+    loadComponent: () => import('./pages/checkout/checkout.component').then((component) => component.CheckoutComponent)
+  },
+  {
+    path: 'cardapio/:unidadeSlug',
+    loadComponent: () => import('./pages/catalogo/catalogo.component').then((component) => component.CatalogoComponent)
+  },
+  {
     path: 'catalogo',
     loadComponent: () => import('./pages/catalogo/catalogo.component').then((component) => component.CatalogoComponent)
   },
@@ -214,6 +226,13 @@ export const routes: Routes = [
       import('./pages/configuracao-comercial/configuracao-comercial.component').then(
         (component) => component.ConfiguracaoComercialComponent
       )
+  },
+  {
+    path: 'unidades',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.UNIDADES },
+    loadComponent: () =>
+      import('./pages/unidades/unidade-list/unidade-list.component').then((component) => component.UnidadeListComponent)
   },
   {
     path: 'empresa',

@@ -5,6 +5,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzResultModule } from 'ng-zorro-antd/result';
 
 import { PedidoResponse } from '../../core/models/pedido.model';
+import { CarrinhoService } from '../../core/services/carrinho.service';
 
 @Component({
   selector: 'app-pedido-sucesso',
@@ -16,5 +17,6 @@ import { PedidoResponse } from '../../core/models/pedido.model';
 })
 export class PedidoSucessoComponent {
   private readonly router = inject(Router);
+  protected readonly carrinhoService = inject(CarrinhoService);
   protected readonly pedido = this.router.getCurrentNavigation()?.extras.state?.['pedido'] as PedidoResponse | undefined;
 }

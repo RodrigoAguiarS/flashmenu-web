@@ -1,0 +1,211 @@
+<app-page-header titulo="Unidades" descricao="Gerencie filiais e links publicos de cardapio por unidade.">
+  @if (podeCriar()) {
+    <button nz-button nzType="primary" type="button" (click)="abrirCadastro()">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Nova unidade
+    </button>
+  }
+</app-page-header>
+
+<section class="secao-tabela cartao-sistema tem-lista-mobile">
+  <header class="cabecalho-listagem">
+    <div>
+      <h2>Unidades cadastradas</h2>
+      <p>Cada slug gera um cardapio publico proprio para a filial.</p>
+    </div>
+
+    <nz-tag nzColor="processing">{{ unidades().length }} registros</nz-tag>
+  </header>
+
+  <ng-template #estadoVazio>
+    <nz-empty nzNotFoundContent="Nenhuma unidade cadastrada."></nz-empty>
+  </ng-template>
+
+  <nz-table
+    [nzData]="unidades()"
+    [nzLoading]="carregando()"
+    [nzFrontPagination]="false"
+    [nzNoResult]="estadoVazio"
+    [nzScroll]="{ x: '780px' }"
+    nzSize="middle"
+    nzTableLayout="fixed"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="220px">Nome</th>
+        <th nzWidth="180px">Slug</th>
+        <th>Link publico</th>
+        <th nzWidth="150px">Criada em</th>
+        <th nzWidth="150px">Atualizada em</th>
+        <th nzWidth="110px">Status</th>
+        <th nzWidth="140px" nzAlign="right">Acoes</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (unidade of unidades(); track unidade.id) {
+        <tr>
+          <td><strong class="texto-truncado">{{ unidade.nome }}</strong></td>
+          <td><code>{{ unidade.slug }}</code></td>
+          <td><span class="texto-truncado">{{ linkPublico(unidade) }}</span></td>
+          <td>{{ unidade.criadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ unidade.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td><nz-tag [nzColor]="statusColor(unidade)">{{ statusTexto(unidade) }}</nz-tag></td>
+          <td class="acoes-linha">
+            <div class="acoes-grupo">
+              <button
+                class="acao-botao"
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Copiar link"
+                aria-label="Copiar link publico"
+                (click)="copiarLink(unidade)"
+              >
+                <span nz-icon nzType="share-alt" nzTheme="outline"></span>
+              </button>
+
+              @if (podeEditar()) {
+                <button
+                  class="acao-botao"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Editar"
+                  aria-label="Editar unidade"
+                  (click)="editar(unidade)"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+              }
+
+              @if (podeExcluir()) {
+                <button
+                  class="acao-botao acao-botao-perigo"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  nzDanger
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja desativar ou remover esta unidade?"
+                  nzOkText="Confirmar"
+                  nzCancelText="Cancelar"
+                  [nzLoading]="excluindoId() === unidade.id"
+                  nz-tooltip
+                  nzTooltipTitle="Desativar"
+                  aria-label="Desativar unidade"
+                  (nzOnConfirm)="excluir(unidade)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+
+  <div class="lista-mobile" aria-label="Unidades em cards">
+    @for (unidade of unidades(); track unidade.id) {
+      <article class="mobile-card">
+        <div class="mobile-card__topo">
+          <div class="mobile-card__conteudo">
+            <strong class="mobile-card__titulo">{{ unidade.nome }}</strong>
+            <span class="mobile-card__texto">/{{ unidade.slug }}</span>
+            <span class="mobile-card__texto">{{ linkPublico(unidade) }}</span>
+            <span class="mobile-card__texto">Criada em {{ unidade.criadoEm | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <nz-tag [nzColor]="statusColor(unidade)">{{ statusTexto(unidade) }}</nz-tag>
+        </div>
+
+        <div class="mobile-card__acoes acoes-grupo">
+          <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Copiar link publico" (click)="copiarLink(unidade)">
+            <span nz-icon nzType="share-alt" nzTheme="outline"></span>
+          </button>
+
+          @if (podeEditar()) {
+            <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Editar unidade" (click)="editar(unidade)">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </button>
+          }
+
+          @if (podeExcluir()) {
+            <button
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nzDanger
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Deseja desativar ou remover esta unidade?"
+              nzOkText="Confirmar"
+              nzCancelText="Cancelar"
+              [nzLoading]="excluindoId() === unidade.id"
+              aria-label="Desativar unidade"
+              (nzOnConfirm)="excluir(unidade)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          }
+        </div>
+      </article>
+    }
+
+    @if (!unidades().length && !carregando()) {
+      <nz-empty nzNotFoundContent="Nenhuma unidade cadastrada."></nz-empty>
+    }
+  </div>
+</section>
+
+<nz-modal
+  [nzVisible]="modalAberto()"
+  [nzTitle]="tituloModal()"
+  [nzOkLoading]="salvando()"
+  nzOkText="Salvar"
+  nzCancelText="Cancelar"
+  (nzOnOk)="salvar()"
+  (nzOnCancel)="fecharModal()"
+>
+  <ng-container *nzModalContent>
+    @if (mensagemErro()) {
+      <p class="mensagem-erro">{{ mensagemErro() }}</p>
+    }
+
+    <form nz-form nzLayout="vertical" [formGroup]="form">
+      <nz-row [nzGutter]="16">
+        <nz-col nzXs="24">
+          <nz-form-item>
+            <nz-form-label nzFor="nome" nzRequired>Nome</nz-form-label>
+            <nz-form-control nzErrorTip="Informe o nome da unidade.">
+              <input nz-input id="nome" formControlName="nome" placeholder="Loja Centro" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24">
+          <nz-form-item>
+            <nz-form-label nzFor="slug" nzRequired>Slug publico</nz-form-label>
+            <nz-form-control nzErrorTip="Use letras minusculas, numeros e hifens.">
+              <input nz-input id="slug" formControlName="slug" placeholder="loja-centro" (blur)="normalizarSlug()" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col nzXs="24">
+          <nz-form-item>
+            <nz-form-label nzFor="ativo">Ativa</nz-form-label>
+            <nz-form-control>
+              <nz-switch id="ativo" formControlName="ativo"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+    </form>
+  </ng-container>
+</nz-modal>

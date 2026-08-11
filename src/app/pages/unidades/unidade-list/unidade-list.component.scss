@@ -1,0 +1,94 @@
+.secao-tabela {
+  max-width: 100%;
+  padding: 14px;
+  overflow: visible;
+}
+
+.cabecalho-listagem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cabecalho-listagem h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cabecalho-listagem p,
+.mobile-card__texto {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.texto-truncado {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+code {
+  padding: 2px 6px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+}
+
+.acoes-linha {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.acoes-grupo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.acao-botao {
+  display: inline-grid;
+  place-items: center;
+  color: var(--cor-texto-suave);
+  border: 1px solid transparent;
+}
+
+.acao-botao:hover,
+.acao-botao:focus-visible {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 14%, transparent);
+  border-color: color-mix(in srgb, var(--cor-primaria) 36%, transparent);
+}
+
+.acao-botao-perigo,
+.acao-botao-perigo:hover,
+.acao-botao-perigo:focus-visible {
+  color: #ff4d4f;
+}
+
+.mensagem-erro {
+  margin: 0 0 12px;
+  color: #ff4d4f;
+}
+
+:host ::ng-deep .secao-tabela .ant-table-content {
+  overflow-x: auto;
+}
+
+@media (min-width: 700px) {
+  .secao-tabela {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .cabecalho-listagem {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

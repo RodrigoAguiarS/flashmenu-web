@@ -12,7 +12,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const router = inject(Router);
   const message = inject(NzMessageService);
   const token = authService.obterToken();
-  const isAuthPublicRequest = request.url.includes('/auth/login') || request.url.includes('/auth/clientes');
+  const isAuthPublicRequest = request.url.includes('/auth/login') ||
+    request.url.includes('/auth/clientes') ||
+    request.url.includes('/auth/unidades/');
   const isApiRequest = request.url.startsWith(environment.apiUrl);
 
   if (!token || isAuthPublicRequest || !isApiRequest) {
@@ -31,6 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         const rotaAtual = router.url;
         const rotaPublica = rotaAtual.startsWith('/checkout') ||
           rotaAtual.startsWith('/catalogo') ||
+          rotaAtual.startsWith('/cardapio') ||
           rotaAtual.startsWith('/carrinho') ||
           rotaAtual.startsWith('/loja') ||
           rotaAtual.startsWith('/login');

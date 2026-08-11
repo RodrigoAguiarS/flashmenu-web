@@ -1,4 +1,4 @@
-<app-page-header titulo="Catalogo" descricao="Escolha os produtos e monte seu pedido.">
+<app-page-header [titulo]="tituloCatalogo()" [descricao]="descricaoCatalogo()">
   <a
     class="atalho-carrinho"
     nz-button
@@ -11,123 +11,133 @@
   </a>
 </app-page-header>
 
-<section class="filtros" aria-label="Filtros do catalogo">
-  <form nz-form nzLayout="vertical" [formGroup]="filtros">
-    <div class="busca-catalogo">
-      <div class="campo-busca">
-        <nz-form-item>
-          <nz-form-control>
-            <nz-input-group nzPrefixIcon="search">
-              <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
-            </nz-input-group>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
+@if (cardapioIndisponivel()) {
+  <section class="estado-vazio cartao-sistema">
+    <nz-result
+      nzStatus="404"
+      nzTitle="Cardapio indisponivel"
+      [nzSubTitle]="mensagemCardapioIndisponivel()"
+    ></nz-result>
+  </section>
+} @else {
+  <section class="filtros" aria-label="Filtros do catalogo">
+    <form nz-form nzLayout="vertical" [formGroup]="filtros">
+      <div class="busca-catalogo">
+        <div class="campo-busca">
+          <nz-form-item>
+            <nz-form-control>
+              <nz-input-group nzPrefixIcon="search">
+                <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
 
-      <div class="campo-categoria">
-        <nz-form-item>
-          <nz-form-control>
-            <nz-select
-              id="categoria"
-              formControlName="categoriaId"
-              nzAllowClear
-              nzPlaceHolder="Todas as categorias"
-              [nzLoading]="carregandoCategorias()"
-            >
-              @for (categoria of categorias(); track categoria.id) {
-                <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
+        <div class="campo-categoria">
+          <nz-form-item>
+            <nz-form-control>
+              <nz-select
+                id="categoria"
+                formControlName="categoriaId"
+                nzAllowClear
+                nzPlaceHolder="Todas as categorias"
+                [nzLoading]="carregandoCategorias()"
+              >
+                @for (categoria of categorias(); track categoria.id) {
+                  <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <button class="botao-limpar" nz-button nzType="text" type="button" (click)="limparFiltros()" aria-label="Limpar filtros">
+          Limpar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <nz-spin [nzSpinning]="carregando()">
+    @if (possuiProdutos()) {
+      <section class="grade-produtos" aria-label="Produtos">
+        @for (produto of produtos(); track produto.id) {
+          <nz-card class="produto-card">
+            <div class="produto-layout">
+              @if (imagemPrincipal(produto); as imagem) {
+                <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+              } @else {
+                <div class="produto-sem-imagem" aria-hidden="true">
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </div>
               }
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
 
-      <button class="botao-limpar" nz-button nzType="text" type="button" (click)="limparFiltros()" aria-label="Limpar filtros">
-        Limpar
-      </button>
-    </div>
-  </form>
-</section>
+              <div class="produto-conteudo">
+                <div>
+                  <div class="produto-meta">
+                    <nz-tag>{{ produto.categoria.nome }}</nz-tag>
+                    <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
+                      {{ estoqueTexto(produto) }}
+                    </span>
+                  </div>
 
-<nz-spin [nzSpinning]="carregando()">
-  @if (possuiProdutos()) {
-    <section class="grade-produtos" aria-label="Produtos">
-      @for (produto of produtos(); track produto.id) {
-        <nz-card class="produto-card">
-          <div class="produto-layout">
-            @if (imagemPrincipal(produto); as imagem) {
-              <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
-            } @else {
-              <div class="produto-sem-imagem" aria-hidden="true">
-                <span nz-icon nzType="picture" nzTheme="outline"></span>
-              </div>
-            }
-
-            <div class="produto-conteudo">
-              <div>
-                <div class="produto-meta">
-                  <nz-tag>{{ produto.categoria.nome }}</nz-tag>
-                  <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
-                    {{ estoqueTexto(produto) }}
-                  </span>
+                  <h2>{{ produto.nome }}</h2>
+                  <p>{{ produto.descricao }}</p>
                 </div>
 
-                <h2>{{ produto.nome }}</h2>
-                <p>{{ produto.descricao }}</p>
-              </div>
+                <div class="produto-rodape">
+                  <strong>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
 
-              <div class="produto-rodape">
-                <strong>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-
-                <div class="produto-acoes">
-                  <button
-                    class="botao-card botao-detalhes"
-                    nz-button
-                    nzShape="circle"
-                    type="button"
-                    nz-tooltip
-                    nzTooltipTitle="Ver detalhes"
-                    aria-label="Ver detalhes do produto"
-                    (click)="abrirDetalhes(produto)"
-                  >
-                    <span nz-icon nzType="eye" nzTheme="outline"></span>
-                  </button>
-                  <button
-                    class="botao-card botao-adicionar"
-                    nz-button
-                    nzType="primary"
-                    nzShape="circle"
-                    type="button"
-                    [disabled]="!podeAdicionar(produto)"
-                    nz-tooltip
-                    nzTooltipTitle="Adicionar ao carrinho"
-                    (click)="adicionarOuPersonalizar(produto)"
-                    aria-label="Adicionar produto ao carrinho"
-                  >
-                    <span nz-icon nzType="plus" nzTheme="outline"></span>
-                  </button>
+                  <div class="produto-acoes">
+                    <button
+                      class="botao-card botao-detalhes"
+                      nz-button
+                      nzShape="circle"
+                      type="button"
+                      nz-tooltip
+                      nzTooltipTitle="Ver detalhes"
+                      aria-label="Ver detalhes do produto"
+                      (click)="abrirDetalhes(produto)"
+                    >
+                      <span nz-icon nzType="eye" nzTheme="outline"></span>
+                    </button>
+                    <button
+                      class="botao-card botao-adicionar"
+                      nz-button
+                      nzType="primary"
+                      nzShape="circle"
+                      type="button"
+                      [disabled]="!podeAdicionar(produto)"
+                      nz-tooltip
+                      nzTooltipTitle="Adicionar ao carrinho"
+                      (click)="adicionarOuPersonalizar(produto)"
+                      aria-label="Adicionar produto ao carrinho"
+                    >
+                      <span nz-icon nzType="plus" nzTheme="outline"></span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </nz-card>
-      }
-    </section>
+          </nz-card>
+        }
+      </section>
 
-    <div class="paginacao">
-      <nz-pagination
-        [nzPageIndex]="pageIndex()"
-        [nzPageSize]="pageSize()"
-        [nzTotal]="total()"
-        (nzPageIndexChange)="alterarPagina($event)"
-      ></nz-pagination>
-    </div>
-  } @else {
-    <section class="estado-vazio cartao-sistema">
-      <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
-    </section>
-  }
-</nz-spin>
+      <div class="paginacao">
+        <nz-pagination
+          [nzPageIndex]="pageIndex()"
+          [nzPageSize]="pageSize()"
+          [nzTotal]="total()"
+          (nzPageIndexChange)="alterarPagina($event)"
+        ></nz-pagination>
+      </div>
+    } @else {
+      <section class="estado-vazio cartao-sistema">
+        <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
+      </section>
+    }
+  </nz-spin>
+}
 
 <nz-drawer
   [nzVisible]="drawerAberto()"

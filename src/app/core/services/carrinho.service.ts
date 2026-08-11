@@ -6,14 +6,25 @@ import { ProdutoResponse } from '../models/produto.model';
 import { chaveComplementos } from '../utils/complemento-config.util';
 
 const CARRINHO_KEY = 'flashmenu_carrinho';
+const CARRINHO_UNIDADE_KEY = 'flashmenu_carrinho_unidade_slug';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarrinhoService {
   private readonly itensCarrinho = signal<ItemCarrinho[]>(this.carregarCarrinho());
+  private readonly unidadeSlugCarrinho = signal<string | null>(localStorage.getItem(CARRINHO_UNIDADE_KEY));
 
   readonly itens: Signal<ItemCarrinho[]> = computed(() => this.itensCarrinho());
+  readonly unidadeSlug: Signal<string | null> = computed(() => this.unidadeSlugCarrinho());
+  readonly cardapioLink = computed(() => {
+    const slug = this.unidadeSlugCarrinho();
+    return slug ? ['/cardapio', slug] : ['/catalogo'];
+  });
+  readonly checkoutLink = computed(() => {
+    const slug = this.unidadeSlugCarrinho();
+    return slug ? ['/cardapio', slug, 'checkout'] : ['/checkout'];
+  });
   readonly quantidadeTotal = computed(() => this.itensCarrinho().reduce((total, item) => total + item.quantidade, 0));
   readonly valorTotal = computed(() =>
     this.itensCarrinho().reduce((total, item) => total + this.obterPrecoItem(item) * item.quantidade, 0)
@@ -52,6 +63,26 @@ export class CarrinhoService {
 
     this.atualizarItens(proximosItens);
     return true;
+  }
+
+  definirUnidadeSlug(unidadeSlug: string | null): void {
+    const slugNormalizado = unidadeSlug?.trim() || null;
+
+    if (slugNormalizado === this.unidadeSlugCarrinho()) {
+      return;
+    }
+
+    if (this.itensCarrinho().length) {
+      this.atualizarItens([]);
+    }
+
+    this.unidadeSlugCarrinho.set(slugNormalizado);
+
+    if (slugNormalizado) {
+      localStorage.setItem(CARRINHO_UNIDADE_KEY, slugNormalizado);
+    } else {
+      localStorage.removeItem(CARRINHO_UNIDADE_KEY);
+    }
   }
 
   atualizarConfiguracao(
@@ -139,6 +170,10 @@ export class CarrinhoService {
 
   limpar(): void {
     this.atualizarItens([]);
+  }
+
+  limparContextoUnidade(): void {
+    this.definirUnidadeSlug(null);
   }
 
   quantidadeDisponivel(produto: ProdutoCarrinho | ProdutoResponse): number | null {
