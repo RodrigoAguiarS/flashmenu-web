@@ -31,6 +31,10 @@
 
           <div class="pedido-resumo">
             <span>
+              <small>Status</small>
+              {{ statusTexto(pedido.status) }}
+            </span>
+            <span>
               <small>Itens</small>
               {{ pedido.itens.length }}
             </span>
@@ -45,7 +49,13 @@
           </div>
 
           <footer class="pedido-rodape">
-            <small>Pagamento em {{ pedido.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</small>
+            <small>
+              @if (pedido.confirmadoEm) {
+                Confirmado em {{ pedido.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
+              } @else {
+                Ainda nao confirmado
+              }
+            </small>
 
             <div class="pedido-acoes-card">
               <button

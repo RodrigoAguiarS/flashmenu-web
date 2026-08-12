@@ -366,7 +366,7 @@ export class CheckoutFacade {
       error: () => {
         const pedido = this.pedidoPix();
         if (pedido) {
-          this.concluirPedidoPix({ ...pedido, status: 'PAGO' });
+          this.concluirPedidoPix({ ...pedido, status: 'CONFIRMADO' });
         }
       }
     });

@@ -2,7 +2,7 @@ import { FormaPagamentoResponse } from './forma-pagamento.model';
 import { EnderecoResponse } from './endereco.model';
 import { UnidadeResumo } from './unidade.model';
 
-export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'PAGO' | 'CANCELADO' | string;
+export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'PAGO' | 'CANCELADO' | string;
 export type TipoPedido = 'DELIVERY' | 'PDV' | string;
 
 export interface ItemPedidoComplementoRequest {
@@ -80,6 +80,7 @@ export interface PedidoResponse {
   status: StatusPedido;
   tipo: TipoPedido | null;
   dataCriacao: string;
+  confirmadoEm?: string | null;
   subtotal: number;
   percentualDesconto: number;
   valorDesconto: number;

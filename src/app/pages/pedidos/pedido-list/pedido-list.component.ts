@@ -58,6 +58,7 @@ export class PedidoListComponent implements OnInit {
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
       AGUARDANDO_CONFIRMACAO: 'processing',
+      CONFIRMADO: 'success',
       PAGO: 'success',
       CANCELADO: 'error'
     };
@@ -68,7 +69,8 @@ export class PedidoListComponent implements OnInit {
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
-      PAGO: 'Pago',
+      CONFIRMADO: 'Confirmado',
+      PAGO: 'Confirmado',
       CANCELADO: 'Cancelado'
     };
 

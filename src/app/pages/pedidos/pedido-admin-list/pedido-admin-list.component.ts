@@ -66,7 +66,7 @@ export class PedidoAdminListComponent implements OnInit {
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
-  protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_CONFIRMACAO', 'PAGO', 'CANCELADO'];
+  protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_CONFIRMACAO', 'CONFIRMADO', 'CANCELADO'];
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
 
   protected readonly filtros = this.fb.group({
@@ -120,7 +120,7 @@ export class PedidoAdminListComponent implements OnInit {
   }
 
   protected podeExecutarConfirmacao(pedido: PedidoResponse): boolean {
-    return this.podeConfirmarPagamento() && pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
+    return this.podeConfirmarPagamento() && pedido.status !== 'CONFIRMADO' && pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
   }
 
   protected podeExecutarCancelamento(pedido: PedidoResponse): boolean {
@@ -130,6 +130,7 @@ export class PedidoAdminListComponent implements OnInit {
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
       AGUARDANDO_CONFIRMACAO: 'processing',
+      CONFIRMADO: 'success',
       PAGO: 'success',
       CANCELADO: 'error'
     };
@@ -140,7 +141,8 @@ export class PedidoAdminListComponent implements OnInit {
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
-      PAGO: 'Pago',
+      CONFIRMADO: 'Confirmado',
+      PAGO: 'Confirmado',
       CANCELADO: 'Cancelado'
     };
 

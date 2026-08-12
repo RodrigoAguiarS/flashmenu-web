@@ -15,7 +15,9 @@ export class PedidoService {
   private readonly baseUrl = `${environment.apiUrl}/api/pedidos`;
 
   finalizarPedido(request: PedidoRequest): Observable<PedidoResponse> {
-    return this.http.post<PedidoResponse>(this.baseUrl, request);
+    return this.http.post<PedidoResponse>(this.baseUrl, request).pipe(
+      map((pedido) => this.normalizarPedido(pedido))
+    );
   }
 
   listarMeusPedidosPaginado(usuarioId: number, filtros: Pick<PedidoFiltros, 'page' | 'size' | 'sort'>): Observable<PageResponse<PedidoResponse>> {
@@ -29,11 +31,18 @@ export class PedidoService {
   listarTodosPaginado(filtros: PedidoFiltros): Observable<PageResponse<PedidoResponse>> {
     return this.http.get<PageResponse<PedidoResponse>>(`${this.baseUrl}/listarTodosPaginado`, {
       params: this.criarParametros(filtros)
-    });
+    }).pipe(
+      map((page) => ({
+        ...page,
+        content: page.content.map((pedido) => this.normalizarPedido(pedido))
+      }))
+    );
   }
 
   buscarMeuPedido(id: number): Observable<PedidoResponse> {
-    return this.http.get<PedidoResponse>(`${this.baseUrl}/${id}`);
+    return this.http.get<PedidoResponse>(`${this.baseUrl}/${id}`).pipe(
+      map((pedido) => this.normalizarPedido(pedido))
+    );
   }
 
   buscarPedidoAdministrativo(id: number): Observable<PedidoResponse> {
@@ -51,11 +60,15 @@ export class PedidoService {
   }
 
   confirmarPagamento(id: number): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/confirmar-pagamento`, {});
+    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/confirmar-pagamento`, {}).pipe(
+      map((pedido) => this.normalizarPedido(pedido))
+    );
   }
 
   cancelarPedido(id: number): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/cancelar`, {});
+    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/cancelar`, {}).pipe(
+      map((pedido) => this.normalizarPedido(pedido))
+    );
   }
 
   exportarPdf(id: number): Observable<Blob> {
@@ -85,5 +98,31 @@ export class PedidoService {
     });
 
     return params;
+  }
+
+  private normalizarPedido(pedido: PedidoResponse): PedidoResponse {
+    return {
+      ...pedido,
+      confirmadoEm: this.obterConfirmadoEm(pedido)
+    };
+  }
+
+  private obterConfirmadoEm(pedido: PedidoResponse): string | null {
+    const pedidoComoRegistro = pedido as unknown as Record<string, unknown>;
+    const pagamentoComoRegistro = pedido.pagamento as unknown as Record<string, unknown> | null;
+    const candidatos = [
+      pedido.confirmadoEm,
+      pedidoComoRegistro['confirmadoEm'],
+      pedidoComoRegistro['confirmado_em'],
+      pedidoComoRegistro['dataConfirmacao'],
+      pedidoComoRegistro['dataConfirmacaoPagamento'],
+      pedidoComoRegistro['confirmadoPagamentoEm'],
+      pagamentoComoRegistro?.['confirmadoEm'],
+      pagamentoComoRegistro?.['dataPagamento']
+    ];
+
+    const confirmadoEm = candidatos.find((valor): valor is string => typeof valor === 'string' && valor.trim().length > 0);
+
+    return confirmadoEm?.trim() ?? null;
   }
 }

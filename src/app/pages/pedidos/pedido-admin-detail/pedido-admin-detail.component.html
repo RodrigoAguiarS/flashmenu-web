@@ -33,7 +33,18 @@
         </header>
 
         <div class="resumo-compacto">
+          <span>Status: <strong>{{ statusTexto(pedidoDetalhe.status) }}</strong></span>
           <span>Criado em: <strong>{{ pedidoDetalhe.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong></span>
+          <span>
+            Confirmado em:
+            <strong>
+              @if (pedidoDetalhe.confirmadoEm) {
+                {{ pedidoDetalhe.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
+              } @else {
+                Ainda nao confirmado
+              }
+            </strong>
+          </span>
           <span>Itens: <strong>{{ pedidoDetalhe.itens.length }}</strong></span>
         </div>
       </article>
@@ -101,7 +112,7 @@
           </div>
           @if (pedidoDetalhe.pagamento?.dataCriacao) {
             <div>
-              <span>Pago em</span>
+              <span>Confirmado em</span>
               <strong>{{ pedidoDetalhe.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong>
             </div>
           }
@@ -109,7 +120,7 @@
 
         <app-pedido-resumo-financeiro
           [resumo]="pedidoDetalhe"
-          [rotuloTotal]="pedidoDetalhe.pagamento ? 'Total pago' : 'Total do pedido'"
+          [rotuloTotal]="pedidoDetalhe.pagamento ? 'Total confirmado' : 'Total do pedido'"
         />
 
         @if (!pedidoDetalhe.pagamento) {

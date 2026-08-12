@@ -83,6 +83,10 @@
 
           <div class="pedido-resumo pedido-resumo-enxuto">
             <span>
+              <small><span nz-icon nzType="check-circle" nzTheme="outline"></span> Status</small>
+              {{ statusTexto(pedido.status) }}
+            </span>
+            <span>
               <small><span nz-icon nzType="credit-card" nzTheme="outline"></span> Pagamento</small>
               {{ pedido.formaPagamento.nome }}
             </span>
@@ -90,6 +94,14 @@
               <small><span nz-icon nzType="credit-card" nzTheme="outline"></span> Total</small>
               {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
             </strong>
+            <span>
+              <small><span nz-icon nzType="clock-circle" nzTheme="outline"></span> Confirmado</small>
+              @if (pedido.confirmadoEm) {
+                {{ pedido.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
+              } @else {
+                Ainda nao confirmado
+              }
+            </span>
           </div>
 
           <section class="acoes-pedido" aria-label="Acoes do pedido">

@@ -1,10 +1,10 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { EMPTY, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, switchMap, timer } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
@@ -15,8 +15,10 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -28,7 +30,8 @@ import { CategoriaResponse } from '../../core/models/categoria.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
-import { PedidoRequest } from '../../core/models/pedido.model';
+import { PedidoRequest, PedidoResponse } from '../../core/models/pedido.model';
+import { PixCobrancaResponse, PixPagamentoStatus } from '../../core/models/pix-pagamento.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { CategoriaService } from '../../core/services/categoria.service';
@@ -38,6 +41,7 @@ import { GrupoComplementoService } from '../../core/services/grupo-complemento.s
 import { PedidoFinanceiroService } from '../../core/services/pedido-financeiro.service';
 import { PdvService } from '../../core/services/pdv.service';
 import { PedidoService } from '../../core/services/pedido.service';
+import { PixPagamentoService } from '../../core/services/pix-pagamento.service';
 import { ProdutoService } from '../../core/services/produto.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
@@ -51,6 +55,7 @@ import {
   standalone: true,
   imports: [
     CurrencyPipe,
+    DatePipe,
     FormsModule,
     ReactiveFormsModule,
     NzAlertModule,
@@ -62,8 +67,10 @@ import {
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
+    NzModalModule,
     NzPaginationModule,
     NzPopconfirmModule,
+    NzQRCodeModule,
     NzSelectModule,
     NzSpinModule,
     NzTagModule,
@@ -86,6 +93,7 @@ export class PdvComponent implements OnInit {
   private readonly pedidoFinanceiroService = inject(PedidoFinanceiroService);
   private readonly formaPagamentoService = inject(FormaPagamentoService);
   private readonly pedidoService = inject(PedidoService);
+  private readonly pixPagamentoService = inject(PixPagamentoService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -108,6 +116,15 @@ export class PdvComponent implements OnInit {
   protected readonly carregandoPagamento = signal(false);
   protected readonly finalizando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
+  protected readonly pedidoPix = signal<PedidoResponse | null>(null);
+  protected readonly cobrancaPix = signal<PixCobrancaResponse | null>(null);
+  protected readonly valorPix = signal<number | null>(null);
+  protected readonly modalPixAberta = signal(false);
+  protected readonly gerandoPix = signal(false);
+  protected readonly consultandoPix = signal(false);
+  protected readonly statusPix = signal<PixPagamentoStatus | null>(null);
+  protected readonly erroPix = signal<string | null>(null);
+  protected readonly pagamentoPixAprovado = signal(false);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(12);
@@ -134,6 +151,34 @@ export class PdvComponent implements OnInit {
   protected readonly valorAcrescimo = computed(() => this.resumoFinanceiro().valorAcrescimo ?? 0);
   protected readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
   protected readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
+  protected readonly pagamentoPix = computed(() => this.formaPagamentoSelecionada()?.tipo === 'PIX');
+  protected readonly pixCopiaECola = computed(() => {
+    const cobranca = this.cobrancaPix();
+    const candidatos = [
+      cobranca?.pixCopiaCola,
+      cobranca?.pixCopiaECola,
+      cobranca?.copiaECola,
+      cobranca?.codigoPix,
+      cobranca?.qrCode
+    ];
+
+    return candidatos.find((codigo) => this.ehCodigoPixCopiaECola(codigo))?.trim() ?? null;
+  });
+  protected readonly pixQrCodeImagem = computed(() => {
+    const cobranca = this.cobrancaPix();
+    const base64 = cobranca?.pixQrCode ?? cobranca?.qrCodeBase64;
+
+    if (base64) {
+      return base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
+    }
+
+    return cobranca?.qrCodeUrl ?? null;
+  });
+  protected readonly pixExpiracao = computed(() => this.cobrancaPix()?.expiracao ?? this.cobrancaPix()?.expiraEm ?? null);
+  protected readonly pixExpirado = computed(() => {
+    const status = this.statusPix();
+    return status === 'EXPIRADO' || status === 'CANCELADO';
+  });
   protected readonly troco = computed(() => {
     const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
     return Math.max(valorRecebido - this.totalPrevisto(), 0);
@@ -158,6 +203,25 @@ export class PdvComponent implements OnInit {
     this.totalPrevisto();
     this.atualizarValidacaoValorRecebido();
   });
+  private pollingPix?: Subscription;
+
+  private ehCodigoPixCopiaECola(codigo: string | null | undefined): codigo is string {
+    const valor = codigo?.trim();
+
+    if (!valor) {
+      return false;
+    }
+
+    if (valor.startsWith('data:image') || /^https?:\/\//i.test(valor)) {
+      return false;
+    }
+
+    if (valor.length > 1200) {
+      return false;
+    }
+
+    return valor.includes('BR.GOV.BCB.PIX') || valor.startsWith('000201') || valor.length < 900;
+  }
 
   ngOnInit(): void {
     this.carregarConfiguracaoComercial();
@@ -334,17 +398,60 @@ export class PdvComponent implements OnInit {
     };
 
     this.finalizando.set(true);
+    const valorPixPrevisto = this.normalizarValorMonetario(this.totalPrevisto());
 
     this.pedidoService.finalizarPedido(request).pipe(
       finalize(() => this.finalizando.set(false))
     ).subscribe({
       next: (pedido) => {
+        if (this.pagamentoPix()) {
+          this.iniciarPagamentoPix(pedido, valorPixPrevisto);
+          return;
+        }
+
         this.pdvService.limpar();
         this.message.success(`Venda #${pedido.id} registrada com sucesso.`);
         void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
       },
       error: (error: HttpErrorResponse) => this.mensagemErro.set(this.extrairMensagemErro(error))
     });
+  }
+
+  protected copiarCodigoPix(): void {
+    const codigo = this.pixCopiaECola();
+
+    if (!codigo) {
+      this.message.warning('Codigo PIX indisponivel.');
+      return;
+    }
+
+    if (!navigator.clipboard) {
+      this.message.info(codigo);
+      return;
+    }
+
+    void navigator.clipboard.writeText(codigo)
+      .then(() => this.message.success('Codigo PIX copiado.'))
+      .catch(() => this.message.info(codigo));
+  }
+
+  protected tentarGerarPixNovamente(): void {
+    const pedido = this.pedidoPix();
+
+    if (!pedido) {
+      return;
+    }
+
+    this.gerarCobrancaPix(pedido);
+  }
+
+  protected fecharModalPix(): void {
+    if (this.pagamentoPixAprovado()) {
+      this.modalPixAberta.set(false);
+      return;
+    }
+
+    this.message.info('Aguardando confirmacao do pagamento PIX.');
   }
 
   protected imagemPrincipal(produto: ProdutoResponse | ProdutoCarrinho): string | null {
@@ -412,6 +519,91 @@ export class PdvComponent implements OnInit {
     });
   }
 
+  private iniciarPagamentoPix(pedido: PedidoResponse, valorPix: number): void {
+    this.pedidoPix.set(pedido);
+    this.valorPix.set(valorPix);
+    this.modalPixAberta.set(true);
+    this.pagamentoPixAprovado.set(false);
+    this.gerarCobrancaPix(pedido);
+  }
+
+  private gerarCobrancaPix(pedido: PedidoResponse): void {
+    this.erroPix.set(null);
+    this.cobrancaPix.set(null);
+    this.statusPix.set('PENDENTE');
+    this.gerandoPix.set(true);
+    this.pararPollingPix();
+
+    const valor = this.valorPix() ?? this.normalizarValorMonetario(this.totalPrevisto());
+
+    this.pixPagamentoService.gerarCobranca(pedido.id, { valor }).pipe(
+      finalize(() => this.gerandoPix.set(false))
+    ).subscribe({
+      next: (cobranca) => {
+        this.cobrancaPix.set(cobranca);
+        this.statusPix.set(cobranca.status ?? 'AGUARDANDO_PAGAMENTO');
+        this.iniciarPollingPix(pedido.id);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.erroPix.set(this.extrairMensagemErro(error));
+        this.statusPix.set('PENDENTE');
+      }
+    });
+  }
+
+  private iniciarPollingPix(pedidoId: number): void {
+    this.consultandoPix.set(true);
+
+    this.pollingPix = timer(0, 5000).pipe(
+      switchMap(() => this.pixPagamentoService.consultarStatus(pedidoId).pipe(
+        catchError(() => EMPTY)
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((status) => {
+      this.statusPix.set(status.status);
+
+      if (status.expirado || status.status === 'EXPIRADO' || status.status === 'CANCELADO') {
+        this.pararPollingPix();
+        this.consultandoPix.set(false);
+        this.erroPix.set('PIX expirado. Gere uma nova cobranca para continuar.');
+        return;
+      }
+
+      if (status.pago || status.status === 'PAGO') {
+        this.pararPollingPix();
+        this.consultandoPix.set(false);
+        this.confirmarPagamentoPix(pedidoId);
+      }
+    });
+  }
+
+  private confirmarPagamentoPix(pedidoId: number): void {
+    this.pagamentoPixAprovado.set(true);
+    this.message.success('Pagamento PIX aprovado.');
+
+    this.pedidoService.buscarPedidoAdministrativo(pedidoId).subscribe({
+      next: (pedidoAtualizado) => this.concluirPedidoPix(pedidoAtualizado),
+      error: () => {
+        const pedido = this.pedidoPix();
+        if (pedido) {
+          this.concluirPedidoPix({ ...pedido, status: 'CONFIRMADO' });
+        }
+      }
+    });
+  }
+
+  private concluirPedidoPix(pedido: PedidoResponse): void {
+    this.pedidoPix.set(pedido);
+    this.pdvService.limpar();
+    this.modalPixAberta.set(false);
+    void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
+  }
+
+  private pararPollingPix(): void {
+    this.pollingPix?.unsubscribe();
+    this.pollingPix = undefined;
+  }
+
   private carregarCategorias(): void {
     this.carregandoCategorias.set(true);
 
@@ -474,6 +666,10 @@ export class PdvComponent implements OnInit {
 
     controle.setValidators(validadores);
     controle.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private normalizarValorMonetario(valor: number): number {
+    return Math.round((Number(valor) + Number.EPSILON) * 100) / 100;
   }
 
   private extrairMensagemErro(error: HttpErrorResponse): string {
