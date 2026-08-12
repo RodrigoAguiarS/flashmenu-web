@@ -47,6 +47,7 @@ import {
   UserAddOutline,
   WhatsAppOutline
 } from '@ant-design/icons-angular/icons';
+import { provideNzNativeDateAdapter } from 'ng-zorro-antd/core/time';
 import { provideNzI18n, pt_BR } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
@@ -57,13 +58,23 @@ import { ThemeService } from './core/services/theme.service';
 
 registerLocaleData(pt);
 
+const ptBRComQRCode = {
+  ...pt_BR,
+  QRCode: {
+    expired: 'QR Code expirado',
+    refresh: 'Atualizar',
+    scanned: 'Escaneado'
+  }
+};
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
-    provideNzI18n(pt_BR),
+    provideNzI18n(ptBRComQRCode),
+    provideNzNativeDateAdapter({ locale: 'pt-BR', firstDayOfWeek: 1 }),
     provideEnvironmentNgxMask({ validation: false }),
     provideNzIcons([
       AppstoreOutline,
