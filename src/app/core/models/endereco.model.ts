@@ -1,4 +1,4 @@
-export interface EnderecoRequest {
+export interface EnderecoDadosRequest {
   cep: string;
   logradouro: string;
   numero: string;
@@ -6,6 +6,15 @@ export interface EnderecoRequest {
   bairro: string;
   cidade: string;
   estado: string;
+}
+
+export interface EnderecoDadosResponse extends EnderecoDadosRequest {
+  id?: number;
+  criadoEm?: string;
+  atualizadoEm?: string | null;
+}
+
+export interface EnderecoRequest extends EnderecoDadosRequest {
   principal: boolean;
 }
 

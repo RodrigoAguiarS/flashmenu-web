@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -11,6 +11,8 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -29,6 +31,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
   standalone: true,
   imports: [
     CurrencyPipe,
+    DatePipe,
     ReactiveFormsModule,
     TelefonePipe,
     RouterLink,
@@ -40,6 +43,8 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzFormModule,
     NzIconModule,
     NzInputModule,
+    NzModalModule,
+    NzQRCodeModule,
     NzSelectModule,
     NzSpinModule,
     NzTagModule,

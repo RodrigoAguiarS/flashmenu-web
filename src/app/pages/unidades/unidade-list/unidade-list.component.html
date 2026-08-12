@@ -26,7 +26,7 @@
     [nzLoading]="carregando()"
     [nzFrontPagination]="false"
     [nzNoResult]="estadoVazio"
-    [nzScroll]="{ x: '780px' }"
+    [nzScroll]="{ x: '960px' }"
     nzSize="middle"
     nzTableLayout="fixed"
   >
@@ -34,6 +34,7 @@
       <tr>
         <th nzWidth="220px">Nome</th>
         <th nzWidth="180px">Slug</th>
+        <th nzWidth="180px">Cidade/UF</th>
         <th>Link publico</th>
         <th nzWidth="150px">Criada em</th>
         <th nzWidth="150px">Atualizada em</th>
@@ -46,6 +47,7 @@
         <tr>
           <td><strong class="texto-truncado">{{ unidade.nome }}</strong></td>
           <td><code>{{ unidade.slug }}</code></td>
+          <td><span class="texto-truncado">{{ cidadeEstado(unidade) }}</span></td>
           <td><span class="texto-truncado">{{ linkPublico(unidade) }}</span></td>
           <td>{{ unidade.criadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
           <td>{{ unidade.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -116,6 +118,7 @@
           <div class="mobile-card__conteudo">
             <strong class="mobile-card__titulo">{{ unidade.nome }}</strong>
             <span class="mobile-card__texto">/{{ unidade.slug }}</span>
+            <span class="mobile-card__texto">{{ cidadeEstado(unidade) }}</span>
             <span class="mobile-card__texto">{{ linkPublico(unidade) }}</span>
             <span class="mobile-card__texto">Criada em {{ unidade.criadoEm | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>

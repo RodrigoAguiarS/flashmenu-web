@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -51,9 +51,10 @@ import {
   styleUrl: './carrinho.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CarrinhoComponent {
+export class CarrinhoComponent implements OnInit {
   protected readonly carrinhoService = inject(CarrinhoService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly message = inject(NzMessageService);
   private readonly grupoComplementoService = inject(GrupoComplementoService);
   private readonly produtoService = inject(ProdutoService);
@@ -62,6 +63,14 @@ export class CarrinhoComponent {
   protected readonly gruposItemEditando = signal<GrupoComplementoResponse[]>([]);
   protected readonly drawerEdicaoAberto = signal(false);
   protected readonly carregandoComplementos = signal(false);
+
+  ngOnInit(): void {
+    const unidadeSlug = this.route.snapshot.paramMap.get('unidadeSlug');
+
+    if (unidadeSlug) {
+      this.carrinhoService.definirUnidadeSlug(unidadeSlug);
+    }
+  }
 
   incrementar(item: ItemCarrinho): void {
     if (!this.carrinhoService.incrementar(item.id)) {

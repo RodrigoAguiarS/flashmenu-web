@@ -68,6 +68,11 @@ export class App implements OnInit {
     this.authService.sair();
   }
 
+  protected linkLojaUnidade(): RouterLinkValue {
+    const slug = this.authService.usuarioAutenticado()?.unidade?.slug ?? this.carrinhoService.unidadeSlug();
+    return slug ? ['/loja', slug] : '/catalogo';
+  }
+
   protected linkCatalogo(): RouterLinkValue {
     const slug = this.authService.usuarioAutenticado()?.unidade?.slug ?? this.carrinhoService.unidadeSlug();
     return slug ? ['/cardapio', slug] : '/catalogo';
@@ -90,6 +95,6 @@ export class App implements OnInit {
   }
 
   private ehRotaSemLayout(): boolean {
-    return this.router.url.startsWith('/login') || this.router.url.startsWith('/loja');
+    return this.router.url.startsWith('/login') || /^\/loja(?:\/[^/?#]+)?(?:[?#].*)?$/.test(this.router.url);
   }
 }

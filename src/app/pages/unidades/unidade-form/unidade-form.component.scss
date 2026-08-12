@@ -69,6 +69,175 @@
   line-height: 1.35;
 }
 
+.secao-endereco {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.secao-endereco header {
+  display: grid;
+  gap: 4px;
+}
+
+.secao-endereco h2 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.secao-endereco p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
+
+.secao-horarios {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.secao-horarios__topo {
+  display: grid;
+  gap: 4px;
+}
+
+.secao-horarios__topo h2 {
+  margin: 0 0 4px;
+  color: var(--cor-texto);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.secao-horarios__topo p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
+
+.horarios-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.horario-dia {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.horario-dia.fechado {
+  gap: 0;
+  background: color-mix(in srgb, var(--cor-campo) 72%, var(--cor-superficie));
+}
+
+.horario-dia header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.horario-dia__titulo {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.horario-dia strong {
+  min-width: 0;
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+.status-pill {
+  width: fit-content;
+  padding: 3px 8px;
+  color: var(--cor-texto-suave);
+  background: color-mix(in srgb, var(--cor-superficie) 72%, var(--cor-campo));
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.status-pill.aberto {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cor-primaria) 34%, var(--cor-borda));
+}
+
+.horario-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.horario-config {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.horario-config > span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.horario-campos {
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+
+.horario-campos nz-form-item {
+  flex: 1 1 112px;
+  margin-bottom: 0;
+}
+
+.horario-campos nz-time-picker {
+  width: min(100%, 132px);
+}
+
+.erro-horario {
+  margin: -2px 0 0;
+  color: var(--cor-perigo);
+  font-size: 12px;
+}
+
+.acoes-horarios {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.acoes-horarios .ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 8px;
+}
+
 .acoes-formulario {
   display: flex;
   align-items: stretch;
@@ -86,5 +255,45 @@
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
+  }
+
+  .secao-horarios__topo {
+    max-width: 760px;
+  }
+
+  .horarios-lista {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    align-items: start;
+  }
+
+  .horario-dia {
+    min-height: 76px;
+  }
+
+  .horario-campos {
+    flex-wrap: nowrap;
+  }
+
+  .acoes-horarios {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (min-width: 1120px) {
+  .horarios-lista {
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .horario-campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .horario-campos nz-form-item,
+  .horario-campos nz-time-picker {
+    width: 100%;
   }
 }

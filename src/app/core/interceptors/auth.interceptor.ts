@@ -14,7 +14,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = authService.obterToken();
   const isAuthPublicRequest = request.url.includes('/auth/login') ||
     request.url.includes('/auth/clientes') ||
-    request.url.includes('/auth/unidades/');
+    request.url.includes('/auth/unidades/') ||
+    request.url.includes('/api/publico/');
   const isApiRequest = request.url.startsWith(environment.apiUrl);
 
   if (!token || isAuthPublicRequest || !isApiRequest) {

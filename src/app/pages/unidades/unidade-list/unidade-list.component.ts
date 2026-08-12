@@ -93,6 +93,14 @@ export class UnidadeListComponent implements OnInit {
     return unidade.ativo ? 'Ativa' : 'Inativa';
   }
 
+  protected cidadeEstado(unidade: UnidadeResponse): string {
+    if (!unidade.endereco?.cidade && !unidade.endereco?.estado) {
+      return 'Nao informado';
+    }
+
+    return [unidade.endereco?.cidade, unidade.endereco?.estado].filter(Boolean).join(' / ');
+  }
+
   private carregarUnidades(): void {
     this.carregando.set(true);
 

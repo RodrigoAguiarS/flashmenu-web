@@ -81,6 +81,97 @@
         </nz-col>
       </nz-row>
 
+      <section class="secao-endereco" formGroupName="endereco" aria-label="Endereco da unidade">
+        <header>
+          <h2>Endereco da Unidade</h2>
+          <p>Informe o endereco fisico vinculado a esta unidade.</p>
+        </header>
+
+        <nz-row [nzGutter]="16">
+          <nz-col nzXs="24" nzMd="8">
+            <nz-form-item>
+              <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
+              <nz-form-control
+                [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
+                nzErrorTip="Informe um CEP valido."
+                [nzValidateStatus]="formulario.controls.endereco.controls.cep"
+              >
+                <input nz-input id="cep" formControlName="cep" placeholder="59000-000" inputmode="numeric" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="16">
+            <nz-form-item>
+              <nz-form-label nzFor="logradouro" nzRequired>Logradouro</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe o logradouro."
+                [nzValidateStatus]="formulario.controls.endereco.controls.logradouro"
+              >
+                <input nz-input id="logradouro" formControlName="logradouro" placeholder="Rua, avenida, travessa" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="8">
+            <nz-form-item>
+              <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe o numero."
+                [nzValidateStatus]="formulario.controls.endereco.controls.numero"
+              >
+                <input nz-input id="numero" formControlName="numero" placeholder="100" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="16">
+            <nz-form-item>
+              <nz-form-label nzFor="complemento">Complemento</nz-form-label>
+              <nz-form-control [nzValidateStatus]="formulario.controls.endereco.controls.complemento">
+                <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, sala, referencia" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="10">
+            <nz-form-item>
+              <nz-form-label nzFor="bairro" nzRequired>Bairro</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe o bairro."
+                [nzValidateStatus]="formulario.controls.endereco.controls.bairro"
+              >
+                <input nz-input id="bairro" formControlName="bairro" placeholder="Centro" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="10">
+            <nz-form-item>
+              <nz-form-label nzFor="cidade" nzRequired>Cidade</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe a cidade."
+                [nzValidateStatus]="formulario.controls.endereco.controls.cidade"
+              >
+                <input nz-input id="cidade" formControlName="cidade" placeholder="Natal" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+
+          <nz-col nzXs="24" nzMd="4">
+            <nz-form-item>
+              <nz-form-label nzFor="estado" nzRequired>UF</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Informe a UF com 2 letras."
+                [nzValidateStatus]="formulario.controls.endereco.controls.estado"
+              >
+                <input nz-input id="estado" formControlName="estado" placeholder="RN" maxlength="2" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+        </nz-row>
+      </section>
+
       <div class="acoes-formulario">
         <a nz-button routerLink="/unidades">Cancelar</a>
         <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando() || carregando()">
@@ -88,5 +179,110 @@
         </button>
       </div>
     </form>
+
+    @if (editando() && podeVisualizarHorarios()) {
+      <section class="secao-horarios" aria-label="Horario de funcionamento">
+        <header class="secao-horarios__topo">
+          <div>
+            <h2>Horario de Funcionamento</h2>
+            <p>Configure os dias e horarios em que a unidade atende pedidos.</p>
+          </div>
+        </header>
+
+        @if (mensagemErroHorarios()) {
+          <nz-alert class="alerta-formulario" nzType="error" [nzMessage]="mensagemErroHorarios()" nzShowIcon></nz-alert>
+        }
+
+        <nz-spin [nzSpinning]="carregandoHorarios()">
+          <div class="horarios-lista">
+            @for (dia of diasSemana; track dia.value; let i = $index) {
+              <article class="horario-dia" [formGroup]="horariosForm.at(i)" [class.fechado]="!horarioAtivo(i)">
+                <header>
+                  <div class="horario-dia__titulo">
+                    <strong>{{ dia.label }}</strong>
+                    <span class="status-pill" [class.aberto]="horarioAtivo(i)">
+                      {{ horarioAtivo(i) ? 'Aberto' : 'Fechado' }}
+                    </span>
+                  </div>
+
+                  <label class="horario-status" [attr.aria-label]="horarioAtivo(i) ? 'Dia aberto' : 'Dia fechado'">
+                    <nz-switch
+                      formControlName="ativo"
+                      [nzDisabled]="!podeEditarHorarios() || salvandoHorarios()"
+                    ></nz-switch>
+                  </label>
+                </header>
+
+                @if (horarioAtivo(i)) {
+                  <section class="horario-config" aria-label="Horario do dia">
+                    <span>Horario de funcionamento</span>
+
+                    <div class="horario-campos">
+                      <nz-form-item>
+                        <nz-form-label nzRequired>Abre</nz-form-label>
+                        <nz-form-control nzErrorTip="Informe a abertura.">
+                          <nz-time-picker
+                            formControlName="horaAbertura"
+                            nzFormat="HH:mm"
+                            [nzMinuteStep]="5"
+                            [nzDisabled]="horarioReadonly(i)"
+                          ></nz-time-picker>
+                        </nz-form-control>
+                      </nz-form-item>
+
+                      <nz-form-item>
+                        <nz-form-label nzRequired>Fecha</nz-form-label>
+                        <nz-form-control nzErrorTip="Informe o fechamento.">
+                          <nz-time-picker
+                            formControlName="horaFechamento"
+                            nzFormat="HH:mm"
+                            [nzMinuteStep]="5"
+                            [nzDisabled]="horarioReadonly(i)"
+                          ></nz-time-picker>
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+
+                    @if (horarioInvalido(i)) {
+                      <p class="erro-horario">O fechamento deve ser posterior a abertura.</p>
+                    }
+
+                    @if (horariosObrigatorios(i)) {
+                      <p class="erro-horario">Informe abertura e fechamento.</p>
+                    }
+                  </section>
+                }
+              </article>
+            }
+          </div>
+        </nz-spin>
+
+        @if (podeEditarHorarios()) {
+          <footer class="acoes-horarios">
+            <button
+              nz-button
+              type="button"
+              [disabled]="!podeAplicarHorarioDiasUteis() || carregandoHorarios() || salvandoHorarios()"
+              (click)="aplicarHorarioDiasUteis()"
+            >
+              <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+              Aplicar segunda aos dias uteis
+            </button>
+
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              [nzLoading]="salvandoHorarios()"
+              [disabled]="carregandoHorarios() || salvandoHorarios()"
+              (click)="salvarHorarios()"
+            >
+              <span nz-icon nzType="save" nzTheme="outline"></span>
+              Salvar horarios
+            </button>
+          </footer>
+        }
+      </section>
+    }
   </nz-spin>
 </section>

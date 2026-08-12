@@ -8,54 +8,66 @@
       <nz-alert class="alerta-loja" nzType="warning" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
     }
 
-    @if (empresa(); as empresaDados) {
+    @if (unidade(); as unidadeDados) {
       <section class="cartao-loja" aria-label="Informacoes da loja">
         <div class="identidade-loja">
           <div class="logo-loja" aria-hidden="true">
-            <span>{{ iniciaisEmpresa() }}</span>
+            @if (imagemLoja(); as imagem) {
+              <img [src]="imagem" [alt]="unidadeDados.nome" (error)="marcarImagemInvalida()" />
+            } @else {
+              <span>{{ iniciaisUnidade() }}</span>
+            }
           </div>
 
           <div class="dados-loja">
-            <h1>{{ empresaDados.nomeFantasia }}</h1>
+            <h1>{{ unidadeDados.nome }}</h1>
 
-            @if (empresaDados.telefone) {
+            @if (unidadeDados.telefone) {
               <p>
                 <span nz-icon nzType="phone" nzTheme="outline"></span>
-                {{ empresaDados.telefone | telefone }}
+                {{ unidadeDados.telefone | telefone }}
               </p>
             }
 
-            @if (empresaDados.email) {
+            @if (unidadeDados.email) {
               <p>
                 <span nz-icon nzType="mail" nzTheme="outline"></span>
-                {{ empresaDados.email }}
+                {{ unidadeDados.email }}
               </p>
             }
 
-            <p>
-              <span nz-icon nzType="shop" nzTheme="outline"></span>
-              Pedido minimo nao configurado
-            </p>
+            @if (enderecoTexto(); as endereco) {
+              <p>
+                <span nz-icon nzType="environment" nzTheme="outline"></span>
+                {{ endereco }}
+              </p>
+            }
+
+            @if (pedidoMinimo() !== null) {
+              <p>
+                <span nz-icon nzType="shop" nzTheme="outline"></span>
+                Pedido minimo {{ pedidoMinimo() | currency:'BRL':'symbol':'1.2-2' }}
+              </p>
+            }
           </div>
         </div>
 
         <div class="status-loja">
-          <nz-tag [nzColor]="empresaDados.ativo ? 'success' : 'default'">
-            {{ empresaDados.ativo ? 'Aberto agora' : 'Fechado agora' }}
-          </nz-tag>
+          <div>
+            <nz-tag [nzColor]="lojaAberta() ? 'success' : 'default'">
+              {{ statusTexto() }}
+            </nz-tag>
 
-          <button nz-button nzType="text" type="button" (click)="alternarHorarios()">
+            @if (proximaAberturaTexto(); as proximaAbertura) {
+              <small>{{ proximaAbertura }}</small>
+            }
+          </div>
+
+          <button nz-button nzType="text" type="button" (click)="abrirHorarios()">
             Ver horarios
             <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
           </button>
         </div>
-
-        @if (horariosVisiveis()) {
-          <div class="painel-horarios">
-            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
-            <p>Horarios de atendimento ainda nao configurados no backend.</p>
-          </div>
-        }
 
         <div class="acoes-loja">
           <a class="botao-cardapio" nz-button [routerLink]="linkCardapio()">
@@ -63,17 +75,12 @@
             Ver cardapio
           </a>
 
-          <a
-            nz-button
-            [href]="linkWhatsApp() || null"
-            target="_blank"
-            rel="noopener"
-            [class.botao-desabilitado]="!linkWhatsApp()"
-            [attr.aria-disabled]="!linkWhatsApp()"
-          >
-            <span nz-icon nzType="whats-app" nzTheme="outline"></span>
-            WhatsApp
-          </a>
+          @if (linkWhatsApp(); as whatsapp) {
+            <a nz-button [href]="whatsapp" target="_blank" rel="noopener">
+              <span nz-icon nzType="whats-app" nzTheme="outline"></span>
+              WhatsApp
+            </a>
+          }
 
           <button nz-button nzType="text" type="button" (click)="compartilhar()">
             <span nz-icon nzType="share-alt" nzTheme="outline"></span>
@@ -81,10 +88,55 @@
           </button>
         </div>
       </section>
-    } @else if (!carregando()) {
+    } @else if (!carregando() && estado() === 'nao-encontrada') {
       <section class="estado-vazio cartao-sistema">
-        <nz-empty nzNotFoundContent="Empresa nao encontrada."></nz-empty>
+        <nz-result
+          nzStatus="404"
+          nzTitle="Loja nao encontrada"
+          nzSubTitle="Confira o link informado ou solicite o endereco correto da loja."
+        ></nz-result>
+      </section>
+    } @else if (!carregando() && estado() === 'erro') {
+      <section class="estado-vazio cartao-sistema">
+        <nz-result
+          nzStatus="500"
+          nzTitle="Nao foi possivel carregar a loja"
+          nzSubTitle="Tente novamente em instantes."
+        ></nz-result>
       </section>
     }
   </nz-spin>
+
+  <nz-drawer
+    [nzVisible]="horariosVisiveis()"
+    nzTitle="Horarios de funcionamento"
+    nzPlacement="bottom"
+    [nzHeight]="'min(82vh, 520px)'"
+    (nzOnClose)="fecharHorarios()"
+  >
+    <ng-container *nzDrawerContent>
+      @if (horarios().length) {
+        <section class="lista-horarios" aria-label="Horarios da semana">
+          @for (horario of horariosSemana(); track horario.diaSemana) {
+            <article class="linha-horario" [class.hoje]="horario.hoje">
+              <div>
+                <strong>{{ horario.label }}</strong>
+                @if (horario.hoje) {
+                  <nz-tag nzColor="processing">Hoje</nz-tag>
+                }
+              </div>
+
+              @if (horario.ativo && horario.horaAbertura && horario.horaFechamento) {
+                <span>{{ horario.horaAbertura }} as {{ horario.horaFechamento }}</span>
+              } @else {
+                <span>Fechado</span>
+              }
+            </article>
+          }
+        </section>
+      } @else {
+        <nz-empty nzNotFoundContent="Horarios nao configurados."></nz-empty>
+      }
+    </ng-container>
+  </nz-drawer>
 </main>

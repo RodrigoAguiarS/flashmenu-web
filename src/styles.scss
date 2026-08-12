@@ -447,6 +447,119 @@ a {
   background: var(--cor-fundo);
 }
 
+.pix-modal-shell .ant-modal-content,
+.pix-modal-shell .ant-modal-header {
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda);
+}
+
+.pix-modal-shell .ant-modal-title,
+.pix-modal-shell .ant-modal-close {
+  color: var(--cor-texto);
+}
+
+.pix-modal-shell .ant-modal-body {
+  padding: 14px;
+}
+
+.pix-modal {
+  display: grid;
+  gap: 14px;
+  color: var(--cor-texto);
+}
+
+.pix-total,
+.pix-codigo,
+.pix-qrcode,
+.pix-feedback {
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.pix-total,
+.pix-status,
+.pix-expiracao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pix-total {
+  justify-content: space-between;
+}
+
+.pix-total div,
+.pix-codigo {
+  display: grid;
+  gap: 6px;
+}
+
+.pix-total span,
+.pix-total small,
+.pix-status small,
+.pix-expiracao {
+  color: var(--cor-texto-suave);
+}
+
+.pix-total strong {
+  color: var(--cor-texto);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.pix-status {
+  flex-wrap: wrap;
+}
+
+.pix-qrcode,
+.pix-feedback {
+  display: grid;
+  place-items: center;
+}
+
+.pix-qrcode {
+  background: color-mix(in srgb, var(--cor-superficie) 90%, var(--cor-campo));
+}
+
+.pix-qrcode nz-qrcode {
+  display: grid;
+  padding: 10px;
+  background: #fff;
+  border-radius: var(--raio-md);
+}
+
+.pix-qrcode-img {
+  width: min(70vw, 220px);
+  height: min(70vw, 220px);
+  object-fit: contain;
+  padding: 10px;
+  background: #fff;
+  border-radius: var(--raio-md);
+}
+
+.pix-codigo label {
+  font-weight: 700;
+}
+
+.pix-codigo textarea {
+  min-height: 92px;
+  resize: none;
+}
+
+.pix-codigo button,
+.pix-modal > button {
+  min-height: 44px;
+  border-radius: var(--raio-md);
+}
+
+.pix-feedback {
+  gap: 6px;
+  text-align: center;
+}
+
 .ant-drawer-body .ant-descriptions {
   overflow: hidden;
   background: var(--cor-superficie);
@@ -711,6 +824,7 @@ a {
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td,
 .ant-statistic,
+.ant-picker,
 .ant-input,
 .ant-input-affix-wrapper,
 .ant-input-number,
@@ -758,6 +872,7 @@ a {
 .theme-dark .ant-drawer-content,
 .theme-dark .ant-input,
 .theme-dark .ant-input-affix-wrapper,
+.theme-dark .ant-picker,
 .theme-dark .ant-input-number,
 .theme-dark .ant-select:not(.ant-select-customize-input) .ant-select-selector,
 .theme-dark .ant-table-thead > tr > th,
@@ -767,6 +882,8 @@ a {
 
 .theme-dark .ant-input,
 .theme-dark .ant-input-affix-wrapper,
+.theme-dark .ant-picker,
+.theme-dark .ant-picker-input > input,
 .theme-dark .ant-input-number,
 .theme-dark .ant-input-number-input,
 .theme-dark .ant-select:not(.ant-select-customize-input) .ant-select-selector {
@@ -783,6 +900,8 @@ a {
 .theme-dark .ant-input:hover,
 .theme-dark .ant-input:focus,
 .theme-dark .ant-input-focused,
+.theme-dark .ant-picker:hover,
+.theme-dark .ant-picker-focused,
 .theme-dark .ant-input-number:hover,
 .theme-dark .ant-input-number-focused,
 .theme-dark .ant-input-affix-wrapper:hover,
@@ -796,6 +915,8 @@ a {
 .theme-dark .ant-input:focus,
 .theme-dark .ant-input-focused,
 .theme-dark .ant-input:active,
+.theme-dark .ant-picker:hover,
+.theme-dark .ant-picker-focused,
 .theme-dark .ant-input-number:hover,
 .theme-dark .ant-input-number-focused,
 .theme-dark .ant-input-affix-wrapper:hover,
@@ -855,6 +976,8 @@ a {
 
 .theme-dark .ant-input-prefix,
 .theme-dark .ant-input-suffix,
+.theme-dark .ant-picker-suffix,
+.theme-dark .ant-picker-clear,
 .theme-dark .ant-select-arrow,
 .theme-dark .ant-select-clear,
 .theme-dark .ant-form-item-explain,
@@ -993,6 +1116,47 @@ a {
 .theme-dark .ant-menu-item,
 .theme-dark .ant-card-body {
   color: var(--cor-texto);
+}
+
+.theme-dark .ant-picker-dropdown {
+  color: var(--cor-texto);
+}
+
+.theme-dark .ant-picker-panel-container,
+.theme-dark .ant-picker-panel,
+.theme-dark .ant-picker-time-panel,
+.theme-dark .ant-picker-time-panel-column,
+.theme-dark .ant-picker-footer {
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda);
+}
+
+.theme-dark .ant-picker-time-panel-column:not(:first-child),
+.theme-dark .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+  border-color: var(--cor-borda);
+}
+
+.theme-dark .ant-picker-time-panel-cell-inner {
+  color: var(--cor-texto);
+}
+
+.theme-dark .ant-picker-time-panel-cell-inner:hover,
+.theme-dark .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  color: var(--cor-texto);
+  background: #223047;
+}
+
+.theme-dark .ant-picker-time-panel-cell-disabled .ant-picker-time-panel-cell-inner {
+  color: #64748b;
+}
+
+.theme-dark .ant-picker-now-btn {
+  color: var(--cor-primaria);
+}
+
+.theme-dark .ant-picker-input > input::placeholder {
+  color: var(--cor-texto-suave);
 }
 
 .theme-dark .ant-tabs-nav::before {

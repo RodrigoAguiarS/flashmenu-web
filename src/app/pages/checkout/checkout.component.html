@@ -212,3 +212,101 @@
     </section>
   </nz-spin>
 }
+
+<nz-modal
+  nzClassName="pix-modal-shell"
+  [nzVisible]="checkout.modalPixAberta()"
+  nzTitle="Pagamento PIX"
+  [nzFooter]="null"
+  [nzClosable]="checkout.pagamentoPixAprovado()"
+  [nzMaskClosable]="false"
+  [nzWidth]="'min(100vw - 24px, 460px)'"
+  (nzOnCancel)="checkout.fecharModalPix()"
+>
+  <ng-container *nzModalContent>
+    <section class="pix-modal" aria-label="Pagamento PIX">
+      @if (checkout.pagamentoPixAprovado()) {
+        <div class="pix-feedback aprovado">
+          <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+          <strong>Pagamento aprovado</strong>
+          <span>Estamos atualizando seu pedido.</span>
+        </div>
+      } @else {
+        <div class="pix-total">
+          <div>
+            <span>Valor do pedido</span>
+            <strong>{{ (checkout.valorPix() ?? checkout.totalPrevisto()) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          @if (checkout.consultandoPix()) {
+            <small>Aguardando confirmacao</small>
+          }
+        </div>
+
+        @if (checkout.erroPix()) {
+          <nz-alert nzType="error" [nzMessage]="checkout.erroPix()" nzShowIcon></nz-alert>
+        }
+
+        @if (checkout.gerandoPix()) {
+          <div class="pix-loading">
+            <nz-spin nzSimple></nz-spin>
+            <span>Gerando cobranca PIX...</span>
+          </div>
+        } @else if (checkout.cobrancaPix()) {
+          <div class="pix-status">
+            <nz-tag [nzColor]="checkout.pixExpirado() ? 'error' : 'processing'">
+              {{ checkout.pixExpirado() ? 'PIX expirado' : 'Aguardando pagamento' }}
+            </nz-tag>
+            @if (checkout.consultandoPix()) {
+              <small>Verificacao automatica ativa</small>
+            }
+          </div>
+
+          @if (checkout.pixCopiaECola(); as codigoPix) {
+            <div class="pix-qrcode">
+              <nz-qrcode
+                [nzValue]="codigoPix"
+                [nzSize]="220"
+                nzColor="#000"
+                nzBgColor="#fff"
+                nzStatus="active"
+              ></nz-qrcode>
+            </div>
+
+            <div class="pix-codigo">
+              <label for="codigoPix">Codigo PIX copia e cola</label>
+              <textarea id="codigoPix" nz-input rows="4" readonly [value]="codigoPix"></textarea>
+              <button nz-button nzType="primary" type="button" (click)="checkout.copiarCodigoPix()">
+                Copiar codigo PIX
+              </button>
+            </div>
+          } @else if (checkout.pixQrCodeImagem(); as qrCodeImagem) {
+            <div class="pix-qrcode">
+              <img class="pix-qrcode-img" [src]="qrCodeImagem" alt="QR Code PIX" />
+            </div>
+
+            <nz-alert
+              nzType="info"
+              nzMessage="Codigo PIX copia e cola indisponivel"
+              nzDescription="Escaneie o QR Code para pagar. Se precisar copiar o codigo, tente gerar o PIX novamente."
+              nzShowIcon
+            ></nz-alert>
+          }
+
+          @if (checkout.pixExpiracao(); as expiracao) {
+            <div class="pix-expiracao">
+              <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+              <span>Expira em {{ expiracao | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          }
+        }
+
+        @if (checkout.erroPix() || checkout.pixExpirado()) {
+          <button nz-button type="button" [nzLoading]="checkout.gerandoPix()" (click)="checkout.tentarGerarPixNovamente()">
+            Tentar novamente
+          </button>
+        }
+      }
+    </section>
+  </ng-container>
+</nz-modal>

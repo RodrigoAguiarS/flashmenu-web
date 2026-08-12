@@ -3,14 +3,15 @@ import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angul
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { EMPTY, Subscription, catchError, finalize, switchMap, timer } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { EnderecoResponse } from '../../core/models/endereco.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
-import { PedidoRequest } from '../../core/models/pedido.model';
+import { PedidoRequest, PedidoResponse } from '../../core/models/pedido.model';
+import { PixCobrancaResponse, PixPagamentoStatus } from '../../core/models/pix-pagamento.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { ConfiguracaoComercialService } from '../../core/services/configuracao-comercial.service';
@@ -18,6 +19,7 @@ import { EnderecoService } from '../../core/services/endereco.service';
 import { FormaPagamentoService } from '../../core/services/forma-pagamento.service';
 import { PedidoFinanceiroService } from '../../core/services/pedido-financeiro.service';
 import { PedidoService } from '../../core/services/pedido.service';
+import { PixPagamentoService } from '../../core/services/pix-pagamento.service';
 
 @Injectable()
 export class CheckoutFacade {
@@ -26,6 +28,7 @@ export class CheckoutFacade {
   private readonly configuracaoComercialService = inject(ConfiguracaoComercialService);
   private readonly pedidoFinanceiroService = inject(PedidoFinanceiroService);
   private readonly pedidoService = inject(PedidoService);
+  private readonly pixPagamentoService = inject(PixPagamentoService);
   private readonly authService = inject(AuthService);
   private readonly carrinhoService = inject(CarrinhoService);
   private readonly enderecoService = inject(EnderecoService);
@@ -43,6 +46,15 @@ export class CheckoutFacade {
   readonly finalizando = signal(false);
   readonly mensagemErro = signal<string | null>(null);
   readonly unidadeSlug = signal<string | null>(null);
+  readonly pedidoPix = signal<PedidoResponse | null>(null);
+  readonly cobrancaPix = signal<PixCobrancaResponse | null>(null);
+  readonly valorPix = signal<number | null>(null);
+  readonly modalPixAberta = signal(false);
+  readonly gerandoPix = signal(false);
+  readonly consultandoPix = signal(false);
+  readonly statusPix = signal<PixPagamentoStatus | null>(null);
+  readonly erroPix = signal<string | null>(null);
+  readonly pagamentoPixAprovado = signal(false);
   readonly usuario = computed(() => this.authService.usuarioAutenticado());
   readonly enderecoEntrega = computed(() => this.enderecos().find((endereco) => endereco.principal) ?? this.enderecos()[0] ?? null);
   readonly formaPagamentoSelecionada = computed(() => {
@@ -61,6 +73,34 @@ export class CheckoutFacade {
   readonly valorAcrescimo = computed(() => this.resumoFinanceiro().valorAcrescimo ?? 0);
   readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
   readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
+  readonly pagamentoPix = computed(() => this.formaPagamentoSelecionada()?.tipo === 'PIX');
+  readonly pixCopiaECola = computed(() => {
+    const cobranca = this.cobrancaPix();
+    const candidatos = [
+      cobranca?.pixCopiaCola,
+      cobranca?.pixCopiaECola,
+      cobranca?.copiaECola,
+      cobranca?.codigoPix,
+      cobranca?.qrCode
+    ];
+
+    return candidatos.find((codigo) => this.ehCodigoPixCopiaECola(codigo))?.trim() ?? null;
+  });
+  readonly pixQrCodeImagem = computed(() => {
+    const cobranca = this.cobrancaPix();
+    const base64 = cobranca?.pixQrCode ?? cobranca?.qrCodeBase64;
+
+    if (base64) {
+      return base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
+    }
+
+    return cobranca?.qrCodeUrl ?? null;
+  });
+  readonly pixExpiracao = computed(() => this.cobrancaPix()?.expiracao ?? this.cobrancaPix()?.expiraEm ?? null);
+  readonly pixExpirado = computed(() => {
+    const status = this.statusPix();
+    return status === 'EXPIRADO' || status === 'CANCELADO';
+  });
   readonly troco = computed(() => {
     const valorRecebido = Number(this.valorRecebidoDinheiro() ?? 0);
     return Math.max(valorRecebido - this.totalPrevisto(), 0);
@@ -87,6 +127,25 @@ export class CheckoutFacade {
     this.totalPrevisto();
     this.atualizarValidacaoValorRecebido();
   });
+
+  private ehCodigoPixCopiaECola(codigo: string | null | undefined): codigo is string {
+    const valor = codigo?.trim();
+
+    if (!valor) {
+      return false;
+    }
+
+    if (valor.startsWith('data:image') || /^https?:\/\//i.test(valor)) {
+      return false;
+    }
+
+    if (valor.length > 1200) {
+      return false;
+    }
+
+    return valor.includes('BR.GOV.BCB.PIX') || valor.startsWith('000201') || valor.length < 900;
+  }
+  private pollingPix?: Subscription;
 
   inicializar(unidadeSlug: string | null = null): void {
     this.unidadeSlug.set(unidadeSlug);
@@ -158,11 +217,17 @@ export class CheckoutFacade {
     };
 
     this.finalizando.set(true);
+    const valorPixPrevisto = this.normalizarValorMonetario(this.totalPrevisto());
 
     this.pedidoService.finalizarPedido(request).pipe(
       finalize(() => this.finalizando.set(false))
     ).subscribe({
       next: (pedido) => {
+        if (this.pagamentoPix()) {
+          this.iniciarPagamentoPix(pedido, valorPixPrevisto);
+          return;
+        }
+
         this.carrinhoService.limpar();
         this.message.success('Pedido realizado com sucesso.');
         void this.router.navigate(['/pedido/sucesso'], { state: { pedido } });
@@ -176,6 +241,43 @@ export class CheckoutFacade {
         this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel finalizar o pedido.'));
       }
     });
+  }
+
+  copiarCodigoPix(): void {
+    const codigo = this.pixCopiaECola();
+
+    if (!codigo) {
+      this.message.warning('Codigo PIX indisponivel.');
+      return;
+    }
+
+    if (!navigator.clipboard) {
+      this.message.info(codigo);
+      return;
+    }
+
+    void navigator.clipboard.writeText(codigo)
+      .then(() => this.message.success('Codigo PIX copiado.'))
+      .catch(() => this.message.info(codigo));
+  }
+
+  tentarGerarPixNovamente(): void {
+    const pedido = this.pedidoPix();
+
+    if (!pedido) {
+      return;
+    }
+
+    this.gerarCobrancaPix(pedido);
+  }
+
+  fecharModalPix(): void {
+    if (this.pagamentoPixAprovado()) {
+      this.modalPixAberta.set(false);
+      return;
+    }
+
+    this.message.info('Aguardando confirmacao do pagamento PIX.');
   }
 
   private carregarFormasPagamento(): void {
@@ -195,6 +297,95 @@ export class CheckoutFacade {
       error: (error: HttpErrorResponse) =>
         this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel finalizar o pedido.'))
     });
+  }
+
+  private iniciarPagamentoPix(pedido: PedidoResponse, valorPix: number): void {
+    this.pedidoPix.set(pedido);
+    this.valorPix.set(valorPix);
+    this.modalPixAberta.set(true);
+    this.pagamentoPixAprovado.set(false);
+    this.gerarCobrancaPix(pedido);
+  }
+
+  private gerarCobrancaPix(pedido: PedidoResponse): void {
+    this.erroPix.set(null);
+    this.cobrancaPix.set(null);
+    this.statusPix.set('PENDENTE');
+    this.gerandoPix.set(true);
+    this.pararPollingPix();
+
+    const valor = this.valorPix() ?? this.normalizarValorMonetario(this.totalPrevisto());
+
+    this.pixPagamentoService.gerarCobranca(pedido.id, { valor }).pipe(
+      finalize(() => this.gerandoPix.set(false))
+    ).subscribe({
+      next: (cobranca) => {
+        this.cobrancaPix.set(cobranca);
+        this.statusPix.set(cobranca.status ?? 'AGUARDANDO_PAGAMENTO');
+        this.iniciarPollingPix(pedido.id);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.erroPix.set(this.extrairMensagemErro(error, 'Nao foi possivel gerar a cobranca PIX.'));
+        this.statusPix.set('PENDENTE');
+      }
+    });
+  }
+
+  private iniciarPollingPix(pedidoId: number): void {
+    this.consultandoPix.set(true);
+
+    this.pollingPix = timer(0, 5000).pipe(
+      switchMap(() => this.pixPagamentoService.consultarStatus(pedidoId).pipe(
+        catchError(() => EMPTY)
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((status) => {
+      this.statusPix.set(status.status);
+
+      if (status.expirado || status.status === 'EXPIRADO' || status.status === 'CANCELADO') {
+        this.pararPollingPix();
+        this.consultandoPix.set(false);
+        this.erroPix.set('PIX expirado. Gere uma nova cobranca para continuar.');
+        return;
+      }
+
+      if (status.pago || status.status === 'PAGO') {
+        this.pararPollingPix();
+        this.consultandoPix.set(false);
+        this.confirmarPagamentoPix(pedidoId);
+      }
+    });
+  }
+
+  private confirmarPagamentoPix(pedidoId: number): void {
+    this.pagamentoPixAprovado.set(true);
+    this.message.success('Pagamento PIX aprovado.');
+
+    this.pedidoService.buscarMeuPedido(pedidoId).subscribe({
+      next: (pedidoAtualizado) => this.concluirPedidoPix(pedidoAtualizado),
+      error: () => {
+        const pedido = this.pedidoPix();
+        if (pedido) {
+          this.concluirPedidoPix({ ...pedido, status: 'PAGO' });
+        }
+      }
+    });
+  }
+
+  private concluirPedidoPix(pedido: PedidoResponse): void {
+    this.pedidoPix.set(pedido);
+    this.carrinhoService.limpar();
+    this.modalPixAberta.set(false);
+    void this.router.navigate(['/pedido/sucesso'], { state: { pedido } });
+  }
+
+  private pararPollingPix(): void {
+    this.pollingPix?.unsubscribe();
+    this.pollingPix = undefined;
+  }
+
+  private normalizarValorMonetario(valor: number): number {
+    return Math.round(Number(valor ?? 0) * 100) / 100;
   }
 
   private carregarConfiguracaoComercial(): void {
