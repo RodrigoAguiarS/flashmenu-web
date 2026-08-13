@@ -83,9 +83,9 @@
         <span>{{ dataHumana(pedido.dataCriacao) }}</span>
       </div>
 
-      <span class="status-pill" [attr.data-status]="classeStatus(pedido.status)">
+      <span class="status-pill" [attr.data-status]="classeStatusPedido(pedido)">
         <span aria-hidden="true"></span>
-        {{ statusTexto(pedido.status) }}
+        {{ statusPedidoTexto(pedido) }}
       </span>
     </header>
 
@@ -109,7 +109,7 @@
       <strong>{{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
     </div>
 
-    <div class="pedido-status-linha" [attr.data-status]="classeStatus(pedido.status)">
+    <div class="pedido-status-linha" [attr.data-status]="classeStatusPedido(pedido)">
       <span aria-hidden="true"></span>
       <strong>{{ statusLinha(pedido) }}</strong>
     </div>

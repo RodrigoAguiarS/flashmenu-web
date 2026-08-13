@@ -28,22 +28,15 @@
 
           <div class="pedido-tags">
             <nz-tag [nzColor]="corTipo(pedidoDetalhe.tipo)">{{ tipoTexto(pedidoDetalhe.tipo) }}</nz-tag>
-            <nz-tag [nzColor]="corStatus(pedidoDetalhe.status)">{{ statusTexto(pedidoDetalhe.status) }}</nz-tag>
+            <nz-tag [nzColor]="corStatusPedido(pedidoDetalhe)">{{ statusPedidoTexto(pedidoDetalhe) }}</nz-tag>
           </div>
         </header>
 
         <div class="resumo-compacto">
-          <span>Status: <strong>{{ statusTexto(pedidoDetalhe.status) }}</strong></span>
+          <span>Status: <strong>{{ statusPedidoTexto(pedidoDetalhe) }}</strong></span>
           <span>Criado em: <strong>{{ pedidoDetalhe.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>
-            Confirmado em:
-            <strong>
-              @if (pedidoDetalhe.confirmadoEm) {
-                {{ pedidoDetalhe.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
-              } @else {
-                Ainda nao confirmado
-              }
-            </strong>
+            Pagamento: <strong>{{ pagamentoStatusTexto(pedidoDetalhe) }}</strong>
           </span>
           <span>Itens: <strong>{{ pedidoDetalhe.itens.length }}</strong></span>
         </div>
@@ -110,20 +103,24 @@
             <span>Forma de pagamento</span>
             <strong>{{ pedidoDetalhe.formaPagamento.nome }}</strong>
           </div>
-          @if (pedidoDetalhe.pagamento?.dataCriacao) {
+          <div>
+            <span>Status do pagamento</span>
+            <strong>{{ pagamentoStatusTexto(pedidoDetalhe) }}</strong>
+          </div>
+          @if (pedidoDetalhe.pagamento?.confirmadoEm) {
             <div>
-              <span>Confirmado em</span>
-              <strong>{{ pedidoDetalhe.pagamento?.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</strong>
+              <span>Pago em</span>
+              <strong>{{ pedidoDetalhe.pagamento?.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}</strong>
             </div>
           }
         </div>
 
         <app-pedido-resumo-financeiro
           [resumo]="pedidoDetalhe"
-          [rotuloTotal]="pedidoDetalhe.pagamento ? 'Total confirmado' : 'Total do pedido'"
+          [rotuloTotal]="pagamentoConfirmado(pedidoDetalhe) ? 'Total pago' : 'Total do pedido'"
         />
 
-        @if (!pedidoDetalhe.pagamento) {
+        @if (!pagamentoConfirmado(pedidoDetalhe)) {
           <div class="linha-pagamento pendente">
             <span>Pagamento</span>
             <strong>Pendente</strong>

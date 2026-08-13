@@ -108,21 +108,6 @@ export class PedidoService {
   }
 
   private obterConfirmadoEm(pedido: PedidoResponse): string | null {
-    const pedidoComoRegistro = pedido as unknown as Record<string, unknown>;
-    const pagamentoComoRegistro = pedido.pagamento as unknown as Record<string, unknown> | null;
-    const candidatos = [
-      pedido.confirmadoEm,
-      pedidoComoRegistro['confirmadoEm'],
-      pedidoComoRegistro['confirmado_em'],
-      pedidoComoRegistro['dataConfirmacao'],
-      pedidoComoRegistro['dataConfirmacaoPagamento'],
-      pedidoComoRegistro['confirmadoPagamentoEm'],
-      pagamentoComoRegistro?.['confirmadoEm'],
-      pagamentoComoRegistro?.['dataPagamento']
-    ];
-
-    const confirmadoEm = candidatos.find((valor): valor is string => typeof valor === 'string' && valor.trim().length > 0);
-
-    return confirmadoEm?.trim() ?? null;
+    return pedido.pagamento?.confirmadoEm ?? null;
   }
 }

@@ -2,8 +2,8 @@ import { FormaPagamentoResponse } from './forma-pagamento.model';
 import { EnderecoResponse } from './endereco.model';
 import { UnidadeResumo } from './unidade.model';
 
-export type StatusPedido = 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'PAGO' | 'CANCELADO' | string;
-export type TipoPedido = 'DELIVERY' | 'PDV' | string;
+export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'CANCELADO';
+export type TipoPedido = 'DELIVERY' | 'PDV';
 
 export interface ItemPedidoComplementoRequest {
   opcaoComplementoId: number;
@@ -42,10 +42,12 @@ export interface ItemPedidoResponse {
   id: number;
   produtoId: number;
   produtoNome: string;
+  produtoImagemUrl?: string | null;
+  produtoArquivosUrl?: string[] | null;
   quantidade: number;
-  valorProduto?: number;
+  valorProduto: number;
   precoUnitario: number;
-  valorUnitarioFinal?: number;
+  valorUnitarioFinal: number;
   subtotal: number;
   observacao?: string | null;
   complementos?: ItemPedidoComplementoResponse[];
@@ -64,8 +66,12 @@ export interface PagamentoResponse {
   id: number;
   formaPagamento: FormaPagamentoResponse;
   valor: number;
+  status: string;
+  provedorCobrancaId?: string | null;
+  provedorStatus?: string | null;
+  pixExpiraEm?: string | null;
+  confirmadoEm?: string | null;
   dataCriacao: string;
-  dataPagamento: string | null;
 }
 
 export interface PedidoParticipanteResponse {
@@ -91,10 +97,10 @@ export interface PedidoResponse {
   formaPagamento: FormaPagamentoResponse;
   itens: ItemPedidoResponse[];
   pagamento: PagamentoResponse | null;
-  cliente?: PedidoParticipanteResponse | null;
-  vendedor?: PedidoParticipanteResponse | null;
-  unidade?: UnidadeResumo | null;
-  enderecoEntrega?: EnderecoResponse | null;
+  cliente: PedidoParticipanteResponse | null;
+  vendedor: PedidoParticipanteResponse | null;
+  unidade: UnidadeResumo | null;
+  enderecoEntrega: EnderecoResponse | null;
 }
 
 export interface PedidoResumoFinanceiro {

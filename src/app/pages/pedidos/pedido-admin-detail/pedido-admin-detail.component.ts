@@ -51,9 +51,9 @@ export class PedidoAdminDetailComponent implements OnInit {
 
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'warning',
       AGUARDANDO_CONFIRMACAO: 'processing',
       CONFIRMADO: 'success',
-      PAGO: 'success',
       CANCELADO: 'error'
     };
 
@@ -62,13 +62,25 @@ export class PedidoAdminDetailComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       CONFIRMADO: 'Confirmado',
-      PAGO: 'Confirmado',
       CANCELADO: 'Cancelado'
     };
 
     return labels[status] ?? status;
+  }
+
+  protected statusPedidoTexto(pedido: PedidoResponse): string {
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento';
+    }
+
+    return this.statusTexto(pedido.status);
+  }
+
+  protected corStatusPedido(pedido: PedidoResponse): string {
+    return this.pagamentoPixPendente(pedido) ? 'warning' : this.corStatus(pedido.status);
   }
 
   protected corTipo(tipo: TipoPedido | null): string {
@@ -87,6 +99,20 @@ export class PedidoAdminDetailComponent implements OnInit {
     };
 
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
+  }
+
+  protected pagamentoStatusTexto(pedido: PedidoResponse): string {
+    return this.pagamentoConfirmado(pedido) ? 'Pago' : 'Pendente';
+  }
+
+  protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
+    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+  }
+
+  protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
+    return pedido.formaPagamento.tipo === 'PIX'
+      && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CANCELADO';
   }
 
   protected exportarPdf(): void {

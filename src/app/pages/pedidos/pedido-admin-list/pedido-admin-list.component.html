@@ -77,14 +77,14 @@
 
             <div class="pedido-tags">
               <nz-tag [nzColor]="corTipo(pedido.tipo)">{{ tipoTexto(pedido.tipo) }}</nz-tag>
-              <nz-tag [nzColor]="corStatus(pedido.status)">{{ statusTexto(pedido.status) }}</nz-tag>
+              <nz-tag [nzColor]="corStatusPedido(pedido)">{{ statusPedidoTexto(pedido) }}</nz-tag>
             </div>
           </header>
 
           <div class="pedido-resumo pedido-resumo-enxuto">
             <span>
               <small><span nz-icon nzType="check-circle" nzTheme="outline"></span> Status</small>
-              {{ statusTexto(pedido.status) }}
+              {{ statusPedidoTexto(pedido) }}
             </span>
             <span>
               <small><span nz-icon nzType="credit-card" nzTheme="outline"></span> Pagamento</small>
@@ -95,12 +95,8 @@
               {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
             </strong>
             <span>
-              <small><span nz-icon nzType="clock-circle" nzTheme="outline"></span> Confirmado</small>
-              @if (pedido.confirmadoEm) {
-                {{ pedido.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
-              } @else {
-                Ainda nao confirmado
-              }
+              <small><span nz-icon nzType="clock-circle" nzTheme="outline"></span> Pagamento</small>
+              {{ pagamentoStatusTexto(pedido) }}
             </span>
           </div>
 

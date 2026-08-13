@@ -2,7 +2,7 @@
   <nz-result
     nzStatus="success"
     nzTitle="Pedido realizado com sucesso."
-    [nzSubTitle]="pedido ? 'Pedido #' + pedido.id + ' - status ' + statusTexto(pedido.status) : 'Seu pedido foi criado.'"
+    [nzSubTitle]="pedido ? 'Pedido #' + pedido.id + ' - status ' + statusPedidoTexto(pedido) : 'Seu pedido foi criado.'"
   >
     <div nz-result-extra>
       <a nz-button nzType="primary" [routerLink]="carrinhoService.cardapioLink()">Continuar comprando</a>
@@ -20,10 +20,10 @@
 
       <app-pedido-resumo-financeiro
         [resumo]="pedido"
-        [rotuloTotal]="pedido.pagamento ? 'Total confirmado' : 'Total do pedido'"
+        [rotuloTotal]="pagamentoConfirmado(pedido) ? 'Total pago' : 'Total do pedido'"
       />
 
-      @if (!pedido.pagamento) {
+      @if (!pagamentoConfirmado(pedido)) {
         <div class="linha-pagamento">
           <span>Pagamento</span>
           <strong>Pendente</strong>

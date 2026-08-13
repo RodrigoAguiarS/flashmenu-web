@@ -34,11 +34,17 @@
   margin-bottom: 8px;
 }
 
+.filtros form {
+  display: grid;
+  justify-items: center;
+}
+
 .busca-catalogo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 40px;
   align-items: center;
   gap: 8px;
+  width: min(100%, 568px);
 }
 
 .campo-busca,
@@ -62,7 +68,9 @@
 
 .categorias-menu {
   display: flex;
+  justify-content: center;
   gap: 8px;
+  width: min(100%, 568px);
   margin: 10px -12px 0;
   padding: 0 12px 2px;
   overflow-x: auto;
@@ -327,12 +335,26 @@
 
 .detalhe-produto {
   min-height: 100%;
-  margin: -16px;
   padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
 }
 
 .detalhe-produto nz-input-number {
   width: 100%;
+}
+
+.detalhe-conteudo {
+  padding: 0 16px calc(20px + env(safe-area-inset-bottom));
+}
+
+.detalhe-conteudo app-produto-personalizacao {
+  display: block;
+  min-width: 0;
+}
+
+:host ::ng-deep .catalogo-detalhe-drawer .ant-drawer-body {
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .detalhe-loading,
@@ -391,7 +413,21 @@
   }
 }
 
+@media (max-width: 699px) {
+  .filtros form {
+    justify-items: stretch;
+  }
+
+  .categorias-menu {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 420px) {
+  .detalhe-conteudo {
+    padding: 0 14px calc(18px + env(safe-area-inset-bottom));
+  }
+
   .produto-layout {
     grid-template-columns: 78px minmax(0, 1fr);
     gap: 10px;

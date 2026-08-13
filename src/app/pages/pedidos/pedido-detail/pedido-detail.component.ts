@@ -56,31 +56,43 @@ export class PedidoDetailComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
-      PAGO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
     return labels[status] ?? status;
   }
 
+  protected statusPedidoTexto(pedido: PedidoResponse): string {
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento';
+    }
+
+    return this.statusTexto(pedido.status);
+  }
+
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'warning',
       AGUARDANDO_CONFIRMACAO: 'processing',
       CONFIRMADO: 'success',
-      PAGO: 'success',
       CANCELADO: 'error'
     };
 
     return cores[status] ?? 'default';
   }
 
+  protected corStatusPedido(pedido: PedidoResponse): string {
+    return this.pagamentoPixPendente(pedido) ? 'warning' : this.corStatus(pedido.status);
+  }
+
   protected statusClasse(status: StatusPedido): string {
     const classes: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'aguardando',
       AGUARDANDO_CONFIRMACAO: 'aguardando',
       CONFIRMADO: 'confirmado',
-      PAGO: 'concluido',
       CANCELADO: 'cancelado'
     };
 
@@ -92,12 +104,16 @@ export class PedidoDetailComponent implements OnInit {
       return 'Este pedido foi cancelado.';
     }
 
-    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
-      return pedido.pagamento ? 'Pagamento confirmado. Aguardando preparo.' : 'Seu pedido foi enviado e aguarda confirmacao.';
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento Pix.';
     }
 
-    if (pedido.status === 'PAGO') {
-      return 'Pedido concluido.';
+    if (pedido.status === 'AGUARDANDO_PAGAMENTO') {
+      return 'Seu pedido foi criado e aguarda pagamento.';
+    }
+
+    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
+      return this.pagamentoConfirmado(pedido) ? 'Pagamento pago. Aguardando confirmacao.' : 'Seu pedido foi enviado e aguarda confirmacao.';
     }
 
     return 'Pedido confirmado.';
@@ -126,11 +142,21 @@ export class PedidoDetailComponent implements OnInit {
   }
 
   protected pagamentoStatusTexto(pedido: PedidoResponse): string {
-    return pedido.pagamento ? 'Pago' : 'Pendente';
+    return this.pagamentoConfirmado(pedido) ? 'Pago' : 'Pendente';
   }
 
   protected pagamentoStatusClasse(pedido: PedidoResponse): string {
-    return pedido.pagamento ? 'concluido' : 'aguardando';
+    return this.pagamentoConfirmado(pedido) ? 'concluido' : 'aguardando';
+  }
+
+  protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
+    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+  }
+
+  protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
+    return pedido.formaPagamento.tipo === 'PIX'
+      && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CANCELADO';
   }
 
   protected itemPrecoUnitario(item: { valorUnitarioFinal?: number; precoUnitario: number }): number {

@@ -1,4 +1,3 @@
-import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,8 +22,7 @@ import {
   estaAbertaAgora,
   montarHorariosSemana
 } from '../../core/utils/horario-funcionamento.util';
-import { montarLinkWhatsapp, montarUrlPublicaLoja } from '../../core/utils/loja-publica-url.util';
-import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
+import { montarUrlPublicaLoja } from '../../core/utils/loja-publica-url.util';
 
 type EstadoLoja = 'carregando' | 'encontrada' | 'nao-encontrada' | 'erro';
 
@@ -32,7 +30,6 @@ type EstadoLoja = 'carregando' | 'encontrada' | 'nao-encontrada' | 'erro';
   selector: 'app-loja-publica',
   standalone: true,
   imports: [
-    CurrencyPipe,
     RouterLink,
     NzAlertModule,
     NzButtonModule,
@@ -41,8 +38,7 @@ type EstadoLoja = 'carregando' | 'encontrada' | 'nao-encontrada' | 'erro';
     NzIconModule,
     NzResultModule,
     NzSpinModule,
-    NzTagModule,
-    TelefonePipe
+    NzTagModule
   ],
   templateUrl: './loja-publica.component.html',
   styleUrl: './loja-publica.component.scss',
@@ -83,7 +79,7 @@ export class LojaPublicaComponent implements OnInit {
       .toUpperCase();
   });
 
-  protected readonly enderecoTexto = computed(() => {
+  protected readonly enderecoLinhaPrincipal = computed(() => {
     const endereco = this.unidade()?.endereco;
 
     if (!endereco) {
@@ -91,9 +87,18 @@ export class LojaPublicaComponent implements OnInit {
     }
 
     const logradouro = [endereco.logradouro, endereco.numero].filter(Boolean).join(', ');
-    const bairroCidade = [endereco.bairro, endereco.cidade].filter(Boolean).join(' - ');
-    const cidadeEstado = [bairroCidade, endereco.estado].filter(Boolean).join(' / ');
-    return [logradouro, endereco.complemento, cidadeEstado].filter(Boolean).join(' - ') || null;
+    return [logradouro, endereco.complemento].filter(Boolean).join(' - ') || null;
+  });
+
+  protected readonly enderecoLinhaLocalidade = computed(() => {
+    const endereco = this.unidade()?.endereco;
+
+    if (!endereco) {
+      return null;
+    }
+
+    const cidadeEstado = [endereco.cidade, endereco.estado].filter(Boolean).join('/');
+    return [endereco.bairro, cidadeEstado].filter(Boolean).join(' · ') || null;
   });
 
   protected readonly imagemLoja = computed(() => {
@@ -103,11 +108,6 @@ export class LojaPublicaComponent implements OnInit {
 
     const unidade = this.unidade();
     return unidade?.logoUrl ?? unidade?.imagemUrl ?? null;
-  });
-
-  protected readonly pedidoMinimo = computed(() => {
-    const unidade = this.unidade();
-    return unidade?.pedidoMinimo ?? unidade?.valorPedidoMinimo ?? null;
   });
 
   protected readonly horariosSemana = computed(() => montarHorariosSemana(this.horarios()));
@@ -127,17 +127,18 @@ export class LojaPublicaComponent implements OnInit {
   });
 
   protected readonly statusTexto = computed(() => this.lojaAberta() ? 'Aberto agora' : 'Fechado agora');
-  protected readonly proximaAberturaTexto = computed(() =>
-    this.lojaAberta() ? null : encontrarProximaAbertura(this.horarios())
-  );
-  protected readonly linkWhatsApp = computed(() => {
-    const unidade = this.unidade();
+  protected readonly statusComplementoTexto = computed(() => {
+    if (!this.lojaAberta()) {
+      return encontrarProximaAbertura(this.horarios());
+    }
 
-    if (!unidade) {
+    const horarioHoje = this.horariosSemana().find((horario) => horario.hoje);
+
+    if (!horarioHoje?.horaFechamento) {
       return null;
     }
 
-    return montarLinkWhatsapp(unidade.whatsapp ?? unidade.telefoneWhatsapp ?? unidade.telefone, unidade.nome);
+    return `Fecha as ${horarioHoje.horaFechamento}`;
   });
 
   ngOnInit(): void {

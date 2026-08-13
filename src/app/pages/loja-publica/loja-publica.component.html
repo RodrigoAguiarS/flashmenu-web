@@ -1,8 +1,4 @@
 <main class="loja-publica">
-  <section class="loja-banner" aria-hidden="true">
-    <div class="banner-textura"></div>
-  </section>
-
   <nz-spin [nzSpinning]="carregando()">
     @if (mensagemErro()) {
       <nz-alert class="alerta-loja" nzType="warning" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
@@ -10,80 +6,58 @@
 
     @if (unidade(); as unidadeDados) {
       <section class="cartao-loja" aria-label="Informacoes da loja">
-        <div class="identidade-loja">
-          <div class="logo-loja" aria-hidden="true">
-            @if (imagemLoja(); as imagem) {
-              <img [src]="imagem" [alt]="unidadeDados.nome" (error)="marcarImagemInvalida()" />
-            } @else {
-              <span>{{ iniciaisUnidade() }}</span>
-            }
-          </div>
-
-          <div class="dados-loja">
-            <h1>{{ unidadeDados.nome }}</h1>
-
-            @if (unidadeDados.telefone) {
-              <p>
-                <span nz-icon nzType="phone" nzTheme="outline"></span>
-                {{ unidadeDados.telefone | telefone }}
-              </p>
-            }
-
-            @if (unidadeDados.email) {
-              <p>
-                <span nz-icon nzType="mail" nzTheme="outline"></span>
-                {{ unidadeDados.email }}
-              </p>
-            }
-
-            @if (enderecoTexto(); as endereco) {
-              <p>
-                <span nz-icon nzType="environment" nzTheme="outline"></span>
-                {{ endereco }}
-              </p>
-            }
-
-            @if (pedidoMinimo() !== null) {
-              <p>
-                <span nz-icon nzType="shop" nzTheme="outline"></span>
-                Pedido minimo {{ pedidoMinimo() | currency:'BRL':'symbol':'1.2-2' }}
-              </p>
-            }
-          </div>
+        <div class="logo-loja" aria-hidden="true">
+          @if (imagemLoja(); as imagem) {
+            <img [src]="imagem" [alt]="unidadeDados.nome" (error)="marcarImagemInvalida()" />
+          } @else {
+            <span>{{ iniciaisUnidade() }}</span>
+          }
         </div>
 
-        <div class="status-loja">
-          <div>
-            <nz-tag [nzColor]="lojaAberta() ? 'success' : 'default'">
-              {{ statusTexto() }}
-            </nz-tag>
+        <div class="dados-loja">
+          <h1>{{ unidadeDados.nome }}</h1>
 
-            @if (proximaAberturaTexto(); as proximaAbertura) {
-              <small>{{ proximaAbertura }}</small>
-            }
-          </div>
+          @if (enderecoLinhaPrincipal(); as enderecoPrincipal) {
+            <address class="endereco-loja">
+              <span nz-icon nzType="environment" nzTheme="outline" aria-hidden="true"></span>
+              <span>
+                {{ enderecoPrincipal }}
+                @if (enderecoLinhaLocalidade(); as enderecoLocalidade) {
+                  <small>{{ enderecoLocalidade }}</small>
+                }
+              </span>
+            </address>
+          }
+        </div>
 
-          <button nz-button nzType="text" type="button" (click)="abrirHorarios()">
+        <div class="status-loja" [class.aberta]="lojaAberta()">
+          <strong>
+            <span aria-hidden="true"></span>
+            {{ statusTexto() }}
+          </strong>
+
+          @if (statusComplementoTexto(); as statusComplemento) {
+            <small>{{ statusComplemento }}</small>
+          }
+
+          <button class="botao-horarios" nz-button nzType="text" type="button" (click)="abrirHorarios()">
             Ver horarios
-            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
           </button>
         </div>
 
+        <p class="servicos-loja">
+          <span nz-icon nzType="car" nzTheme="outline" aria-hidden="true"></span>
+          Delivery disponivel
+        </p>
+
         <div class="acoes-loja">
           <a class="botao-cardapio" nz-button [routerLink]="linkCardapio()">
-            <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
             Ver cardapio
+            <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
           </a>
 
-          @if (linkWhatsApp(); as whatsapp) {
-            <a nz-button [href]="whatsapp" target="_blank" rel="noopener">
-              <span nz-icon nzType="whats-app" nzTheme="outline"></span>
-              WhatsApp
-            </a>
-          }
-
-          <button nz-button nzType="text" type="button" (click)="compartilhar()">
-            <span nz-icon nzType="share-alt" nzTheme="outline"></span>
+          <button class="botao-compartilhar" nz-button nzType="text" type="button" (click)="compartilhar()">
+            <span nz-icon nzType="export" nzTheme="outline"></span>
             Compartilhar
           </button>
         </div>

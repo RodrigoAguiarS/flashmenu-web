@@ -22,12 +22,30 @@ export class PedidoSucessoComponent {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
-      PAGO: 'Confirmado',
       CANCELADO: 'Cancelado'
     };
 
     return labels[status] ?? status;
+  }
+
+  protected statusPedidoTexto(pedido: PedidoResponse): string {
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento';
+    }
+
+    return this.statusTexto(pedido.status);
+  }
+
+  protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
+    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+  }
+
+  private pagamentoPixPendente(pedido: PedidoResponse): boolean {
+    return pedido.formaPagamento.tipo === 'PIX'
+      && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CANCELADO';
   }
 }

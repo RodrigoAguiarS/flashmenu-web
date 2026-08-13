@@ -80,24 +80,36 @@ export class PedidoListComponent implements OnInit {
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
-      PAGO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
     return labels[status] ?? status;
   }
 
+  protected statusPedidoTexto(pedido: PedidoResponse): string {
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento';
+    }
+
+    return this.statusTexto(pedido.status);
+  }
+
   protected classeStatus(status: StatusPedido): string {
     const classes: Record<string, string> = {
+      AGUARDANDO_PAGAMENTO: 'aguardando',
       AGUARDANDO_CONFIRMACAO: 'aguardando',
       CONFIRMADO: 'confirmado',
-      PAGO: 'concluido',
       CANCELADO: 'cancelado'
     };
 
     return classes[status] ?? 'neutro';
+  }
+
+  protected classeStatusPedido(pedido: PedidoResponse): string {
+    return this.pagamentoPixPendente(pedido) ? 'aguardando' : this.classeStatus(pedido.status);
   }
 
   protected statusLinha(pedido: PedidoResponse): string {
@@ -105,12 +117,16 @@ export class PedidoListComponent implements OnInit {
       return 'Pedido cancelado';
     }
 
-    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
-      return pedido.pagamento ? 'Pagamento confirmado. Aguardando preparo' : 'Pedido enviado. Aguardando confirmacao';
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'Aguardando pagamento Pix';
     }
 
-    if (pedido.status === 'PAGO') {
-      return 'Pedido concluido';
+    if (pedido.status === 'AGUARDANDO_PAGAMENTO') {
+      return 'Pedido criado. Aguardando pagamento';
+    }
+
+    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
+      return 'Pedido enviado. Aguardando confirmacao';
     }
 
     return 'Pedido confirmado';
@@ -174,11 +190,18 @@ export class PedidoListComponent implements OnInit {
   }
 
   protected pedidoEmAndamento(pedido: PedidoResponse): boolean {
-    return pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
+    return pedido.status !== 'CANCELADO';
   }
 
   protected pedidoConcluido(pedido: PedidoResponse): boolean {
-    return pedido.status === 'PAGO' || pedido.status === 'CANCELADO';
+    return pedido.status === 'CANCELADO';
+  }
+
+  private pagamentoPixPendente(pedido: PedidoResponse): boolean {
+    return pedido.formaPagamento.tipo === 'PIX'
+      && pedido.pagamento?.status !== 'PAGO'
+      && !pedido.pagamento?.confirmadoEm
+      && pedido.status !== 'CANCELADO';
   }
 
   protected abrirDetalhe(id: number, event?: Event): void {
