@@ -11,7 +11,7 @@ import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { ItemPedidoResponse, PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { ItemPedidoResponse, PedidoResponse, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
@@ -81,7 +81,7 @@ export class PedidoListComponent implements OnInit {
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
-      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       CONFIRMADO: 'Confirmado',
       CANCELADO: 'Cancelado'
     };
@@ -90,11 +90,23 @@ export class PedidoListComponent implements OnInit {
   }
 
   protected statusPedidoTexto(pedido: PedidoResponse): string {
-    if (this.pagamentoPixPendente(pedido)) {
-      return 'Aguardando pagamento';
+    return this.statusTexto(pedido.status);
+  }
+
+  protected statusPagamentoTexto(status: StatusPagamento | null | undefined): string {
+    if (!status) {
+      return 'Não informado';
     }
 
-    return this.statusTexto(pedido.status);
+    const labels: Record<StatusPagamento, string> = {
+      PENDENTE: 'Pendente',
+      PAGO: 'Pago',
+      EXPIRADO: 'Expirado',
+      CANCELADO: 'Cancelado',
+      ERRO: 'Erro'
+    };
+
+    return labels[status];
   }
 
   protected classeStatus(status: StatusPedido): string {
@@ -109,27 +121,25 @@ export class PedidoListComponent implements OnInit {
   }
 
   protected classeStatusPedido(pedido: PedidoResponse): string {
-    return this.pagamentoPixPendente(pedido) ? 'aguardando' : this.classeStatus(pedido.status);
+    return this.classeStatus(pedido.status);
   }
 
   protected statusLinha(pedido: PedidoResponse): string {
-    if (pedido.status === 'CANCELADO') {
-      return 'Pedido cancelado';
+    return `Pagamento: ${this.statusPagamentoTexto(pedido.pagamento?.status)}`;
+  }
+
+  protected classeStatusPagamento(pedido: PedidoResponse): string {
+    const status = pedido.pagamento?.status;
+
+    if (status === 'PAGO') {
+      return 'confirmado';
     }
 
-    if (this.pagamentoPixPendente(pedido)) {
-      return 'Aguardando pagamento Pix';
+    if (status === 'CANCELADO' || status === 'EXPIRADO' || status === 'ERRO') {
+      return 'cancelado';
     }
 
-    if (pedido.status === 'AGUARDANDO_PAGAMENTO') {
-      return 'Pedido criado. Aguardando pagamento';
-    }
-
-    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
-      return 'Pedido enviado. Aguardando confirmacao';
-    }
-
-    return 'Pedido confirmado';
+    return 'aguardando';
   }
 
   protected tipoTexto(tipo: TipoPedido | null): string {
@@ -195,13 +205,6 @@ export class PedidoListComponent implements OnInit {
 
   protected pedidoConcluido(pedido: PedidoResponse): boolean {
     return pedido.status === 'CANCELADO';
-  }
-
-  private pagamentoPixPendente(pedido: PedidoResponse): boolean {
-    return pedido.formaPagamento.tipo === 'PIX'
-      && pedido.pagamento?.status !== 'PAGO'
-      && !pedido.pagamento?.confirmadoEm
-      && pedido.status !== 'CANCELADO';
   }
 
   protected abrirDetalhe(id: number, event?: Event): void {

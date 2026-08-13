@@ -1,15 +1,17 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDropdownModule } from 'ng-zorro-antd/dropdown';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
@@ -24,21 +26,39 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
+
+type StatusFiltroOperacional = StatusPedido | null;
+
+interface PedidoOperacionalView {
+  pedido: PedidoResponse;
+  quantidadeItens: number;
+  statusTexto: string;
+  statusClasse: string;
+  tipoTexto: string;
+  tempoRelativo: string;
+  pagamentoTexto: string;
+  novo: boolean;
+  atrasado: boolean;
+  acaoPrincipal: 'confirmar-pagamento' | 'ver-pedido' | 'aguardar-pagamento' | null;
+  acaoPrincipalLabel: string | null;
+}
 
 @Component({
   selector: 'app-pedido-admin-list',
   standalone: true,
   imports: [
     CurrencyPipe,
-    DatePipe,
     ReactiveFormsModule,
     RouterLink,
     NzButtonModule,
+    NzDropdownModule,
     NzEmptyModule,
     NzFormModule,
     NzGridModule,
     NzIconModule,
     NzInputNumberModule,
+    NzMenuModule,
     NzPaginationModule,
     NzPopconfirmModule,
     NzSelectModule,
@@ -59,15 +79,39 @@ export class PedidoAdminListComponent implements OnInit {
   protected readonly carregando = signal(false);
   protected readonly processandoId = signal<number | null>(null);
   protected readonly pdfProcessandoId = signal<number | null>(null);
+  protected readonly filtrosAvancadosAbertos = signal(false);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
+  protected readonly pedidosOperacionais = computed(() =>
+    this.pedidos().map((pedido) => this.criarPedidoOperacional(pedido))
+  );
+  protected readonly resumoOperacional = computed(() => {
+    const pedidos = this.pedidos();
+
+    return {
+      novos: pedidos.filter((pedido) => pedido.status === 'AGUARDANDO_CONFIRMACAO').length,
+      aguardandoPagamento: pedidos.filter((pedido) => this.pagamentoPixPendente(pedido) || pedido.status === 'AGUARDANDO_PAGAMENTO').length,
+      confirmados: pedidos.filter((pedido) => pedido.status === 'CONFIRMADO').length,
+      cancelados: pedidos.filter((pedido) => pedido.status === 'CANCELADO').length,
+      vendas: pedidos
+        .filter((pedido) => this.pagamentoConfirmado(pedido))
+        .reduce((total, pedido) => total + pedido.valorTotal, 0)
+    };
+  });
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
-  protected readonly statusOptions: StatusPedido[] = ['AGUARDANDO_PAGAMENTO', 'AGUARDANDO_CONFIRMACAO', 'CONFIRMADO', 'CANCELADO'];
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
+  protected readonly statusFiltros: Array<{ label: string; status: StatusFiltroOperacional; contador: () => number }> = [
+    { label: 'Todos', status: null, contador: () => this.total() },
+    { label: 'Novos', status: 'AGUARDANDO_CONFIRMACAO', contador: () => this.resumoOperacional().novos },
+    { label: 'Aguardando pagamento', status: 'AGUARDANDO_PAGAMENTO', contador: () => this.resumoOperacional().aguardandoPagamento },
+    { label: 'Confirmados', status: 'CONFIRMADO', contador: () => this.resumoOperacional().confirmados },
+    { label: 'Cancelados', status: 'CANCELADO', contador: () => this.resumoOperacional().cancelados }
+  ];
 
   protected readonly filtros = this.fb.group({
     id: this.fb.control<number | null>(null),
@@ -91,8 +135,27 @@ export class PedidoAdminListComponent implements OnInit {
     this.carregarPedidos();
   }
 
+  protected selecionarStatus(status: StatusFiltroOperacional): void {
+    this.filtros.controls.status.setValue(status);
+    this.filtrar();
+  }
+
+  protected filtroStatusAtivo(status: StatusFiltroOperacional): boolean {
+    return this.filtros.controls.status.value === status;
+  }
+
+  protected alternarFiltrosAvancados(): void {
+    this.filtrosAvancadosAbertos.update((aberto) => !aberto);
+  }
+
   protected alterarPagina(pageIndex: number): void {
     this.pageIndex.set(pageIndex);
+    this.carregarPedidos();
+  }
+
+  protected alterarTamanhoPagina(pageSize: number): void {
+    this.pageSize.set(pageSize);
+    this.pageIndex.set(1);
     this.carregarPedidos();
   }
 
@@ -153,18 +216,6 @@ export class PedidoAdminListComponent implements OnInit {
     return labels[status] ?? status;
   }
 
-  protected statusPedidoTexto(pedido: PedidoResponse): string {
-    if (this.pagamentoPixPendente(pedido)) {
-      return 'Aguardando pagamento';
-    }
-
-    return this.statusTexto(pedido.status);
-  }
-
-  protected corStatusPedido(pedido: PedidoResponse): string {
-    return this.pagamentoPixPendente(pedido) ? 'warning' : this.corStatus(pedido.status);
-  }
-
   protected corTipo(tipo: TipoPedido | null): string {
     const cores: Record<string, string> = {
       DELIVERY: 'blue',
@@ -183,12 +234,97 @@ export class PedidoAdminListComponent implements OnInit {
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
-  protected nomeUnidade(pedido: PedidoResponse): string {
-    return pedido.unidade?.nome ?? 'Unidade nao informada';
+  private criarPedidoOperacional(pedido: PedidoResponse): PedidoOperacionalView {
+    const pagamentoConfirmado = this.pagamentoConfirmado(pedido);
+    const pagamentoPixPendente = this.pagamentoPixPendente(pedido);
+    const minutos = this.minutosDesdeCriacao(pedido.dataCriacao);
+
+    return {
+      pedido,
+      quantidadeItens: pedido.itens.reduce((total, item) => total + item.quantidade, 0),
+      statusTexto: pagamentoPixPendente ? 'Aguardando pagamento' : this.statusTexto(pedido.status),
+      statusClasse: this.statusClasse(pedido, pagamentoPixPendente),
+      tipoTexto: this.tipoTexto(pedido.tipo),
+      tempoRelativo: this.tempoRelativo(pedido.dataCriacao),
+      pagamentoTexto: `${pedido.formaPagamento.nome} · ${pagamentoConfirmado ? 'Pago' : 'Pendente'}`,
+      novo: minutos <= 10 && pedido.status !== 'CONFIRMADO' && pedido.status !== 'CANCELADO',
+      atrasado: minutos >= 45 && pedido.status !== 'CONFIRMADO' && pedido.status !== 'CANCELADO',
+      acaoPrincipal: this.acaoPrincipal(pedido),
+      acaoPrincipalLabel: this.acaoPrincipalLabel(pedido)
+    };
   }
 
-  protected pagamentoStatusTexto(pedido: PedidoResponse): string {
-    return this.pagamentoConfirmado(pedido) ? 'Pago' : 'Pendente';
+  private acaoPrincipal(pedido: PedidoResponse): PedidoOperacionalView['acaoPrincipal'] {
+    if (this.podeExecutarConfirmacao(pedido)) {
+      return 'confirmar-pagamento';
+    }
+
+    if (this.pagamentoPixPendente(pedido)) {
+      return 'aguardar-pagamento';
+    }
+
+    if (pedido.status === 'CONFIRMADO') {
+      return 'ver-pedido';
+    }
+
+    return null;
+  }
+
+  private acaoPrincipalLabel(pedido: PedidoResponse): string | null {
+    const acao = this.acaoPrincipal(pedido);
+    const labels: Record<NonNullable<PedidoOperacionalView['acaoPrincipal']>, string> = {
+      'confirmar-pagamento': 'Confirmar pagamento',
+      'ver-pedido': 'Ver pedido',
+      'aguardar-pagamento': 'Aguardando pagamento'
+    };
+
+    return acao ? labels[acao] : null;
+  }
+
+  private statusClasse(pedido: PedidoResponse, pagamentoPixPendente: boolean): string {
+    if (pagamentoPixPendente || pedido.status === 'AGUARDANDO_PAGAMENTO') {
+      return 'status-pagamento';
+    }
+
+    const classes: Record<StatusPedido, string> = {
+      AGUARDANDO_PAGAMENTO: 'status-pagamento',
+      AGUARDANDO_CONFIRMACAO: 'status-confirmacao',
+      CONFIRMADO: 'status-confirmado',
+      CANCELADO: 'status-cancelado'
+    };
+
+    return classes[pedido.status];
+  }
+
+  private tempoRelativo(data: string): string {
+    const minutos = this.minutosDesdeCriacao(data);
+
+    if (minutos < 1) {
+      return 'agora';
+    }
+
+    if (minutos < 60) {
+      return `ha ${minutos} min`;
+    }
+
+    const horas = Math.floor(minutos / 60);
+
+    if (horas < 24) {
+      return `ha ${horas} h`;
+    }
+
+    const dias = Math.floor(horas / 24);
+    return `ha ${dias} d`;
+  }
+
+  private minutosDesdeCriacao(data: string): number {
+    const criadoEm = new Date(data).getTime();
+
+    if (Number.isNaN(criadoEm)) {
+      return 0;
+    }
+
+    return Math.max(0, Math.floor((Date.now() - criadoEm) / 60000));
   }
 
   private pagamentoConfirmado(pedido: PedidoResponse): boolean {

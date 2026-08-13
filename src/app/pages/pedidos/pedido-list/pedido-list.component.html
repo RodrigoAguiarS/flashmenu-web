@@ -105,11 +105,13 @@
     </div>
 
     <div class="pedido-pagamento">
-      <span>{{ pedido.formaPagamento.nome }}</span>
+      <span [attr.title]="'Pagamento: ' + statusPagamentoTexto(pedido.pagamento?.status)">
+        {{ pedido.formaPagamento.nome }}
+      </span>
       <strong>{{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
     </div>
 
-    <div class="pedido-status-linha" [attr.data-status]="classeStatusPedido(pedido)">
+    <div class="pedido-status-linha" [attr.data-status]="classeStatusPagamento(pedido)">
       <span aria-hidden="true"></span>
       <strong>{{ statusLinha(pedido) }}</strong>
     </div>

@@ -25,6 +25,7 @@ import { PerfilResponse } from '../../../core/models/perfil.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
 
 @Component({
   selector: 'app-perfil-list',
@@ -66,6 +67,7 @@ export class PerfilListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
   protected readonly podeCriarPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_CRIAR));
   protected readonly podeEditarPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_EDITAR));
   protected readonly podeExcluirPerfil = computed(() => this.authService.possuiPermissao(PERMISSOES.PERFIL_DELETAR));

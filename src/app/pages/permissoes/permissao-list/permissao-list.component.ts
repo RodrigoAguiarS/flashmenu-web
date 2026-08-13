@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
@@ -19,6 +19,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { PermissaoResponse } from '../../../core/models/permissao.model';
 import { PermissaoService } from '../../../core/services/permissao.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
 
 @Component({
   selector: 'app-permissao-list',
@@ -52,6 +53,7 @@ export class PermissaoListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
 
   protected readonly filtros = this.fb.group({
     codigo: this.fb.control<number | null>(null),

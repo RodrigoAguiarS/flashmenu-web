@@ -1,43 +1,80 @@
 <app-page-header
   titulo="Gerenciar pedidos"
-  descricao="Confirme pagamentos, cancele pedidos e acompanhe todos os pedidos."
+  descricao="Acompanhe pedidos por prioridade operacional, pagamento e status."
 />
 
-<section class="filtros cartao-sistema" aria-label="Filtros de pedidos">
-  <form nz-form nzLayout="vertical" [formGroup]="filtros" (ngSubmit)="filtrar()">
-    <nz-row [nzGutter]="16">
-      <nz-col nzXs="24" nzMd="6" nzLg="5">
-        <nz-form-item>
-          <nz-form-label nzFor="pedidoId">Pedido</nz-form-label>
-          <nz-form-control>
-            <nz-input-number id="pedidoId" formControlName="id" [nzMin]="1" [nzStep]="1"></nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
+<section class="central-operacao" aria-label="Central de operacao de pedidos">
+  <div class="resumo-operacional" aria-label="Resumo dos pedidos exibidos">
+    <div>
+      <span>Novos</span>
+      <strong>{{ resumoOperacional().novos }}</strong>
+    </div>
+    <div>
+      <span>Pendentes</span>
+      <strong>{{ resumoOperacional().aguardandoPagamento }}</strong>
+    </div>
+    <div>
+      <span>Confirmados</span>
+      <strong>{{ resumoOperacional().confirmados }}</strong>
+    </div>
+    <div>
+      <span>Vendas</span>
+      <strong>{{ resumoOperacional().vendas | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+  </div>
 
-      <nz-col nzXs="24" nzMd="6" nzLg="5">
+  <form class="barra-operacional" nz-form [formGroup]="filtros" (ngSubmit)="filtrar()">
+    <div class="chips-status" aria-label="Filtrar por status do pedido">
+      @for (filtro of statusFiltros; track filtro.label) {
+        <button
+          nz-button
+          type="button"
+          [nzType]="filtroStatusAtivo(filtro.status) ? 'primary' : 'default'"
+          [attr.aria-pressed]="filtroStatusAtivo(filtro.status)"
+          (click)="selecionarStatus(filtro.status)"
+        >
+          {{ filtro.label }}
+          @if (filtro.contador() > 0) {
+            <span>{{ filtro.contador() }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="busca-operacional">
+      <nz-form-item>
+        <nz-form-control>
+          <nz-input-number
+            id="pedidoId"
+            formControlName="id"
+            nzPlaceHolder="Numero do pedido"
+            [nzMin]="1"
+            [nzStep]="1"
+            aria-label="Numero do pedido"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <button nz-button nzType="primary" type="submit" aria-label="Buscar pedido">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+        Buscar
+      </button>
+
+      <button nz-button type="button" (click)="alternarFiltrosAvancados()" aria-label="Exibir filtros adicionais">
+        <span nz-icon nzType="filter" nzTheme="outline"></span>
+        Filtros
+      </button>
+    </div>
+
+    @if (filtrosAvancadosAbertos()) {
+      <div class="filtros-avancados">
         <nz-form-item>
           <nz-form-label nzFor="usuarioId">Usuario</nz-form-label>
           <nz-form-control>
             <nz-input-number id="usuarioId" formControlName="usuarioId" [nzMin]="1" [nzStep]="1"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
-      </nz-col>
 
-      <nz-col nzXs="24" nzMd="6" nzLg="5">
-        <nz-form-item>
-          <nz-form-label nzFor="status">Status</nz-form-label>
-          <nz-form-control>
-            <nz-select id="status" formControlName="status" nzAllowClear nzPlaceHolder="Todos">
-              @for (status of statusOptions; track status) {
-                <nz-option [nzValue]="status" [nzLabel]="statusTexto(status)"></nz-option>
-              }
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
-
-      <nz-col nzXs="24" nzMd="4" nzLg="5">
         <nz-form-item>
           <nz-form-label nzFor="tipo">Tipo</nz-form-label>
           <nz-form-control>
@@ -48,128 +85,115 @@
             </nz-select>
           </nz-form-control>
         </nz-form-item>
-      </nz-col>
 
-      <nz-col nzXs="24" nzMd="24" nzLg="4" class="acoes-filtro">
-        <button nz-button nzType="primary" type="submit" aria-label="Filtrar pedidos">
-          <span nz-icon nzType="search" nzTheme="outline"></span>
-        </button>
-        <button nz-button type="button" (click)="limparFiltros()" aria-label="Limpar filtros">Limpar</button>
-      </nz-col>
-    </nz-row>
+        <button nz-button type="button" (click)="limparFiltros()" aria-label="Limpar filtros">Limpar filtros</button>
+      </div>
+    }
   </form>
 </section>
 
 <nz-spin [nzSpinning]="carregando()">
   @if (possuiPedidos()) {
-    <section class="lista-pedidos" aria-label="Todos os pedidos">
-      @for (pedido of pedidos(); track pedido.id) {
-        <article class="pedido-card">
+    <section class="lista-pedidos" aria-label="Pedidos em operacao">
+      @for (view of pedidosOperacionais(); track view.pedido.id) {
+        <article class="pedido-card" [class.pedido-card--novo]="view.novo" [class.pedido-card--atrasado]="view.atrasado">
           <header class="pedido-topo">
-            <div>
-              <strong>Pedido #{{ pedido.id }}</strong>
-              <span class="pedido-unidade">
-                <span nz-icon nzType="shop" nzTheme="outline"></span>
-                {{ nomeUnidade(pedido) }}
+            <div class="pedido-identificacao">
+              @if (view.novo) {
+                <nz-tag nzColor="processing">Novo</nz-tag>
+              }
+              <strong>Pedido #{{ view.pedido.id }}</strong>
+              <span>
+                {{ view.tempoRelativo }}
+                @if (view.atrasado) {
+                  <span class="alerta-atraso" aria-label="Pedido atrasado">!</span>
+                }
+                · {{ view.tipoTexto }}
               </span>
-              <span>{{ pedido.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
 
-            <div class="pedido-tags">
-              <nz-tag [nzColor]="corTipo(pedido.tipo)">{{ tipoTexto(pedido.tipo) }}</nz-tag>
-              <nz-tag [nzColor]="corStatusPedido(pedido)">{{ statusPedidoTexto(pedido) }}</nz-tag>
-            </div>
+            <nz-tag [nzColor]="corTipo(view.pedido.tipo)">{{ view.tipoTexto }}</nz-tag>
           </header>
 
-          <div class="pedido-resumo pedido-resumo-enxuto">
-            <span>
-              <small><span nz-icon nzType="check-circle" nzTheme="outline"></span> Status</small>
-              {{ statusPedidoTexto(pedido) }}
-            </span>
-            <span>
-              <small><span nz-icon nzType="credit-card" nzTheme="outline"></span> Pagamento</small>
-              {{ pedido.formaPagamento.nome }}
-            </span>
-            <strong>
-              <small><span nz-icon nzType="credit-card" nzTheme="outline"></span> Total</small>
-              {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
-            </strong>
-            <span>
-              <small><span nz-icon nzType="clock-circle" nzTheme="outline"></span> Pagamento</small>
-              {{ pagamentoStatusTexto(pedido) }}
-            </span>
+          <div class="pedido-status">
+            <span [class]="'status-dot ' + view.statusClasse" aria-hidden="true"></span>
+            <span>{{ view.statusTexto }}</span>
           </div>
 
-          <section class="acoes-pedido" aria-label="Acoes do pedido">
-            <div class="acoes-rapidas">
+          <div class="pedido-pagamento">
+            <span nz-icon nzType="credit-card" nzTheme="outline"></span>
+            <span>{{ view.pagamentoTexto }}</span>
+          </div>
+
+          <div class="pedido-total">
+            <span>{{ view.quantidadeItens }} {{ view.quantidadeItens === 1 ? 'item' : 'itens' }}</span>
+            <strong>{{ view.pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <footer class="acoes-pedido" aria-label="Acoes do pedido">
+            @if (view.acaoPrincipal === 'confirmar-pagamento') {
               <button
-                class="botao-acao"
                 nz-button
-                nzShape="circle"
+                nzType="primary"
                 type="button"
-                title="Exportar PDF"
-                aria-label="Exportar pedido em PDF"
-                [nzLoading]="pdfProcessandoId() === pedido.id"
-                [disabled]="pdfProcessandoId() !== null"
-                (click)="exportarPdf(pedido)"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja confirmar o pagamento deste pedido?"
+                nzOkText="Confirmar"
+                nzCancelText="Cancelar"
+                [nzLoading]="processandoId() === view.pedido.id"
+                [disabled]="processandoId() !== null"
+                (nzOnConfirm)="confirmarPagamento(view.pedido)"
               >
-                <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+                {{ view.acaoPrincipalLabel }}
               </button>
-
-              <a
-                class="botao-acao"
-                nz-button
-                nzShape="circle"
-                [routerLink]="['/pedidos/gerenciar', pedido.id]"
-                title="Ver detalhes"
-                aria-label="Ver detalhes"
-              >
-                <span nz-icon nzType="eye" nzTheme="outline"></span>
+            } @else if (view.acaoPrincipal === 'ver-pedido') {
+              <a nz-button nzType="primary" [routerLink]="['/pedidos/gerenciar', view.pedido.id]">
+                {{ view.acaoPrincipalLabel }}
               </a>
+            } @else if (view.acaoPrincipal === 'aguardar-pagamento') {
+              <button nz-button type="button" disabled>{{ view.acaoPrincipalLabel }}</button>
+            } @else {
+              <a nz-button [routerLink]="['/pedidos/gerenciar', view.pedido.id]">Ver pedido</a>
+            }
 
-              @if (podeExecutarConfirmacao(pedido)) {
-                <button
-                  class="botao-acao"
-                  nz-button
-                  nzType="primary"
-                  nzShape="circle"
-                  type="button"
-                  title="Confirmar pagamento"
-                  aria-label="Confirmar pagamento"
-                  nz-popconfirm
-                  nzPopconfirmTitle="Deseja confirmar o pagamento deste pedido?"
-                  nzOkText="Confirmar"
-                  nzCancelText="Cancelar"
-                  [nzLoading]="processandoId() === pedido.id"
-                  [disabled]="processandoId() !== null"
-                  (nzOnConfirm)="confirmarPagamento(pedido)"
-                >
-                  <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-                </button>
-              }
+            <button nz-button nz-dropdown [nzDropdownMenu]="acoesMenu" type="button" aria-label="Mais acoes do pedido">
+              <span class="mais-acoes" aria-hidden="true">...</span>
+            </button>
 
-              @if (podeExecutarCancelamento(pedido)) {
-                <button
-                  class="botao-acao"
-                  nz-button
-                  nzDanger
-                  nzShape="circle"
-                  type="button"
-                  title="Cancelar pedido"
-                  aria-label="Cancelar pedido"
-                  nz-popconfirm
-                  nzPopconfirmTitle="Deseja cancelar este pedido?"
-                  nzOkText="Cancelar pedido"
-                  nzCancelText="Voltar"
-                  [nzLoading]="processandoId() === pedido.id"
-                  [disabled]="processandoId() !== null"
-                  (nzOnConfirm)="cancelarPedido(pedido)"
-                >
-                  <span nz-icon nzType="close-circle" nzTheme="outline"></span>
-                </button>
-              }
-            </div>
-          </section>
+            <nz-dropdown-menu #acoesMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item>
+                  <a [routerLink]="['/pedidos/gerenciar', view.pedido.id]">Ver detalhes</a>
+                </li>
+                <li nz-menu-item>
+                  <button
+                    class="menu-acao"
+                    type="button"
+                    [disabled]="pdfProcessandoId() !== null"
+                    (click)="exportarPdf(view.pedido)"
+                  >
+                    Gerar PDF
+                  </button>
+                </li>
+                @if (podeExecutarCancelamento(view.pedido)) {
+                  <li nz-menu-item>
+                    <button
+                      class="menu-acao menu-acao--perigo"
+                      type="button"
+                      nz-popconfirm
+                      nzPopconfirmTitle="Deseja cancelar este pedido?"
+                      nzOkText="Cancelar pedido"
+                      nzCancelText="Voltar"
+                      [disabled]="processandoId() !== null"
+                      (nzOnConfirm)="cancelarPedido(view.pedido)"
+                    >
+                      Cancelar pedido
+                    </button>
+                  </li>
+                }
+              </ul>
+            </nz-dropdown-menu>
+          </footer>
         </article>
       }
     </section>
@@ -179,7 +203,10 @@
         [nzPageIndex]="pageIndex()"
         [nzPageSize]="pageSize()"
         [nzTotal]="total()"
+        [nzShowSizeChanger]="true"
+        [nzPageSizeOptions]="pageSizeOptions()"
         (nzPageIndexChange)="alterarPagina($event)"
+        (nzPageSizeChange)="alterarTamanhoPagina($event)"
       ></nz-pagination>
     </div>
   } @else {

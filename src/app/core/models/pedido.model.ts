@@ -3,6 +3,7 @@ import { EnderecoResponse } from './endereco.model';
 import { UnidadeResumo } from './unidade.model';
 
 export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'CANCELADO';
+export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'EXPIRADO' | 'CANCELADO' | 'ERRO';
 export type TipoPedido = 'DELIVERY' | 'PDV';
 
 export interface ItemPedidoComplementoRequest {
@@ -66,7 +67,7 @@ export interface PagamentoResponse {
   id: number;
   formaPagamento: FormaPagamentoResponse;
   valor: number;
-  status: string;
+  status: StatusPagamento;
   provedorCobrancaId?: string | null;
   provedorStatus?: string | null;
   pixExpiraEm?: string | null;

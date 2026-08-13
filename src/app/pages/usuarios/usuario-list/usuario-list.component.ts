@@ -29,6 +29,7 @@ import { PerfilService } from '../../../core/services/perfil.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
+import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
 
 type StatusFiltro = boolean | null;
 
@@ -77,6 +78,7 @@ export class UsuarioListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
   protected readonly podeCriarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_CRIAR));
   protected readonly podeEditarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_EDITAR));
   protected readonly podeExcluirUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_DELETAR));

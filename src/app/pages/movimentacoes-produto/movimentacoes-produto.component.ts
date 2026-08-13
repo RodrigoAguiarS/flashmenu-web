@@ -28,6 +28,7 @@ import { MovimentacaoProdutoService } from '../../core/services/movimentacao-pro
 import { ProdutoService } from '../../core/services/produto.service';
 import { salvarArquivo } from '../../core/utils/download-file';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { criarOpcoesTamanhoPagina } from '../../shared/utils/pagination.util';
 
 @Component({
   selector: 'app-movimentacoes-produto',
@@ -73,6 +74,7 @@ export class MovimentacoesProdutoComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
   protected readonly produtoSelecionadoId = signal<number | null>(null);
   protected readonly tipoSelecionado = signal<TipoMovimentacaoProduto | null>(null);
 

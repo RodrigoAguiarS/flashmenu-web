@@ -26,6 +26,7 @@ import { CategoriaResponse } from '../../../core/models/categoria.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
 
 @Component({
   selector: 'app-categoria-list',
@@ -68,6 +69,7 @@ export class CategoriaListComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
+  protected readonly pageSizeOptions = computed(() => criarOpcoesTamanhoPagina(this.total()));
   protected readonly podeCriarCategoria = computed(() => this.authService.possuiPermissao(PERMISSOES.CATEGORIA_CRIAR));
   protected readonly podeEditarCategoria = computed(() => this.authService.possuiPermissao(PERMISSOES.CATEGORIA_EDITAR));
   protected readonly podeExcluirCategoria = computed(() => this.authService.possuiPermissao(PERMISSOES.CATEGORIA_DELETAR));
