@@ -25,6 +25,7 @@ export class PedidoSucessoComponent {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
+      CONCLUIDO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
@@ -46,6 +47,7 @@ export class PedidoSucessoComponent {
   private pagamentoPixPendente(pedido: PedidoResponse): boolean {
     return pedido.formaPagamento.tipo === 'PIX'
       && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CONCLUIDO'
       && pedido.status !== 'CANCELADO';
   }
 }

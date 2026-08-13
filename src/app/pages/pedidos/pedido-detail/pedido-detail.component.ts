@@ -59,6 +59,7 @@ export class PedidoDetailComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
+      CONCLUIDO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
@@ -78,6 +79,7 @@ export class PedidoDetailComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'warning',
       AGUARDANDO_CONFIRMACAO: 'processing',
       CONFIRMADO: 'success',
+      CONCLUIDO: 'success',
       CANCELADO: 'error'
     };
 
@@ -93,6 +95,7 @@ export class PedidoDetailComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'aguardando',
       AGUARDANDO_CONFIRMACAO: 'aguardando',
       CONFIRMADO: 'confirmado',
+      CONCLUIDO: 'concluido',
       CANCELADO: 'cancelado'
     };
 
@@ -102,6 +105,10 @@ export class PedidoDetailComponent implements OnInit {
   protected statusDescricao(pedido: PedidoResponse): string {
     if (pedido.status === 'CANCELADO') {
       return 'Este pedido foi cancelado.';
+    }
+
+    if (pedido.status === 'CONCLUIDO') {
+      return 'Pedido concluido.';
     }
 
     if (this.pagamentoPixPendente(pedido)) {
@@ -156,6 +163,7 @@ export class PedidoDetailComponent implements OnInit {
   protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
     return pedido.formaPagamento.tipo === 'PIX'
       && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CONCLUIDO'
       && pedido.status !== 'CANCELADO';
   }
 

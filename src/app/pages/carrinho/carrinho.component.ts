@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs';
@@ -13,8 +13,11 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
+import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { ConfiguracaoComercialService } from '../../core/services/configuracao-comercial.service';
 import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
+import { PedidoFinanceiroService } from '../../core/services/pedido-financeiro.service';
 import { ProdutoService } from '../../core/services/produto.service';
 import {
   ProdutoPersonalizacaoComponent,
@@ -45,12 +48,24 @@ export class CarrinhoComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly message = inject(NzMessageService);
   private readonly grupoComplementoService = inject(GrupoComplementoService);
+  private readonly configuracaoComercialService = inject(ConfiguracaoComercialService);
+  private readonly pedidoFinanceiroService = inject(PedidoFinanceiroService);
   private readonly produtoService = inject(ProdutoService);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly itemEditando = signal<ItemCarrinho | null>(null);
   protected readonly gruposItemEditando = signal<GrupoComplementoResponse[]>([]);
   protected readonly drawerEdicaoAberto = signal(false);
   protected readonly carregandoComplementos = signal(false);
+  protected readonly configuracaoComercial = signal<ConfiguracaoComercialResponse | null>(null);
+  protected readonly resumoFinanceiro = computed(() =>
+    this.pedidoFinanceiroService.calcularPrevia(
+      this.carrinhoService.valorTotal(),
+      this.configuracaoComercial()?.percentualDescontoPadrao,
+      this.configuracaoComercial()?.valorTaxaFixa,
+      0
+    )
+  );
+  protected readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
 
   ngOnInit(): void {
     const unidadeSlug = this.route.snapshot.paramMap.get('unidadeSlug');
@@ -58,6 +73,8 @@ export class CarrinhoComponent implements OnInit {
     if (unidadeSlug) {
       this.carrinhoService.definirUnidadeSlug(unidadeSlug);
     }
+
+    this.carregarConfiguracaoComercial();
   }
 
   incrementar(item: ItemCarrinho): void {
@@ -164,6 +181,10 @@ export class CarrinhoComponent implements OnInit {
     return this.carrinhoService.obterPrecoItem(item);
   }
 
+  protected possuiValor(valor: number | null | undefined): boolean {
+    return Math.abs(Number(valor ?? 0)) > 0.0001;
+  }
+
   protected possuiPersonalizacao(item: ItemCarrinho): boolean {
     return !!item.observacao || !!item.complementos?.length;
   }
@@ -183,6 +204,13 @@ export class CarrinhoComponent implements OnInit {
         ...grupo,
         opcoes: [...(grupo.opcoes ?? [])].filter((opcao) => opcao.ativo)
       }));
+  }
+
+  private carregarConfiguracaoComercial(): void {
+    this.configuracaoComercialService.buscar().subscribe({
+      next: (configuracao) => this.configuracaoComercial.set(configuracao),
+      error: () => this.configuracaoComercial.set(null)
+    });
   }
 }
 

@@ -13,6 +13,24 @@
     >
       <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
     </button>
+    @if (pedido(); as pedidoDetalhe) {
+      @if (podeConcluirPedido(pedidoDetalhe)) {
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          nz-popconfirm
+          nzPopconfirmTitle="Deseja concluir este pedido?"
+          nzOkText="Concluir"
+          nzCancelText="Cancelar"
+          [nzLoading]="processando()"
+          [disabled]="processando()"
+          (nzOnConfirm)="concluirPedido()"
+        >
+          Concluir pedido
+        </button>
+      }
+    }
   </div>
 </app-page-header>
 

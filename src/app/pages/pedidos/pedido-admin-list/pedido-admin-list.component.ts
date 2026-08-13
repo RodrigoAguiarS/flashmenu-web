@@ -37,10 +37,12 @@ interface PedidoOperacionalView {
   statusClasse: string;
   tipoTexto: string;
   tempoRelativo: string;
-  pagamentoTexto: string;
+  formaPagamentoTexto: string;
+  pagamentoStatusTexto: string;
+  pagamentoStatusClasse: string;
   novo: boolean;
   atrasado: boolean;
-  acaoPrincipal: 'confirmar-pagamento' | 'ver-pedido' | 'aguardar-pagamento' | null;
+  acaoPrincipal: 'confirmar-pagamento' | 'concluir-pedido' | 'ver-pedido' | 'aguardar-pagamento' | null;
   acaoPrincipalLabel: string | null;
 }
 
@@ -96,20 +98,23 @@ export class PedidoAdminListComponent implements OnInit {
       novos: pedidos.filter((pedido) => pedido.status === 'AGUARDANDO_CONFIRMACAO').length,
       aguardandoPagamento: pedidos.filter((pedido) => this.pagamentoPixPendente(pedido) || pedido.status === 'AGUARDANDO_PAGAMENTO').length,
       confirmados: pedidos.filter((pedido) => pedido.status === 'CONFIRMADO').length,
+      concluidos: pedidos.filter((pedido) => pedido.status === 'CONCLUIDO').length,
       cancelados: pedidos.filter((pedido) => pedido.status === 'CANCELADO').length,
       vendas: pedidos
-        .filter((pedido) => this.pagamentoConfirmado(pedido))
+        .filter((pedido) => this.pedidoFaturavel(pedido))
         .reduce((total, pedido) => total + pedido.valorTotal, 0)
     };
   });
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
+  protected readonly podeAlterarStatusPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
   protected readonly statusFiltros: Array<{ label: string; status: StatusFiltroOperacional; contador: () => number }> = [
     { label: 'Todos', status: null, contador: () => this.total() },
     { label: 'Novos', status: 'AGUARDANDO_CONFIRMACAO', contador: () => this.resumoOperacional().novos },
     { label: 'Aguardando pagamento', status: 'AGUARDANDO_PAGAMENTO', contador: () => this.resumoOperacional().aguardandoPagamento },
     { label: 'Confirmados', status: 'CONFIRMADO', contador: () => this.resumoOperacional().confirmados },
+    { label: 'Concluidos', status: 'CONCLUIDO', contador: () => this.resumoOperacional().concluidos },
     { label: 'Cancelados', status: 'CANCELADO', contador: () => this.resumoOperacional().cancelados }
   ];
 
@@ -171,6 +176,12 @@ export class PedidoAdminListComponent implements OnInit {
     );
   }
 
+  protected concluirPedido(pedido: PedidoResponse): void {
+    this.executarAcao(pedido.id, 'Pedido concluido com sucesso.', () =>
+      this.pedidoService.concluirPedido(pedido.id)
+    );
+  }
+
   protected exportarPdf(pedido: PedidoResponse): void {
     this.pdfProcessandoId.set(pedido.id);
 
@@ -185,13 +196,18 @@ export class PedidoAdminListComponent implements OnInit {
   protected podeExecutarConfirmacao(pedido: PedidoResponse): boolean {
     return this.podeConfirmarPagamento()
       && pedido.status !== 'CONFIRMADO'
+      && pedido.status !== 'CONCLUIDO'
       && pedido.status !== 'CANCELADO'
       && pedido.formaPagamento.tipo !== 'PIX'
       && !this.pagamentoConfirmado(pedido);
   }
 
+  protected podeExecutarConclusao(pedido: PedidoResponse): boolean {
+    return this.podeAlterarStatusPedido() && pedido.status === 'CONFIRMADO';
+  }
+
   protected podeExecutarCancelamento(pedido: PedidoResponse): boolean {
-    return this.podeCancelarPedido() && pedido.status !== 'CANCELADO';
+    return this.podeCancelarPedido() && pedido.status !== 'CONCLUIDO' && pedido.status !== 'CANCELADO';
   }
 
   protected corStatus(status: StatusPedido): string {
@@ -199,6 +215,7 @@ export class PedidoAdminListComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'warning',
       AGUARDANDO_CONFIRMACAO: 'processing',
       CONFIRMADO: 'success',
+      CONCLUIDO: 'success',
       CANCELADO: 'error'
     };
 
@@ -210,6 +227,7 @@ export class PedidoAdminListComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       CONFIRMADO: 'Confirmado',
+      CONCLUIDO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
@@ -246,9 +264,11 @@ export class PedidoAdminListComponent implements OnInit {
       statusClasse: this.statusClasse(pedido, pagamentoPixPendente),
       tipoTexto: this.tipoTexto(pedido.tipo),
       tempoRelativo: this.tempoRelativo(pedido.dataCriacao),
-      pagamentoTexto: `${pedido.formaPagamento.nome} · ${pagamentoConfirmado ? 'Pago' : 'Pendente'}`,
-      novo: minutos <= 10 && pedido.status !== 'CONFIRMADO' && pedido.status !== 'CANCELADO',
-      atrasado: minutos >= 45 && pedido.status !== 'CONFIRMADO' && pedido.status !== 'CANCELADO',
+      formaPagamentoTexto: pedido.formaPagamento.nome,
+      pagamentoStatusTexto: pagamentoConfirmado ? 'Pago' : 'Pendente',
+      pagamentoStatusClasse: pagamentoConfirmado ? 'pagamento-pago' : 'pagamento-pendente',
+      novo: minutos <= 10 && !this.pedidoTerminal(pedido),
+      atrasado: minutos >= 45 && !this.pedidoTerminal(pedido),
       acaoPrincipal: this.acaoPrincipal(pedido),
       acaoPrincipalLabel: this.acaoPrincipalLabel(pedido)
     };
@@ -263,6 +283,10 @@ export class PedidoAdminListComponent implements OnInit {
       return 'aguardar-pagamento';
     }
 
+    if (this.podeExecutarConclusao(pedido)) {
+      return 'concluir-pedido';
+    }
+
     if (pedido.status === 'CONFIRMADO') {
       return 'ver-pedido';
     }
@@ -274,6 +298,7 @@ export class PedidoAdminListComponent implements OnInit {
     const acao = this.acaoPrincipal(pedido);
     const labels: Record<NonNullable<PedidoOperacionalView['acaoPrincipal']>, string> = {
       'confirmar-pagamento': 'Confirmar pagamento',
+      'concluir-pedido': 'Concluir pedido',
       'ver-pedido': 'Ver pedido',
       'aguardar-pagamento': 'Aguardando pagamento'
     };
@@ -290,6 +315,7 @@ export class PedidoAdminListComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'status-pagamento',
       AGUARDANDO_CONFIRMACAO: 'status-confirmacao',
       CONFIRMADO: 'status-confirmado',
+      CONCLUIDO: 'status-concluido',
       CANCELADO: 'status-cancelado'
     };
 
@@ -334,7 +360,15 @@ export class PedidoAdminListComponent implements OnInit {
   private pagamentoPixPendente(pedido: PedidoResponse): boolean {
     return pedido.formaPagamento.tipo === 'PIX'
       && !this.pagamentoConfirmado(pedido)
-      && pedido.status !== 'CANCELADO';
+      && !this.pedidoTerminal(pedido);
+  }
+
+  private pedidoTerminal(pedido: PedidoResponse): boolean {
+    return pedido.status === 'CONCLUIDO' || pedido.status === 'CANCELADO';
+  }
+
+  private pedidoFaturavel(pedido: PedidoResponse): boolean {
+    return pedido.status === 'CONFIRMADO' || pedido.status === 'CONCLUIDO';
   }
 
   private carregarPedidos(): void {

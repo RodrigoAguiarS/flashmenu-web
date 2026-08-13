@@ -9,6 +9,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { ItemPedidoResponse, PedidoResponse, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
@@ -29,7 +30,8 @@ type FiltroPedidos = 'TODOS' | 'EM_ANDAMENTO' | 'CONCLUIDOS';
     NzEmptyModule,
     NzIconModule,
     NzPaginationModule,
-    NzSpinModule
+    NzSpinModule,
+    NzTagModule
   ],
   templateUrl: './pedido-list.component.html',
   styleUrl: './pedido-list.component.scss',
@@ -83,6 +85,7 @@ export class PedidoListComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       CONFIRMADO: 'Confirmado',
+      CONCLUIDO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
@@ -114,6 +117,7 @@ export class PedidoListComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'aguardando',
       AGUARDANDO_CONFIRMACAO: 'aguardando',
       CONFIRMADO: 'confirmado',
+      CONCLUIDO: 'concluido',
       CANCELADO: 'cancelado'
     };
 
@@ -200,11 +204,11 @@ export class PedidoListComponent implements OnInit {
   }
 
   protected pedidoEmAndamento(pedido: PedidoResponse): boolean {
-    return pedido.status !== 'CANCELADO';
+    return pedido.status !== 'CONCLUIDO' && pedido.status !== 'CANCELADO';
   }
 
   protected pedidoConcluido(pedido: PedidoResponse): boolean {
-    return pedido.status === 'CANCELADO';
+    return pedido.status === 'CONCLUIDO' || pedido.status === 'CANCELADO';
   }
 
   protected abrirDetalhe(id: number, event?: Event): void {

@@ -1081,6 +1081,55 @@ a {
   color: var(--cor-texto);
 }
 
+app-pedido-admin-list .status-tag.ant-tag,
+app-pedido-list .status-tag.ant-tag {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  min-height: 24px;
+  margin: 0;
+  color: var(--tag-color);
+  background: var(--tag-bg);
+  border-color: var(--tag-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+app-pedido-admin-list .status-tag[data-status='status-confirmacao'],
+app-pedido-admin-list .status-tag[data-status='status-pagamento'],
+app-pedido-admin-list .status-tag[data-status='pagamento-pendente'],
+app-pedido-list .status-tag[data-status='aguardando'] {
+  --tag-color: #ad6800;
+  --tag-bg: #fff7e6;
+  --tag-border: #ffd591;
+}
+
+app-pedido-admin-list .status-tag[data-status='status-confirmado'],
+app-pedido-admin-list .status-tag[data-status='pagamento-pago'],
+app-pedido-list .status-tag[data-status='confirmado'],
+app-pedido-list .status-tag[data-status='concluido'] {
+  --tag-color: #237804;
+  --tag-bg: #f6ffed;
+  --tag-border: #b7eb8f;
+}
+
+app-pedido-admin-list .status-tag[data-status='status-concluido'] {
+  --tag-color: #006d75;
+  --tag-bg: #e6fffb;
+  --tag-border: #87e8de;
+}
+
+app-pedido-admin-list .status-tag[data-status='status-cancelado'],
+app-pedido-list .status-tag[data-status='cancelado'] {
+  --tag-color: #a8071a;
+  --tag-bg: #fff1f0;
+  --tag-border: #ffa39e;
+}
+
 .theme-dark .ant-card-head {
   border-bottom-color: var(--cor-borda);
 }
@@ -1089,6 +1138,50 @@ a {
   color: var(--cor-texto);
   background: var(--cor-campo);
   border-color: var(--cor-borda);
+}
+
+.theme-dark app-pedido-admin-list .ant-btn-default {
+  color: var(--cor-texto);
+  background: var(--cor-campo);
+  border-color: var(--cor-borda);
+}
+
+.theme-dark app-pedido-admin-list .ant-btn-default:hover,
+.theme-dark app-pedido-admin-list .ant-btn-default:focus-visible {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 14%, var(--cor-campo));
+  border-color: var(--cor-primaria);
+}
+
+.theme-dark app-pedido-admin-list .status-tag[data-status='status-confirmacao'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='status-pagamento'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-pendente'],
+.theme-dark app-pedido-list .status-tag[data-status='aguardando'] {
+  --tag-color: #ffd666;
+  --tag-bg: color-mix(in srgb, #faad14 16%, var(--cor-superficie));
+  --tag-border: color-mix(in srgb, #faad14 42%, var(--cor-borda));
+}
+
+.theme-dark app-pedido-admin-list .status-tag[data-status='status-confirmado'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-pago'],
+.theme-dark app-pedido-list .status-tag[data-status='confirmado'],
+.theme-dark app-pedido-list .status-tag[data-status='concluido'] {
+  --tag-color: #95de64;
+  --tag-bg: color-mix(in srgb, #52c41a 16%, var(--cor-superficie));
+  --tag-border: color-mix(in srgb, #52c41a 42%, var(--cor-borda));
+}
+
+.theme-dark app-pedido-admin-list .status-tag[data-status='status-concluido'] {
+  --tag-color: #5cdbd3;
+  --tag-bg: color-mix(in srgb, #13c2c2 16%, var(--cor-superficie));
+  --tag-border: color-mix(in srgb, #13c2c2 42%, var(--cor-borda));
+}
+
+.theme-dark app-pedido-admin-list .status-tag[data-status='status-cancelado'],
+.theme-dark app-pedido-list .status-tag[data-status='cancelado'] {
+  --tag-color: #ff7875;
+  --tag-bg: color-mix(in srgb, #ff4d4f 16%, var(--cor-superficie));
+  --tag-border: color-mix(in srgb, #ff4d4f 42%, var(--cor-borda));
 }
 
 .theme-dark .ant-badge-status-text {

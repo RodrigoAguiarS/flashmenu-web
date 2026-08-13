@@ -2,7 +2,7 @@ import { FormaPagamentoResponse } from './forma-pagamento.model';
 import { EnderecoResponse } from './endereco.model';
 import { UnidadeResumo } from './unidade.model';
 
-export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'CANCELADO';
+export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'CONCLUIDO' | 'CANCELADO';
 export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'EXPIRADO' | 'CANCELADO' | 'ERRO';
 export type TipoPedido = 'DELIVERY' | 'PDV';
 

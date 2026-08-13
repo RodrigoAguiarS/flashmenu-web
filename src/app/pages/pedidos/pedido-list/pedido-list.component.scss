@@ -96,44 +96,14 @@
   color: var(--cor-texto-suave);
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  font-weight: 750;
-}
-
-.status-pill span,
-.pedido-status-linha span {
-  width: 8px;
-  height: 8px;
-  background: var(--cor-texto-suave);
-  border-radius: 999px;
-}
-
-.status-pill[data-status='aguardando'] span,
-.pedido-status-linha[data-status='aguardando'] span {
-  background: var(--warning);
-}
-
-.status-pill[data-status='confirmado'] span,
-.pedido-status-linha[data-status='confirmado'] span,
-.status-pill[data-status='concluido'] span,
-.pedido-status-linha[data-status='concluido'] span {
-  background: var(--success);
-}
-
-.status-pill[data-status='cancelado'] span,
-.pedido-status-linha[data-status='cancelado'] span {
-  background: var(--danger);
+.status-tag.ant-tag {
+  flex: 0 1 auto;
 }
 
 .pedido-entrega,
 .pedido-status-linha {
   display: flex;
   align-items: center;
-  gap: 7px;
   min-width: 0;
 }
 
@@ -153,10 +123,6 @@
 
 .pedido-pagamento strong {
   font-size: 16px;
-}
-
-.pedido-status-linha strong {
-  font-size: 13px;
 }
 
 .pedido-rodape {

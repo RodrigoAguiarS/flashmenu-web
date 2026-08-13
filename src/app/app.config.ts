@@ -2,12 +2,12 @@ import { registerLocaleData } from '@angular/common';
 import pt from '@angular/common/locales/pt';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, LOCALE_ID, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import {
   AppstoreOutline,
   ArrowLeftOutline,
   ArrowRightOutline,
+  CarOutline,
   CheckCircleOutline,
   ClockCircleOutline,
   CloseCircleOutline,
@@ -15,6 +15,7 @@ import {
   DeleteOutline,
   EditOutline,
   EnvironmentOutline,
+  ExportOutline,
   EyeInvisibleOutline,
   EyeOutline,
   FilePdfOutline,
@@ -32,6 +33,7 @@ import {
   PlayCircleOutline,
   PlusOutline,
   PhoneOutline,
+  ReloadOutline,
   SafetyCertificateOutline,
   SaveOutline,
   SearchOutline,
@@ -73,7 +75,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideAnimations(),
     provideNzI18n(ptBRComQRCode),
     provideNzNativeDateAdapter({ locale: 'pt-BR', firstDayOfWeek: 1 }),
     provideEnvironmentNgxMask({ validation: false }),
@@ -81,6 +82,7 @@ export const appConfig: ApplicationConfig = {
       AppstoreOutline,
       ArrowLeftOutline,
       ArrowRightOutline,
+      CarOutline,
       CheckCircleOutline,
       ClockCircleOutline,
       CloseCircleOutline,
@@ -88,6 +90,7 @@ export const appConfig: ApplicationConfig = {
       DeleteOutline,
       EditOutline,
       EnvironmentOutline,
+      ExportOutline,
       EyeInvisibleOutline,
       EyeOutline,
       FilePdfOutline,
@@ -105,6 +108,7 @@ export const appConfig: ApplicationConfig = {
       PlayCircleOutline,
       PlusOutline,
       PhoneOutline,
+      ReloadOutline,
       SafetyCertificateOutline,
       SaveOutline,
       SearchOutline,

@@ -71,6 +71,16 @@ export class PedidoService {
     );
   }
 
+  alterarStatusPedido(id: number, request: AlterarStatusPedidoRequest): Observable<PedidoResponse> {
+    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/status`, request).pipe(
+      map((pedido) => this.normalizarPedido(pedido))
+    );
+  }
+
+  concluirPedido(id: number): Observable<PedidoResponse> {
+    return this.alterarStatusPedido(id, { status: 'CONCLUIDO' });
+  }
+
   exportarPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${id}/pdf`, {
       responseType: 'blob'

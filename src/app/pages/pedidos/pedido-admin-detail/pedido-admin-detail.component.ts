@@ -7,11 +7,14 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -26,6 +29,7 @@ import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedi
     NzButtonModule,
     NzEmptyModule,
     NzIconModule,
+    NzPopconfirmModule,
     NzSpinModule,
     NzTagModule,
     PageHeaderComponent,
@@ -37,13 +41,16 @@ import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedi
 })
 export class PedidoAdminDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
+  protected readonly processando = signal(false);
   protected readonly exportandoPdf = signal(false);
   protected readonly pedido = signal<PedidoResponse | null>(null);
   protected readonly possuiPedido = computed(() => this.pedido() !== null);
+  protected readonly podeAlterarStatusPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
 
   ngOnInit(): void {
     this.carregarPedido();
@@ -54,6 +61,7 @@ export class PedidoAdminDetailComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'warning',
       AGUARDANDO_CONFIRMACAO: 'processing',
       CONFIRMADO: 'success',
+      CONCLUIDO: 'success',
       CANCELADO: 'error'
     };
 
@@ -65,6 +73,7 @@ export class PedidoAdminDetailComponent implements OnInit {
       AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
       AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
       CONFIRMADO: 'Confirmado',
+      CONCLUIDO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
@@ -112,7 +121,32 @@ export class PedidoAdminDetailComponent implements OnInit {
   protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
     return pedido.formaPagamento.tipo === 'PIX'
       && !this.pagamentoConfirmado(pedido)
+      && pedido.status !== 'CONCLUIDO'
       && pedido.status !== 'CANCELADO';
+  }
+
+  protected podeConcluirPedido(pedido: PedidoResponse): boolean {
+    return this.podeAlterarStatusPedido() && pedido.status === 'CONFIRMADO';
+  }
+
+  protected concluirPedido(): void {
+    const pedido = this.pedido();
+
+    if (!pedido || !this.podeConcluirPedido(pedido)) {
+      return;
+    }
+
+    this.processando.set(true);
+
+    this.pedidoService.concluirPedido(pedido.id).pipe(
+      finalize(() => this.processando.set(false))
+    ).subscribe({
+      next: (pedidoAtualizado) => {
+        this.pedido.set(pedidoAtualizado);
+        this.message.success('Pedido concluido com sucesso.');
+      },
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
   }
 
   protected exportarPdf(): void {

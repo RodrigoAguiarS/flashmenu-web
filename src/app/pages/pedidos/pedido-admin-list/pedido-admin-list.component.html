@@ -116,13 +116,13 @@
           </header>
 
           <div class="pedido-status">
-            <span [class]="'status-dot ' + view.statusClasse" aria-hidden="true"></span>
-            <span>{{ view.statusTexto }}</span>
+            <nz-tag class="status-tag" [attr.data-status]="view.statusClasse">{{ view.statusTexto }}</nz-tag>
           </div>
 
           <div class="pedido-pagamento">
             <span nz-icon nzType="credit-card" nzTheme="outline"></span>
-            <span>{{ view.pagamentoTexto }}</span>
+            <span>{{ view.formaPagamentoTexto }}</span>
+            <nz-tag class="status-tag" [attr.data-status]="view.pagamentoStatusClasse">{{ view.pagamentoStatusTexto }}</nz-tag>
           </div>
 
           <div class="pedido-total">
@@ -143,6 +143,21 @@
                 [nzLoading]="processandoId() === view.pedido.id"
                 [disabled]="processandoId() !== null"
                 (nzOnConfirm)="confirmarPagamento(view.pedido)"
+              >
+                {{ view.acaoPrincipalLabel }}
+              </button>
+            } @else if (view.acaoPrincipal === 'concluir-pedido') {
+              <button
+                nz-button
+                nzType="primary"
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja concluir este pedido?"
+                nzOkText="Concluir"
+                nzCancelText="Cancelar"
+                [nzLoading]="processandoId() === view.pedido.id"
+                [disabled]="processandoId() !== null"
+                (nzOnConfirm)="concluirPedido(view.pedido)"
               >
                 {{ view.acaoPrincipalLabel }}
               </button>
