@@ -13,14 +13,33 @@ import { ThemeService } from '../../../core/services/theme.service';
       nz-button
       nzShape="circle"
       type="button"
-      [attr.aria-label]="themeService.tema() === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'"
+      [attr.aria-label]="label()"
+      [title]="label()"
       (click)="themeService.alternarTema()"
     >
-      <span nz-icon [nzType]="themeService.tema() === 'dark' ? 'sun' : 'moon'" nzTheme="outline"></span>
+      <span nz-icon [nzType]="icone()" nzTheme="outline"></span>
     </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ThemeToggleComponent {
   protected readonly themeService = inject(ThemeService);
+
+  protected icone(): string {
+    if (this.themeService.preferencia() === 'system') {
+      return 'setting';
+    }
+
+    return this.themeService.tema() === 'dark' ? 'moon' : 'sun';
+  }
+
+  protected label(): string {
+    const labels = {
+      light: 'Tema claro',
+      dark: 'Tema escuro',
+      system: 'Tema do sistema'
+    } as const;
+
+    return `${labels[this.themeService.preferencia()]}. Clique para alternar.`;
+  }
 }

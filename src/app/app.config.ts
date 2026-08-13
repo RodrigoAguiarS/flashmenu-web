@@ -7,6 +7,7 @@ import { provideRouter } from '@angular/router';
 import {
   AppstoreOutline,
   ArrowLeftOutline,
+  ArrowRightOutline,
   CheckCircleOutline,
   ClockCircleOutline,
   CloseCircleOutline,
@@ -79,6 +80,7 @@ export const appConfig: ApplicationConfig = {
     provideNzIcons([
       AppstoreOutline,
       ArrowLeftOutline,
+      ArrowRightOutline,
       CheckCircleOutline,
       ClockCircleOutline,
       CloseCircleOutline,

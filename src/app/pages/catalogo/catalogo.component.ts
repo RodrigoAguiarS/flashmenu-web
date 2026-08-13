@@ -35,7 +35,11 @@ import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
 } from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+
+interface ProdutosPorCategoria {
+  categoria: CategoriaResponse;
+  produtos: ProdutoResponse[];
+}
 
 @Component({
   selector: 'app-catalogo',
@@ -61,8 +65,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
-    ProdutoPersonalizacaoComponent,
-    PageHeaderComponent
+    ProdutoPersonalizacaoComponent
   ],
   templateUrl: './catalogo.component.html',
   styleUrl: './catalogo.component.scss',
@@ -73,7 +76,7 @@ export class CatalogoComponent implements OnInit {
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly authService = inject(AuthService);
-  private readonly carrinhoService = inject(CarrinhoService);
+  protected readonly carrinhoService = inject(CarrinhoService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
@@ -91,6 +94,9 @@ export class CatalogoComponent implements OnInit {
   protected readonly observacaoDetalhe = signal('');
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
+  protected readonly filtrosDrawerAberto = signal(false);
+  protected readonly filtroNome = signal('');
+  protected readonly categoriaSelecionadaId = signal<number | null>(null);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(12);
@@ -98,11 +104,35 @@ export class CatalogoComponent implements OnInit {
   protected readonly cardapioIndisponivel = signal(false);
   protected readonly mensagemCardapioIndisponivel = signal('Cardapio nao encontrado.');
   protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardapio' : 'Catalogo');
-  protected readonly descricaoCatalogo = computed(() =>
-    this.unidadeSlug()
-      ? 'Escolha os produtos desta unidade e monte seu pedido.'
-      : 'Acesse o cardapio pelo link publico da unidade.'
-  );
+  protected readonly filtrosAplicados = computed(() => !!this.filtroNome().trim() || this.categoriaSelecionadaId() !== null);
+  protected readonly produtosPorCategoria = computed<ProdutosPorCategoria[]>(() => {
+    const grupos = new Map<number, ProdutosPorCategoria>();
+
+    this.produtos().forEach((produto) => {
+      const grupo = grupos.get(produto.categoria.id);
+
+      if (grupo) {
+        grupo.produtos.push(produto);
+        return;
+      }
+
+      grupos.set(produto.categoria.id, {
+        categoria: produto.categoria,
+        produtos: [produto]
+      });
+    });
+
+    return Array.from(grupos.values()).sort((a, b) => a.categoria.nome.localeCompare(b.categoria.nome));
+  });
+  protected readonly categoriasMenu = computed(() => {
+    const categorias = this.categorias().filter((categoria) => categoria.ativo);
+
+    if (categorias.length) {
+      return categorias;
+    }
+
+    return this.produtosPorCategoria().map((grupo) => grupo.categoria);
+  });
 
   protected readonly filtros = this.fb.group({
     nome: [''],
@@ -140,6 +170,10 @@ export class CatalogoComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
+        const filtros = this.filtros.getRawValue();
+
+        this.filtroNome.set(filtros.nome.trim());
+        this.categoriaSelecionadaId.set(filtros.categoriaId);
         this.pageIndex.set(1);
         this.carregarProdutos();
       });
@@ -151,10 +185,25 @@ export class CatalogoComponent implements OnInit {
   }
 
   limparFiltros(): void {
+    this.filtroNome.set('');
+    this.categoriaSelecionadaId.set(null);
     this.filtros.reset({
       nome: '',
       categoriaId: null
     });
+  }
+
+  selecionarCategoria(categoriaId: number | null): void {
+    this.categoriaSelecionadaId.set(categoriaId);
+    this.filtros.patchValue({ categoriaId });
+  }
+
+  abrirFiltros(): void {
+    this.filtrosDrawerAberto.set(true);
+  }
+
+  fecharFiltros(): void {
+    this.filtrosDrawerAberto.set(false);
   }
 
   abrirDetalhes(produto: ProdutoResponse): void {
@@ -255,6 +304,16 @@ export class CatalogoComponent implements OnInit {
     }
 
     return estoque > 0 ? `${estoque} em estoque` : 'Sem estoque';
+  }
+
+  protected estoqueTextoConsumidor(produto: ProdutoResponse): string | null {
+    const estoque = this.carrinhoService.quantidadeDisponivel(produto);
+
+    if (estoque === null || estoque > 3) {
+      return null;
+    }
+
+    return estoque > 0 ? 'Ultimas unidades' : 'Indisponivel';
   }
 
   protected preco(produto: ProdutoResponse): number {

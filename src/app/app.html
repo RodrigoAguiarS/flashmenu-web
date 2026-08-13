@@ -3,48 +3,21 @@
 } @else {
   <nz-layout class="estrutura-app">
     <nz-header class="cabecalho-app">
-      <a class="marca marca-app" [routerLink]="linkLojaUnidade()" aria-label="FlashMenu">
-        <span class="marca-simbolo simbolo-app">F</span>
-        <span>FlashMenu</span>
+      <a class="marca marca-app" [routerLink]="linkLojaUnidade()" [attr.aria-label]="nomeHeader()">
+        @if (logoHeader(); as logo) {
+          <img class="marca-logo" [src]="logo" [alt]="nomeHeader()" />
+        } @else {
+          <span class="marca-simbolo simbolo-app">{{ inicialHeader() }}</span>
+        }
+
+        <span class="marca-texto">
+          <strong>{{ nomeHeader() }}</strong>
+          <small>{{ subtituloHeader() }}</small>
+        </span>
       </a>
 
       <div class="acoes-cabecalho">
-        @if (authService.usuarioAutenticado()?.unidade; as unidade) {
-          <span class="unidade-atual" [class.unidade-inativa]="!unidade.ativo">
-            Unidade: {{ unidade.nome }}
-          </span>
-        }
-
         <app-theme-toggle />
-
-        @if (authService.usuarioAutenticado()) {
-          <button
-            class="acao-icone"
-            nz-button
-            nzShape="circle"
-            type="button"
-            nz-tooltip
-            nzTooltipTitle="Sair"
-            aria-label="Sair"
-            (click)="sair()"
-          >
-            <span nz-icon nzType="logout" nzTheme="outline"></span>
-          </button>
-
-        } @else {
-          <a
-            class="acao-icone"
-            nz-button
-            nzType="primary"
-            nzShape="circle"
-            routerLink="/login"
-            nz-tooltip
-            nzTooltipTitle="Entrar"
-            aria-label="Entrar"
-          >
-            <span nz-icon nzType="login" nzTheme="outline"></span>
-          </a>
-        }
       </div>
     </nz-header>
 

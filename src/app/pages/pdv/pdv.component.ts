@@ -1,8 +1,21 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  computed,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EMPTY, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, switchMap, timer } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -13,13 +26,11 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
@@ -30,7 +41,7 @@ import { CategoriaResponse } from '../../core/models/categoria.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { ConfiguracaoComercialResponse } from '../../core/models/configuracao-comercial.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
-import { PedidoRequest, PedidoResponse } from '../../core/models/pedido.model';
+import { PedidoRequest, PedidoResponse, PedidoResumoFinanceiro } from '../../core/models/pedido.model';
 import { PixCobrancaResponse, PixPagamentoStatus } from '../../core/models/pix-pagamento.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
@@ -56,7 +67,7 @@ import {
   imports: [
     CurrencyPipe,
     DatePipe,
-    FormsModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     NzAlertModule,
     NzButtonModule,
@@ -66,12 +77,10 @@ import {
     NzGridModule,
     NzIconModule,
     NzInputModule,
-    NzInputNumberModule,
     NzModalModule,
     NzPaginationModule,
     NzPopconfirmModule,
     NzQRCodeModule,
-    NzSelectModule,
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
@@ -84,7 +93,7 @@ import {
   styleUrl: './pdv.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PdvComponent implements OnInit {
+export class PdvComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
@@ -120,6 +129,7 @@ export class PdvComponent implements OnInit {
   protected readonly cobrancaPix = signal<PixCobrancaResponse | null>(null);
   protected readonly valorPix = signal<number | null>(null);
   protected readonly modalPixAberta = signal(false);
+  protected readonly vendaMobileAberta = signal(false);
   protected readonly gerandoPix = signal(false);
   protected readonly consultandoPix = signal(false);
   protected readonly statusPix = signal<PixPagamentoStatus | null>(null);
@@ -127,7 +137,7 @@ export class PdvComponent implements OnInit {
   protected readonly pagamentoPixAprovado = signal(false);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
-  protected readonly pageSize = signal(12);
+  protected readonly pageSize = signal(24);
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
   protected readonly tituloDrawerPersonalizacao = computed(() =>
     this.itemEditando() ? 'Editar adicionais' : 'Personalizar produto'
@@ -140,14 +150,26 @@ export class PdvComponent implements OnInit {
     return this.formasPagamento().find((forma) => forma.id === formaPagamentoId) ?? null;
   });
   protected readonly percentualAcrescimo = computed(() => Number(this.formaPagamentoSelecionada()?.percentualAcrescimo ?? 0));
-  protected readonly resumoFinanceiro = computed(() =>
-    this.pedidoFinanceiroService.calcularPrevia(
+  protected readonly resumoFinanceiro = computed<PedidoResumoFinanceiro>(() => {
+    if (this.pdvService.vazio()) {
+      return {
+        subtotal: 0,
+        percentualDesconto: 0,
+        valorDesconto: 0,
+        valorTaxaFixa: 0,
+        percentualAcrescimo: 0,
+        valorAcrescimo: 0,
+        valorTotal: 0
+      };
+    }
+
+    return this.pedidoFinanceiroService.calcularPrevia(
       this.pdvService.valorTotal(),
       this.configuracaoComercial()?.percentualDescontoPadrao,
       this.configuracaoComercial()?.valorTaxaFixa,
       this.percentualAcrescimo()
-    )
-  );
+    );
+  });
   protected readonly valorAcrescimo = computed(() => this.resumoFinanceiro().valorAcrescimo ?? 0);
   protected readonly totalPrevisto = computed(() => this.resumoFinanceiro().valorTotal);
   protected readonly pagamentoEmDinheiro = computed(() => this.formaPagamentoSelecionada()?.tipo === 'DINHEIRO');
@@ -198,6 +220,8 @@ export class PdvComponent implements OnInit {
     formaPagamentoId: this.fb.control<number | null>(null, [Validators.required]),
     valorRecebidoDinheiro: this.fb.control<number | null>(null)
   });
+
+  @ViewChild('buscaProduto') private buscaProduto?: ElementRef<HTMLInputElement>;
 
   private readonly validarPagamentoDinheiro = effect(() => {
     this.totalPrevisto();
@@ -255,6 +279,58 @@ export class PdvComponent implements OnInit {
     ).subscribe((valorRecebido) => this.valorRecebidoDinheiro.set(valorRecebido));
   }
 
+  ngAfterViewInit(): void {
+    queueMicrotask(() => this.focarBusca());
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  protected navegarPorAtalhos(event: KeyboardEvent): void {
+    if (this.modalPixAberta()) {
+      return;
+    }
+
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.focarBusca();
+      return;
+    }
+
+    if (event.key === 'F4') {
+      event.preventDefault();
+      this.selecionarFormaPorTipo('PIX');
+      return;
+    }
+
+    if (event.key === 'F5') {
+      event.preventDefault();
+      this.selecionarFormaPorTipo('CARTAO_DEBITO');
+      return;
+    }
+
+    if (event.key === 'F6') {
+      event.preventDefault();
+      this.selecionarFormaPorTipo('CARTAO_CREDITO');
+      return;
+    }
+
+    if (event.key === 'F7') {
+      event.preventDefault();
+      this.selecionarFormaPorTipo('DINHEIRO');
+      return;
+    }
+
+    if (event.key === 'F9') {
+      event.preventDefault();
+      this.finalizarVenda();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      this.vendaMobileAberta.set(false);
+      this.fecharPersonalizacao();
+    }
+  }
+
   protected alterarPagina(pageIndex: number): void {
     this.pageIndex.set(pageIndex);
     this.carregarProdutos();
@@ -262,6 +338,31 @@ export class PdvComponent implements OnInit {
 
   protected limparFiltros(): void {
     this.filtros.reset({ nome: '', categoriaId: null });
+  }
+
+  protected limparBusca(): void {
+    this.filtros.patchValue({ nome: '' });
+    this.focarBusca();
+  }
+
+  protected selecionarCategoria(categoriaId: number | null): void {
+    this.filtros.patchValue({ categoriaId });
+  }
+
+  protected categoriaSelecionada(categoriaId: number | null): boolean {
+    return this.filtros.controls.categoriaId.value === categoriaId;
+  }
+
+  protected adicionarProdutoBusca(): void {
+    const produto = this.produtos()[0];
+
+    if (!produto) {
+      return;
+    }
+
+    this.adicionarProduto(produto);
+    this.filtros.patchValue({ nome: '' });
+    this.focarBusca();
   }
 
   protected adicionarProduto(produto: ProdutoResponse): void {
@@ -329,8 +430,14 @@ export class PdvComponent implements OnInit {
   }
 
   protected decrementar(item: ItemCarrinho): void {
+    if (item.quantidade <= 1) {
+      this.removerProduto(item.id);
+      this.message.info('Produto removido da venda.');
+      return;
+    }
+
     if (!this.pdvService.decrementar(item.id)) {
-      this.message.info('Quantidade minima mantida.');
+      this.message.warning('Nao foi possivel diminuir a quantidade.');
     }
   }
 
@@ -362,6 +469,47 @@ export class PdvComponent implements OnInit {
   protected limparVenda(): void {
     this.pdvService.limpar();
     this.mensagemErro.set(null);
+    this.vendaMobileAberta.set(false);
+  }
+
+  protected selecionarFormaPagamento(formaPagamento: FormaPagamentoResponse): void {
+    this.formulario.patchValue({ formaPagamentoId: formaPagamento.id });
+    this.formaPagamentoId.set(formaPagamento.id);
+    this.formulario.controls.formaPagamentoId.markAsTouched();
+  }
+
+  protected formaPagamentoAtalho(formaPagamento: FormaPagamentoResponse): string | null {
+    const atalhos: Record<string, string> = {
+      PIX: 'F4',
+      CARTAO_DEBITO: 'F5',
+      CARTAO_CREDITO: 'F6',
+      DINHEIRO: 'F7'
+    };
+
+    return atalhos[formaPagamento.tipo] ?? null;
+  }
+
+  protected formaPagamentoIcone(formaPagamento: FormaPagamentoResponse): string {
+    const icones: Record<string, string> = {
+      PIX: 'thunderbolt',
+      CARTAO_DEBITO: 'credit-card',
+      CARTAO_CREDITO: 'credit-card',
+      DINHEIRO: 'dollar'
+    };
+
+    return icones[formaPagamento.tipo] ?? 'wallet';
+  }
+
+  protected formaPagamentoSelecionadaPorId(formaPagamentoId: number): boolean {
+    return this.formaPagamentoId() === formaPagamentoId;
+  }
+
+  protected abrirVendaMobile(): void {
+    this.vendaMobileAberta.set(true);
+  }
+
+  protected fecharVendaMobile(): void {
+    this.vendaMobileAberta.set(false);
   }
 
   protected finalizarVenda(): void {
@@ -410,6 +558,7 @@ export class PdvComponent implements OnInit {
         }
 
         this.pdvService.limpar();
+        this.vendaMobileAberta.set(false);
         this.message.success(`Venda #${pedido.id} registrada com sucesso.`);
         void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
       },
@@ -595,6 +744,7 @@ export class PdvComponent implements OnInit {
   private concluirPedidoPix(pedido: PedidoResponse): void {
     this.pedidoPix.set(pedido);
     this.pdvService.limpar();
+    this.vendaMobileAberta.set(false);
     this.modalPixAberta.set(false);
     void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
   }
@@ -647,6 +797,20 @@ export class PdvComponent implements OnInit {
     }
 
     this.message.success('Produto adicionado a venda.');
+    this.focarBusca();
+  }
+
+  private selecionarFormaPorTipo(tipo: string): void {
+    const formaPagamento = this.formasPagamento().find((forma) => forma.tipo === tipo);
+
+    if (formaPagamento) {
+      this.selecionarFormaPagamento(formaPagamento);
+    }
+  }
+
+  private focarBusca(): void {
+    this.buscaProduto?.nativeElement.focus();
+    this.buscaProduto?.nativeElement.select();
   }
 
   private normalizarGrupos(grupos: GrupoComplementoResponse[]): GrupoComplementoResponse[] {

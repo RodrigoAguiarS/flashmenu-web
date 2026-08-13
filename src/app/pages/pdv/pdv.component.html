@@ -6,45 +6,245 @@
   <nz-alert class="alerta-pdv" nzType="error" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
 }
 
+<ng-template #vendaAtual>
+  <div class="venda-topo">
+    <div>
+      <span>Venda atual</span>
+      <strong>{{ pdvService.quantidadeTotal() }} itens</strong>
+    </div>
+
+    @if (!pdvService.vazio()) {
+      <button
+        nz-button
+        nzShape="circle"
+        type="button"
+        nzDanger
+        nz-popconfirm
+        nzPopconfirmTitle="Deseja limpar esta venda?"
+        nzOkText="Limpar"
+        nzCancelText="Voltar"
+        aria-label="Limpar venda"
+        (nzOnConfirm)="limparVenda()"
+      >
+        <span nz-icon nzType="delete" nzTheme="outline"></span>
+      </button>
+    }
+  </div>
+
+  @if (pdvService.vazio()) {
+    <div class="venda-vazia">
+      <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+      <strong>Adicione produtos para iniciar a venda.</strong>
+      <span>Total {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</span>
+    </div>
+  } @else {
+    <div class="itens-venda">
+      @for (item of pdvService.itens(); track item.id) {
+        <article class="item-venda">
+          <div class="item-cabecalho">
+            <div>
+              <strong>{{ item.produto.nome }}</strong>
+              <span>{{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <button
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nzDanger
+              type="button"
+              aria-label="Remover produto"
+              (click)="removerProduto(item.id)"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          </div>
+
+          @if (item.complementos?.length) {
+            <ul class="complementos-item">
+              @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
+                <li>+ {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
+              }
+            </ul>
+
+            <button class="editar-adicionais" nz-button nzType="link" type="button" (click)="editarPersonalizacao(item)">
+              Editar adicionais
+            </button>
+          }
+
+          <div class="item-controles">
+            <div class="quantidade-controle" aria-label="Quantidade do item">
+              <button nz-button nzShape="circle" type="button" aria-label="Diminuir quantidade" (click)="decrementar(item)">
+                <span nz-icon nzType="minus" nzTheme="outline"></span>
+              </button>
+              <strong>{{ item.quantidade }}</strong>
+              <button nz-button nzShape="circle" type="button" aria-label="Aumentar quantidade" (click)="incrementar(item)">
+                <span nz-icon nzType="plus" nzTheme="outline"></span>
+              </button>
+            </div>
+
+            <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <form class="form-venda" nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="finalizarVenda()">
+    <section class="pagamento-bloco" aria-label="Forma de pagamento">
+      <div class="secao-label">
+        <span>Pagamento</span>
+        @if (formulario.controls.formaPagamentoId.touched && formulario.controls.formaPagamentoId.invalid) {
+          <small>Selecione uma forma.</small>
+        }
+      </div>
+
+      <div class="formas-pagamento">
+        @for (forma of formasPagamento(); track forma.id) {
+          <button
+            class="forma-pagamento"
+            nz-button
+            type="button"
+            [class.selecionada]="formaPagamentoSelecionadaPorId(forma.id)"
+            [disabled]="carregandoPagamento()"
+            (click)="selecionarFormaPagamento(forma)"
+          >
+            <span nz-icon [nzType]="formaPagamentoIcone(forma)" nzTheme="outline"></span>
+            <span>{{ forma.nome }}</span>
+            @if (formaPagamentoAtalho(forma); as atalho) {
+              <kbd>{{ atalho }}</kbd>
+            }
+          </button>
+        }
+      </div>
+
+      @if (formaPagamentoSelecionada()?.percentualAcrescimo) {
+        <div class="impacto-pagamento">
+          <span>{{ formaPagamentoSelecionada()?.nome }} tem acrescimo de {{ percentualAcrescimo() }}%</span>
+          <strong>+ {{ valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      }
+    </section>
+
+    @if (pagamentoEmDinheiro()) {
+      <nz-form-item class="dinheiro-campo">
+        <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Valor recebido</nz-form-label>
+        <nz-form-control
+          nzErrorTip="Informe um valor recebido igual ou maior que o total."
+          [nzValidateStatus]="formulario.controls.valorRecebidoDinheiro"
+        >
+          <input
+            nz-input
+            id="valorRecebidoDinheiro"
+            formControlName="valorRecebidoDinheiro"
+            mask="separator.2"
+            prefix="R$ "
+            thousandSeparator="."
+            decimalMarker=","
+            [leadZero]="true"
+            [typeFromDecimals]="true"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="R$ 0,00"
+          />
+        </nz-form-control>
+      </nz-form-item>
+    }
+
+    <div class="resumo-venda">
+      <app-pedido-resumo-financeiro [resumo]="resumoFinanceiro()" />
+
+      @if (pagamentoEmDinheiro()) {
+        <div class="linha-dinheiro">
+          <span>Recebido em dinheiro</span>
+          <strong>{{ (valorRecebidoDinheiro() ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="linha-dinheiro troco">
+          <span>Troco</span>
+          <strong>{{ troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      }
+    </div>
+
+    <div class="total-final">
+      <span>Total</span>
+      <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+
+    <button
+      class="finalizar"
+      nz-button
+      nzType="primary"
+      type="submit"
+      [nzLoading]="finalizando()"
+      [disabled]="finalizando() || pdvService.vazio() || formulario.invalid"
+    >
+      <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+      Finalizar venda {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}
+      <kbd>F9</kbd>
+    </button>
+  </form>
+</ng-template>
+
 <section class="layout-pdv">
   <section class="painel-produtos" aria-label="Produtos para venda">
-    <section class="filtros cartao-sistema" aria-label="Filtros de produtos">
+    <section class="filtros" aria-label="Filtros de produtos">
       <form nz-form nzLayout="vertical" [formGroup]="filtros">
-        <nz-row [nzGutter]="12">
-          <nz-col nzXs="24" nzMd="13">
-            <nz-form-item>
-              <nz-form-label nzFor="nome">Produto</nz-form-label>
-              <nz-form-control>
-                <nz-input-group nzPrefixIcon="search">
-                  <input nz-input id="nome" formControlName="nome" placeholder="Buscar por nome" />
-                </nz-input-group>
-              </nz-form-control>
-            </nz-form-item>
-          </nz-col>
+        <nz-form-item>
+          <nz-form-control>
+            <div class="busca-produto">
+              <nz-input-group nzPrefixIcon="search">
+                <input
+                  #buscaProduto
+                  nz-input
+                  id="nome"
+                  formControlName="nome"
+                  placeholder="Buscar produto, codigo ou codigo de barras..."
+                  autocomplete="off"
+                  aria-label="Buscar produto"
+                  (keydown.enter)="adicionarProdutoBusca()"
+                />
+              </nz-input-group>
 
-          <nz-col nzXs="24" nzMd="8">
-            <nz-form-item>
-              <nz-form-label nzFor="categoria">Categoria</nz-form-label>
-              <nz-form-control>
-                <nz-select
-                  id="categoria"
-                  formControlName="categoriaId"
-                  nzAllowClear
-                  nzPlaceHolder="Todas"
-                  [nzLoading]="carregandoCategorias()"
+              @if (filtros.controls.nome.value) {
+                <button
+                  class="botao-limpar-busca"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  aria-label="Limpar busca"
+                  (click)="limparBusca()"
                 >
-                  @for (categoria of categorias(); track categoria.id) {
-                    <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
-                  }
-                </nz-select>
-              </nz-form-control>
-            </nz-form-item>
-          </nz-col>
+                  <span nz-icon nzType="close" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
+          </nz-form-control>
+        </nz-form-item>
 
-          <nz-col nzXs="24" nzMd="3" class="acao-filtro">
-            <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
-          </nz-col>
-        </nz-row>
+        <div class="categorias-chips" aria-label="Categorias">
+          <button
+            nz-button
+            type="button"
+            [class.selecionada]="categoriaSelecionada(null)"
+            (click)="selecionarCategoria(null)"
+          >
+            Todos
+          </button>
+
+          @for (categoria of categorias(); track categoria.id) {
+            <button
+              nz-button
+              type="button"
+              [class.selecionada]="categoriaSelecionada(categoria.id)"
+              (click)="selecionarCategoria(categoria.id)"
+            >
+              {{ categoria.nome }}
+            </button>
+          }
+        </div>
       </form>
     </section>
 
@@ -52,7 +252,17 @@
       @if (possuiProdutos()) {
         <section class="grade-produtos" aria-label="Lista de produtos">
           @for (produto of produtos(); track produto.id) {
-            <article class="produto-card">
+            <article
+              class="produto-card"
+              role="button"
+              tabindex="0"
+              [class.indisponivel]="!podeAdicionar(produto)"
+              [attr.aria-disabled]="!podeAdicionar(produto)"
+              [attr.aria-label]="'Adicionar ' + produto.nome + ' a venda'"
+              (click)="adicionarProduto(produto)"
+              (keydown.enter)="adicionarProduto(produto)"
+              (keydown.space)="adicionarProduto(produto)"
+            >
               <div class="produto-midia">
                 @if (imagemPrincipal(produto); as imagem) {
                   <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(imagem)" />
@@ -64,17 +274,13 @@
               </div>
 
               <div class="produto-info">
-                <div>
-                  <div class="produto-tags">
-                    <nz-tag>{{ produto.categoria.nome }}</nz-tag>
-                    <small>{{ estoqueTexto(produto) }}</small>
-                  </div>
-                  <strong>{{ produto.nome }}</strong>
-                  <p>{{ produto.descricao }}</p>
-                </div>
+                <strong>{{ produto.nome }}</strong>
 
                 <div class="produto-rodape">
-                  <span>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                  <div>
+                    <span>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</span>
+                    <small>{{ estoqueTexto(produto) }}</small>
+                  </div>
 
                   <button
                     class="botao-adicionar"
@@ -86,7 +292,7 @@
                     nz-tooltip
                     nzTooltipTitle="Adicionar"
                     aria-label="Adicionar produto a venda"
-                    (click)="adicionarProduto(produto)"
+                    (click)="$event.stopPropagation(); adicionarProduto(produto)"
                   >
                     <span nz-icon nzType="plus" nzTheme="outline"></span>
                   </button>
@@ -105,199 +311,37 @@
           ></nz-pagination>
         </div>
       } @else {
-        <section class="estado-vazio cartao-sistema">
+        <section class="estado-vazio">
           <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
         </section>
       }
     </nz-spin>
   </section>
 
-  <aside class="painel-venda" aria-label="Venda atual">
-    <div class="venda-topo">
-      <div>
-        <span>Venda atual</span>
-        <strong>{{ pdvService.quantidadeTotal() }} itens</strong>
-      </div>
-
-      @if (!pdvService.vazio()) {
-        <button
-          nz-button
-          nzShape="circle"
-          type="button"
-          nzDanger
-          nz-popconfirm
-          nzPopconfirmTitle="Deseja limpar esta venda?"
-          nzOkText="Limpar"
-          nzCancelText="Voltar"
-          aria-label="Limpar venda"
-          (nzOnConfirm)="limparVenda()"
-        >
-          <span nz-icon nzType="delete" nzTheme="outline"></span>
-        </button>
-      }
-    </div>
-
-    @if (pdvService.vazio()) {
-      <div class="venda-vazia">
-        <nz-empty nzNotFoundContent="Adicione produtos para iniciar a venda."></nz-empty>
-      </div>
-    } @else {
-      <div class="itens-venda">
-        @for (item of pdvService.itens(); track item.id) {
-          <article class="item-venda">
-            <div class="item-midia">
-              @if (imagemPrincipal(item.produto); as imagem) {
-                <img class="item-imagem" [src]="imagem" [alt]="item.produto.nome" (error)="marcarImagemInvalida(imagem)" />
-              } @else {
-                <div class="item-sem-imagem" aria-hidden="true">
-                  <span nz-icon nzType="picture" nzTheme="outline"></span>
-                </div>
-              }
-            </div>
-
-            <div class="item-info">
-              <div class="item-cabecalho">
-                <div>
-                  <strong>{{ item.produto.nome }}</strong>
-                  <span>{{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}</span>
-                  @if (item.complementos?.length) {
-                    <ul class="complementos-item">
-                      @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
-                        <li>+ {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
-                      }
-                    </ul>
-                  }
-                </div>
-
-                <strong class="item-subtotal">{{ subtotalItem(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-              </div>
-
-              <div class="item-controles">
-                <button nz-button nzShape="circle" type="button" aria-label="Diminuir quantidade" (click)="decrementar(item)">
-                  <span nz-icon nzType="minus" nzTheme="outline"></span>
-                </button>
-                <nz-input-number
-                  [ngModel]="item.quantidade"
-                  [nzMin]="1"
-                  [nzMax]="estoqueMaximo(item.produto)"
-                  [nzStep]="1"
-                  (ngModelChange)="alterarQuantidade(item, $event)"
-                ></nz-input-number>
-                <button nz-button nzShape="circle" type="button" aria-label="Aumentar quantidade" (click)="incrementar(item)">
-                  <span nz-icon nzType="plus" nzTheme="outline"></span>
-                </button>
-                <button
-                  class="botao-editar"
-                  nz-button
-                  nzType="text"
-                  nzShape="circle"
-                  type="button"
-                  nz-tooltip
-                  nzTooltipTitle="Editar adicionais"
-                  aria-label="Editar adicionais"
-                  (click)="editarPersonalizacao(item)"
-                >
-                  <span nz-icon nzType="edit" nzTheme="outline"></span>
-                </button>
-                <button
-                  nz-button
-                  nzShape="circle"
-                  nzDanger
-                  type="button"
-                  nz-popconfirm
-                  nzPopconfirmTitle="Remover este item?"
-                  nzOkText="Remover"
-                  nzCancelText="Voltar"
-                  aria-label="Remover produto"
-                  (nzOnConfirm)="removerProduto(item.id)"
-                >
-                  <span nz-icon nzType="delete" nzTheme="outline"></span>
-                </button>
-              </div>
-            </div>
-          </article>
-        }
-      </div>
-    }
-
-    <form nz-form nzLayout="vertical" [formGroup]="formulario" (ngSubmit)="finalizarVenda()">
-      <nz-form-item>
-        <nz-form-label nzFor="formaPagamentoId" nzRequired>Forma de pagamento</nz-form-label>
-        <nz-form-control
-          nzErrorTip="Selecione uma forma de pagamento."
-          [nzValidateStatus]="formulario.controls.formaPagamentoId"
-        >
-          <nz-select
-            id="formaPagamentoId"
-            formControlName="formaPagamentoId"
-            nzPlaceHolder="Selecione"
-            [nzLoading]="carregandoPagamento()"
-          >
-            @for (forma of formasPagamento(); track forma.id) {
-              <nz-option
-                [nzValue]="forma.id"
-                [nzLabel]="forma.percentualAcrescimo ? forma.nome + ' +' + forma.percentualAcrescimo + '%' : forma.nome"
-              ></nz-option>
-            }
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-
-      @if (pagamentoEmDinheiro()) {
-        <nz-form-item>
-          <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Valor recebido</nz-form-label>
-          <nz-form-control
-            nzErrorTip="Informe um valor recebido igual ou maior que o total."
-            [nzValidateStatus]="formulario.controls.valorRecebidoDinheiro"
-          >
-            <input
-              nz-input
-              id="valorRecebidoDinheiro"
-              formControlName="valorRecebidoDinheiro"
-              mask="separator.2"
-              prefix="R$ "
-              thousandSeparator="."
-              decimalMarker=","
-              [leadZero]="true"
-              [typeFromDecimals]="true"
-              inputmode="numeric"
-              autocomplete="off"
-              placeholder="R$ 0,00"
-            />
-          </nz-form-control>
-        </nz-form-item>
-      }
-
-      <div class="resumo-venda">
-        <app-pedido-resumo-financeiro [resumo]="resumoFinanceiro()" />
-
-        @if (pagamentoEmDinheiro()) {
-          <div>
-            <span>Recebido em dinheiro</span>
-            <strong>{{ (valorRecebidoDinheiro() ?? 0) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-
-          <div>
-            <span>Troco</span>
-            <strong>{{ troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-        }
-      </div>
-
-      <button
-        class="finalizar"
-        nz-button
-        nzType="primary"
-        type="submit"
-        [nzLoading]="finalizando()"
-        [disabled]="finalizando() || pdvService.vazio()"
-      >
-        <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-        Finalizar venda
-      </button>
-    </form>
+  <aside class="painel-venda desktop" aria-label="Venda atual">
+    <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
   </aside>
 </section>
+
+<button class="barra-venda-mobile" nz-button nzType="primary" type="button" (click)="abrirVendaMobile()">
+  <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+  <strong>{{ pdvService.quantidadeTotal() }} itens · {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+  <span>Ver venda</span>
+</button>
+
+<nz-drawer
+  [nzVisible]="vendaMobileAberta()"
+  nzTitle="Venda atual"
+  nzPlacement="bottom"
+  [nzHeight]="'min(92vh, 760px)'"
+  (nzOnClose)="fecharVendaMobile()"
+>
+  <ng-container *nzDrawerContent>
+    <section class="painel-venda mobile" aria-label="Venda atual">
+      <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
+    </section>
+  </ng-container>
+</nz-drawer>
 
 <nz-drawer
   [nzVisible]="drawerPersonalizacaoAberto()"

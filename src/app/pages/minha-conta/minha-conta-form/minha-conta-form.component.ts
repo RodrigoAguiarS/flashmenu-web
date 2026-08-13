@@ -1,6 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -15,26 +14,25 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzTabsModule } from 'ng-zorro-antd/tabs';
-import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { EnderecoRequest, EnderecoResponse } from '../../../core/models/endereco.model';
 import { UsuarioRequest, UsuarioResponse } from '../../../core/models/usuario.model';
+import { PERMISSOES_ROTAS } from '../../../core/auth/permissoes';
 import { AuthService } from '../../../core/services/auth.service';
 import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
+import { ThemeToggleComponent } from '../../../shared/components/theme-toggle/theme-toggle.component';
 
 const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
+type SecaoConta = 'hub' | 'dados' | 'enderecos' | 'seguranca';
 
 @Component({
   selector: 'app-minha-conta-form',
   standalone: true,
   imports: [
-    DatePipe,
     ReactiveFormsModule,
     RouterLink,
     DocumentoMaskDirective,
@@ -47,9 +45,7 @@ const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
     NzInputModule,
     NzSpinModule,
     NzSwitchModule,
-    NzTabsModule,
-    NzTagModule,
-    PageHeaderComponent
+    ThemeToggleComponent
   ],
   templateUrl: './minha-conta-form.component.html',
   styleUrl: './minha-conta-form.component.scss',
@@ -75,6 +71,10 @@ export class MinhaContaFormComponent implements OnInit {
   protected readonly enderecos = signal<EnderecoResponse[]>([]);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly errosValidacao = signal<string[]>([]);
+  protected readonly secaoAtual = signal<SecaoConta>('hub');
+  protected readonly podeAcessarAdministrativo = computed(() =>
+    this.authService.possuiAlgumaPermissao(PERMISSOES_ROTAS.ADMINISTRATIVO)
+  );
 
   protected readonly formulario = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
@@ -128,6 +128,7 @@ export class MinhaContaFormComponent implements OnInit {
       next: (usuarioAtualizado) => {
         this.usuario.set(usuarioAtualizado);
         this.authService.atualizarUsuarioAtual(usuarioAtualizado);
+        this.formulario.markAsPristine();
         this.message.success('Dados atualizados com sucesso.');
       },
       error: (error: HttpErrorResponse) => this.tratarErro(error)
@@ -220,6 +221,7 @@ export class MinhaContaFormComponent implements OnInit {
           login: usuario.email,
           telefone: usuario.telefone ?? ''
         });
+        this.formulario.markAsPristine();
 
         return this.enderecoService.listar(usuario.id).pipe(
           catchError(() => of([])),
@@ -244,6 +246,39 @@ export class MinhaContaFormComponent implements OnInit {
   protected formatarCep(cep: string): string {
     const numeros = cep.replace(/\D/g, '');
     return numeros.length === 8 ? `${numeros.slice(0, 5)}-${numeros.slice(5)}` : cep;
+  }
+
+  protected abrirSecao(secao: SecaoConta): void {
+    this.limparMensagens();
+    this.secaoAtual.set(secao);
+  }
+
+  protected voltarHub(): void {
+    this.limparMensagens();
+    this.secaoAtual.set('hub');
+  }
+
+  protected iniciaisUsuario(): string {
+    const nome = this.usuario()?.nome?.trim();
+
+    if (!nome) {
+      return 'FM';
+    }
+
+    return nome.split(/\s+/).slice(0, 2).map((parte) => parte[0]?.toUpperCase()).join('');
+  }
+
+  protected enderecoPrincipal(): EnderecoResponse | null {
+    return this.enderecos().find((endereco) => endereco.principal) ?? this.enderecos()[0] ?? null;
+  }
+
+  protected resumoEnderecos(): string {
+    const total = this.enderecos().length;
+    return `${total} endereco${total === 1 ? '' : 's'} cadastrado${total === 1 ? '' : 's'}`;
+  }
+
+  protected sair(): void {
+    this.authService.sair();
   }
 
   protected abrirFormularioEndereco(): void {
@@ -363,6 +398,11 @@ export class MinhaContaFormComponent implements OnInit {
       idPerfil: usuario.perfil?.id ?? 0,
       senha: SENHA_NAO_ALTERADA
     };
+  }
+
+  private limparMensagens(): void {
+    this.mensagemErro.set(null);
+    this.errosValidacao.set([]);
   }
 
   private tratarErro(error: HttpErrorResponse): void {

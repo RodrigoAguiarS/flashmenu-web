@@ -1,116 +1,191 @@
-.cabecalho-secao p,
-.endereco-card span,
-.endereco-card small {
+.conta-topo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.conta-topo h1,
+.menu-conta h2,
+.form-endereco h2 {
   margin: 0;
-  color: var(--cor-texto-suave);
+  color: var(--cor-texto);
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.voltar-conta {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.conta-layout,
+.perfil-card,
+.menu-conta,
+.enderecos-secao,
+.lista-enderecos,
+.formulario-conta {
+  display: grid;
 }
 
 .conta-layout {
-  display: grid;
-  gap: 12px;
+  gap: 14px;
+  max-width: 840px;
+  margin-inline: auto;
 }
 
-.abas-conta {
+.perfil-card {
+  gap: 4px;
+  padding: 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.avatar-conta {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 8px;
+  color: #fff;
+  background: var(--cor-primaria);
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.perfil-card span,
+.menu-item small,
+.enderecos-secao p,
+.endereco-card span,
+.formulario-senha p {
+  color: var(--cor-texto-suave);
+}
+
+.perfil-card button {
+  justify-self: end;
+  padding-inline: 0;
+}
+
+.menu-conta {
+  gap: 8px;
+}
+
+.menu-conta h2 {
+  font-size: 18px;
+}
+
+.menu-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 0;
+  color: var(--cor-texto);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--cor-borda);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menu-icone {
+  color: var(--cor-primaria);
+  font-size: 20px;
+}
+
+.menu-item strong,
+.menu-item small {
   display: block;
 }
 
+.menu-item-tema {
+  cursor: default;
+}
+
+.sair-conta .menu-icone,
+.sair-conta strong {
+  color: var(--danger);
+}
+
 .formulario-conta {
+  gap: 4px;
   padding: 14px;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
 }
 
-.cabecalho-secao h2,
-.form-endereco h3 {
-  margin: 0 0 4px;
-  font-size: 18px;
-  font-weight: 700;
+.acoes-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-.cabecalho-secao {
-  margin-bottom: 16px;
+.acoes-form button,
+.adicionar-endereco {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 8px;
 }
 
-.cabecalho-enderecos {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
+.enderecos-secao {
   gap: 12px;
 }
 
-.cabecalho-enderecos button {
-  width: 100%;
+.enderecos-secao > p,
+.formulario-senha p {
+  margin: 0;
 }
 
 .lista-enderecos {
-  display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .endereco-card {
   display: grid;
-  gap: 8px;
-  padding: 14px;
-  background: var(--cor-campo);
+  gap: 5px;
+  padding: 12px;
+  background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
 }
 
 .endereco-card.principal {
-  border-color: color-mix(in srgb, var(--cor-primaria) 42%, var(--cor-borda));
-  box-shadow: inset 3px 0 0 var(--cor-primaria);
+  border-color: color-mix(in srgb, var(--cor-primaria) 45%, var(--cor-borda));
 }
 
-.endereco-card-topo {
+.endereco-card header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  min-width: 0;
 }
 
-.endereco-card-topo nz-tag {
-  flex: 0 0 auto;
-  margin: 0;
+.endereco-card header span {
+  color: var(--cor-primaria);
+  font-weight: 750;
+  white-space: nowrap;
 }
 
-.endereco-card strong,
-.endereco-card span,
-.endereco-card small {
-  overflow-wrap: anywhere;
+.endereco-card p {
+  margin: 4px 0 0;
+  color: var(--cor-texto);
+  font-weight: 650;
 }
 
-.endereco-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-}
-
-.endereco-acoes {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 4px;
-}
-
-.endereco-acoes button {
-  min-height: 34px;
+.endereco-card button {
+  justify-self: start;
+  min-height: 36px;
+  margin-top: 4px;
   border-radius: 8px;
 }
 
 .form-endereco {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--cor-borda);
-}
-
-.form-endereco h3 {
-  margin-bottom: 14px;
-}
-
-.form-endereco nz-form-item {
-  margin-bottom: 14px;
+  margin-top: 4px;
 }
 
 .switch-principal {
@@ -121,47 +196,13 @@
   color: var(--cor-texto);
 }
 
-.alerta-form {
-  margin-bottom: 16px;
-}
-
 .alerta-form ul {
   margin: 8px 0 0;
   padding-left: 18px;
 }
 
-.acoes-form {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.acoes-form button {
-  width: auto;
-  min-width: 96px;
-  min-height: 36px;
-  padding-inline: 14px;
-  border-radius: 8px;
-}
-
-:host ::ng-deep .abas-conta .ant-tabs-nav {
-  margin-bottom: 12px;
-}
-
-:host ::ng-deep .abas-conta .ant-tabs-nav-wrap {
-  justify-content: center;
-}
-
-:host ::ng-deep .abas-conta .ant-tabs-tab {
-  min-height: 44px;
-  margin: 0;
-  padding: 10px 12px;
-}
-
 :host ::ng-deep .ant-input {
-  min-height: 40px;
+  min-height: 42px;
 }
 
 :host ::ng-deep .ant-form-item {
@@ -169,49 +210,13 @@
 }
 
 @media (min-width: 700px) {
-  .conta-layout {
-    max-width: 920px;
-    margin: 0 auto;
+  .acoes-form {
+    grid-template-columns: minmax(180px, auto) auto;
+    justify-content: end;
   }
 
-  .formulario-conta {
-    padding: 20px;
-  }
-
-  .cabecalho-enderecos {
-    align-items: flex-start;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .cabecalho-enderecos button {
+  .acoes-form button,
+  .adicionar-endereco {
     width: auto;
-  }
-
-}
-
-@media (max-width: 560px) {
-  .endereco-card-topo {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .endereco-acoes,
-  .endereco-acoes button {
-    width: 100%;
-  }
-
-  .endereco-card-topo nz-tag {
-    width: fit-content;
-  }
-
-  :host ::ng-deep .abas-conta .ant-tabs-nav-list {
-    width: 100%;
-  }
-
-  :host ::ng-deep .abas-conta .ant-tabs-tab {
-    flex: 1 1 0;
-    justify-content: center;
-    padding-inline: 8px;
   }
 }

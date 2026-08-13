@@ -54,6 +54,17 @@ export class PedidoDetailComponent implements OnInit {
     this.carregarPedido();
   }
 
+  protected statusTexto(status: StatusPedido): string {
+    const labels: Record<string, string> = {
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
+      CONFIRMADO: 'Confirmado',
+      PAGO: 'Concluido',
+      CANCELADO: 'Cancelado'
+    };
+
+    return labels[status] ?? status;
+  }
+
   protected corStatus(status: StatusPedido): string {
     const cores: Record<string, string> = {
       AGUARDANDO_CONFIRMACAO: 'processing',
@@ -65,15 +76,40 @@ export class PedidoDetailComponent implements OnInit {
     return cores[status] ?? 'default';
   }
 
-  protected statusTexto(status: StatusPedido): string {
-    const labels: Record<string, string> = {
-      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
-      CONFIRMADO: 'Confirmado',
-      PAGO: 'Confirmado',
-      CANCELADO: 'Cancelado'
+  protected statusClasse(status: StatusPedido): string {
+    const classes: Record<string, string> = {
+      AGUARDANDO_CONFIRMACAO: 'aguardando',
+      CONFIRMADO: 'confirmado',
+      PAGO: 'concluido',
+      CANCELADO: 'cancelado'
     };
 
-    return labels[status] ?? status;
+    return classes[status] ?? 'neutro';
+  }
+
+  protected statusDescricao(pedido: PedidoResponse): string {
+    if (pedido.status === 'CANCELADO') {
+      return 'Este pedido foi cancelado.';
+    }
+
+    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
+      return pedido.pagamento ? 'Pagamento confirmado. Aguardando preparo.' : 'Seu pedido foi enviado e aguarda confirmacao.';
+    }
+
+    if (pedido.status === 'PAGO') {
+      return 'Pedido concluido.';
+    }
+
+    return 'Pedido confirmado.';
+  }
+
+  protected tipoTexto(tipo: TipoPedido | null): string {
+    const labels: Record<string, string> = {
+      DELIVERY: 'Delivery',
+      PDV: 'Balcao'
+    };
+
+    return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
   protected corTipo(tipo: TipoPedido | null): string {
@@ -85,13 +121,24 @@ export class PedidoDetailComponent implements OnInit {
     return tipo ? cores[tipo] ?? 'default' : 'default';
   }
 
-  protected tipoTexto(tipo: TipoPedido | null): string {
-    const labels: Record<string, string> = {
-      DELIVERY: 'Delivery',
-      PDV: 'PDV'
-    };
+  protected tipoIcone(tipo: TipoPedido | null): string {
+    return tipo === 'PDV' ? 'shop' : 'environment';
+  }
 
-    return tipo ? labels[tipo] ?? tipo : 'Nao informado';
+  protected pagamentoStatusTexto(pedido: PedidoResponse): string {
+    return pedido.pagamento ? 'Pago' : 'Pendente';
+  }
+
+  protected pagamentoStatusClasse(pedido: PedidoResponse): string {
+    return pedido.pagamento ? 'concluido' : 'aguardando';
+  }
+
+  protected itemPrecoUnitario(item: { valorUnitarioFinal?: number; precoUnitario: number }): number {
+    return Number(item.valorUnitarioFinal ?? item.precoUnitario ?? 0);
+  }
+
+  protected itemPrecoBase(item: { valorProduto?: number; precoUnitario: number }): number {
+    return Number(item.valorProduto ?? item.precoUnitario ?? 0);
   }
 
   protected produtoDetalhe(produtoId: number): ProdutoResponse | null {

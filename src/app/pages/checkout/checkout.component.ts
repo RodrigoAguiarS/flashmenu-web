@@ -13,15 +13,13 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NgxMaskDirective } from 'ngx-mask';
 
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
+import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
-import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 import { CheckoutFacade } from './checkout.facade';
 import { IdentificacaoClienteComponent } from './components/identificacao-cliente/identificacao-cliente.component';
@@ -45,12 +43,9 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzInputModule,
     NzModalModule,
     NzQRCodeModule,
-    NzSelectModule,
     NzSpinModule,
     NzTagModule,
     NgxMaskDirective,
-    PageHeaderComponent,
-    PedidoResumoFinanceiroComponent,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],
@@ -88,6 +83,81 @@ export class CheckoutComponent implements OnInit {
 
   protected finalizarPedido(): void {
     this.checkout.finalizarPedido();
+  }
+
+  protected selecionarFormaPagamento(formaPagamentoId: number): void {
+    this.checkout.formulario.patchValue({ formaPagamentoId });
+  }
+
+  protected valor(valor: number | null | undefined): number {
+    return Number.isFinite(Number(valor)) ? Number(valor) : 0;
+  }
+
+  protected possuiValor(valor: number | null | undefined): boolean {
+    return this.valor(valor) !== 0;
+  }
+
+  protected rotuloFormaPagamento(forma: FormaPagamentoResponse): string {
+    const tipo = forma.tipo;
+
+    if (tipo === 'PIX') {
+      return 'PIX';
+    }
+
+    if (tipo === 'CARTAO_CREDITO') {
+      return 'Cartao de credito';
+    }
+
+    if (tipo === 'CARTAO_DEBITO') {
+      return 'Cartao de debito';
+    }
+
+    if (tipo === 'DINHEIRO') {
+      return 'Dinheiro';
+    }
+
+    return forma.nome;
+  }
+
+  protected descricaoFormaPagamento(forma: FormaPagamentoResponse): string {
+    if (forma.tipo === 'PIX') {
+      return 'Pagamento instantaneo';
+    }
+
+    if (forma.tipo === 'DINHEIRO') {
+      return 'Pague na entrega';
+    }
+
+    if (forma.percentualAcrescimo) {
+      return `Acrescimo de ${this.valor(forma.percentualAcrescimo)}%`;
+    }
+
+    return 'Sem acrescimo';
+  }
+
+  protected iconeFormaPagamento(forma: FormaPagamentoResponse): string {
+    if (forma.tipo === 'PIX') {
+      return 'PIX';
+    }
+
+    if (forma.tipo === 'DINHEIRO') {
+      return 'R$';
+    }
+
+    return 'CARD';
+  }
+
+  protected textoBotaoConfirmar(): string {
+    const total = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(this.checkout.totalPrevisto());
+
+    if (this.checkout.pagamentoPix()) {
+      return `Pagar ${total} com PIX`;
+    }
+
+    return `Confirmar pedido · ${total}`;
   }
 
   protected subtotalItem(preco: number, quantidade: number): number {

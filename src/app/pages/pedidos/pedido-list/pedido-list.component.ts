@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -9,29 +9,27 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { ItemPedidoResponse, PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+
+type FiltroPedidos = 'TODOS' | 'EM_ANDAMENTO' | 'CONCLUIDOS';
 
 @Component({
   selector: 'app-pedido-list',
   standalone: true,
   imports: [
     CurrencyPipe,
-    DatePipe,
+    NgTemplateOutlet,
     RouterLink,
     NzButtonModule,
     NzEmptyModule,
     NzIconModule,
     NzPaginationModule,
-    NzSpinModule,
-    NzTagModule,
-    PageHeaderComponent
+    NzSpinModule
   ],
   templateUrl: './pedido-list.component.html',
   styleUrl: './pedido-list.component.scss',
@@ -46,57 +44,141 @@ export class PedidoListComponent implements OnInit {
   protected readonly carregando = signal(false);
   protected readonly pdfProcessandoId = signal<number | null>(null);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
+  protected readonly filtroSelecionado = signal<FiltroPedidos>('TODOS');
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
   protected readonly pageSize = signal(10);
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
+  protected readonly pedidosFiltrados = computed(() =>
+    this.pedidos()
+      .filter((pedido) => {
+        const filtro = this.filtroSelecionado();
+
+        if (filtro === 'EM_ANDAMENTO') {
+          return this.pedidoEmAndamento(pedido);
+        }
+
+        if (filtro === 'CONCLUIDOS') {
+          return this.pedidoConcluido(pedido);
+        }
+
+        return true;
+      })
+      .sort((a, b) => Number(this.pedidoEmAndamento(b)) - Number(this.pedidoEmAndamento(a)))
+  );
+  protected readonly possuiPedidosFiltrados = computed(() => this.pedidosFiltrados().length > 0);
+  protected readonly pedidosEmAndamento = computed(() => this.pedidosFiltrados().filter((pedido) => this.pedidoEmAndamento(pedido)));
+  protected readonly pedidosAnteriores = computed(() => this.pedidosFiltrados().filter((pedido) => !this.pedidoEmAndamento(pedido)));
 
   ngOnInit(): void {
     this.carregarPedidos();
   }
 
-  protected corStatus(status: StatusPedido): string {
-    const cores: Record<string, string> = {
-      AGUARDANDO_CONFIRMACAO: 'processing',
-      CONFIRMADO: 'success',
-      PAGO: 'success',
-      CANCELADO: 'error'
-    };
-
-    return cores[status] ?? 'default';
+  protected selecionarFiltro(filtro: FiltroPedidos): void {
+    this.filtroSelecionado.set(filtro);
   }
 
   protected statusTexto(status: StatusPedido): string {
     const labels: Record<string, string> = {
-      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmação',
+      AGUARDANDO_CONFIRMACAO: 'Aguardando confirmacao',
       CONFIRMADO: 'Confirmado',
-      PAGO: 'Confirmado',
+      PAGO: 'Concluido',
       CANCELADO: 'Cancelado'
     };
 
     return labels[status] ?? status;
   }
 
-  protected corTipo(tipo: TipoPedido | null): string {
-    const cores: Record<string, string> = {
-      DELIVERY: 'blue',
-      PDV: 'purple'
+  protected classeStatus(status: StatusPedido): string {
+    const classes: Record<string, string> = {
+      AGUARDANDO_CONFIRMACAO: 'aguardando',
+      CONFIRMADO: 'confirmado',
+      PAGO: 'concluido',
+      CANCELADO: 'cancelado'
     };
 
-    return tipo ? cores[tipo] ?? 'default' : 'default';
+    return classes[status] ?? 'neutro';
+  }
+
+  protected statusLinha(pedido: PedidoResponse): string {
+    if (pedido.status === 'CANCELADO') {
+      return 'Pedido cancelado';
+    }
+
+    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
+      return pedido.pagamento ? 'Pagamento confirmado. Aguardando preparo' : 'Pedido enviado. Aguardando confirmacao';
+    }
+
+    if (pedido.status === 'PAGO') {
+      return 'Pedido concluido';
+    }
+
+    return 'Pedido confirmado';
   }
 
   protected tipoTexto(tipo: TipoPedido | null): string {
     const labels: Record<string, string> = {
       DELIVERY: 'Delivery',
-      PDV: 'PDV'
+      PDV: 'Balcao'
     };
 
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
   }
 
+  protected tipoIcone(tipo: TipoPedido | null): string {
+    return tipo === 'PDV' ? 'shop' : 'environment';
+  }
+
   protected nomeUnidade(pedido: PedidoResponse): string {
     return pedido.unidade?.nome ?? 'Unidade nao informada';
+  }
+
+  protected dataHumana(data: string): string {
+    const valor = new Date(data);
+
+    if (Number.isNaN(valor.getTime())) {
+      return data;
+    }
+
+    const hoje = new Date();
+    const ontem = new Date();
+    ontem.setDate(hoje.getDate() - 1);
+    const mesmoDia = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    const hora = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(valor);
+
+    if (mesmoDia(valor, hoje)) {
+      return `Hoje, ${hora}`;
+    }
+
+    if (mesmoDia(valor, ontem)) {
+      return `Ontem, ${hora}`;
+    }
+
+    return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+      .format(valor)
+      .replace('.', '');
+  }
+
+  protected quantidadeItensTexto(pedido: PedidoResponse): string {
+    const totalItens = pedido.itens.reduce((total, item) => total + item.quantidade, 0);
+    return `${totalItens} item${totalItens === 1 ? '' : 's'}`;
+  }
+
+  protected itensPreview(pedido: PedidoResponse): ItemPedidoResponse[] {
+    return pedido.itens.slice(0, 2);
+  }
+
+  protected itensRestantes(pedido: PedidoResponse): number {
+    return Math.max(pedido.itens.length - this.itensPreview(pedido).length, 0);
+  }
+
+  protected pedidoEmAndamento(pedido: PedidoResponse): boolean {
+    return pedido.status !== 'PAGO' && pedido.status !== 'CANCELADO';
+  }
+
+  protected pedidoConcluido(pedido: PedidoResponse): boolean {
+    return pedido.status === 'PAGO' || pedido.status === 'CANCELADO';
   }
 
   protected abrirDetalhe(id: number, event?: Event): void {

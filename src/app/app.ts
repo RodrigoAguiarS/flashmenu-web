@@ -2,11 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { EMPTY, catchError, filter, map, startWith } from 'rxjs';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { NAV_ITEMS, NavItem } from './core/auth/permissoes';
 import { AuthService } from './core/services/auth.service';
@@ -24,10 +22,8 @@ type RouterLinkValue = string | readonly unknown[];
     RouterLink,
     RouterLinkActive,
     NzBadgeModule,
-    NzButtonModule,
     NzIconModule,
     NzLayoutModule,
-    NzTooltipModule,
     ThemeToggleComponent
   ],
   templateUrl: './app.html',
@@ -64,13 +60,55 @@ export class App implements OnInit {
     ).subscribe();
   }
 
-  sair(): void {
-    this.authService.sair();
-  }
-
   protected linkLojaUnidade(): RouterLinkValue {
     const slug = this.authService.usuarioAutenticado()?.unidade?.slug ?? this.carrinhoService.unidadeSlug();
     return slug ? ['/loja', slug] : '/catalogo';
+  }
+
+  protected nomeHeader(): string {
+    const unidade = this.authService.usuarioAutenticado()?.unidade;
+    const slug = this.carrinhoService.unidadeSlug();
+
+    if (unidade?.nome) {
+      return unidade.nome;
+    }
+
+    if (slug) {
+      return slug
+        .split('-')
+        .filter(Boolean)
+        .map((parte) => parte[0]?.toUpperCase() + parte.slice(1))
+        .join(' ');
+    }
+
+    return 'FlashMenu';
+  }
+
+  protected subtituloHeader(): string {
+    const unidade = this.authService.usuarioAutenticado()?.unidade;
+
+    if (!unidade) {
+      return 'Cardapio digital';
+    }
+
+    if (unidade.abertaAgora === true) {
+      return 'Aberto agora';
+    }
+
+    if (unidade.abertaAgora === false) {
+      return 'Fechado agora';
+    }
+
+    return unidade.ativo ? 'Unidade ativa' : 'Unidade indisponivel';
+  }
+
+  protected logoHeader(): string | null {
+    const unidade = this.authService.usuarioAutenticado()?.unidade;
+    return unidade?.logoUrl ?? unidade?.imagemUrl ?? null;
+  }
+
+  protected inicialHeader(): string {
+    return this.nomeHeader().trim()[0]?.toUpperCase() ?? 'F';
   }
 
   protected linkCatalogo(): RouterLinkValue {

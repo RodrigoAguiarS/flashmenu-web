@@ -1,113 +1,172 @@
-.lista-pedidos {
+.pedidos-topo {
+  margin-bottom: 10px;
+}
+
+.pedidos-topo h1 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 22px;
+  font-weight: 750;
+}
+
+.pedidos-topo p {
+  margin: 2px 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.filtros-pedidos {
+  display: flex;
+  gap: 8px;
+  margin: 0 -12px 14px;
+  padding: 0 12px 2px;
+  overflow-x: auto;
+}
+
+.filtros-pedidos button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--cor-texto-suave);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 650;
+}
+
+.filtros-pedidos button.ativo {
+  color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+}
+
+.lista-pedidos,
+.grupo-pedidos,
+.pedido-card,
+.pedido-itens {
   display: grid;
+}
+
+.lista-pedidos {
+  gap: 18px;
+}
+
+.grupo-pedidos {
   gap: 10px;
 }
 
+.grupo-pedidos h2 {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .pedido-card {
-  display: grid;
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
+  color: var(--cor-texto);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.pedido-card:hover,
-.pedido-card:focus-visible {
-  border-color: var(--cor-primaria);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--cor-primaria) 16%, transparent);
-  outline: 0;
-  transform: translateY(-1px);
-}
-
-.pedido-topo {
+.pedido-topo,
+.pedido-pagamento,
+.pedido-rodape {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
 }
 
-.pedido-tags {
-  display: flex;
-  flex: 0 0 auto;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px;
-  max-width: 48%;
-}
-
-.pedido-tags nz-tag {
-  margin: 0;
-}
-
-.pedido-topo div,
-.pedido-resumo span,
-.pedido-resumo strong {
+.pedido-topo div {
   display: grid;
-  gap: 2px;
   min-width: 0;
 }
 
+.pedido-topo strong {
+  font-size: 15px;
+}
+
 .pedido-topo span,
-.pedido-resumo small,
-.pedido-rodape small {
+.pedido-itens span,
+.pedido-pagamento span {
   color: var(--cor-texto-suave);
 }
 
-.pedido-unidade {
+.status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  max-width: 100%;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 750;
+}
+
+.status-pill span,
+.pedido-status-linha span {
+  width: 8px;
+  height: 8px;
+  background: var(--cor-texto-suave);
+  border-radius: 999px;
+}
+
+.status-pill[data-status='aguardando'] span,
+.pedido-status-linha[data-status='aguardando'] span {
+  background: var(--warning);
+}
+
+.status-pill[data-status='confirmado'] span,
+.pedido-status-linha[data-status='confirmado'] span,
+.status-pill[data-status='concluido'] span,
+.pedido-status-linha[data-status='concluido'] span {
+  background: var(--success);
+}
+
+.status-pill[data-status='cancelado'] span,
+.pedido-status-linha[data-status='cancelado'] span {
+  background: var(--danger);
+}
+
+.pedido-entrega,
+.pedido-status-linha {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.pedido-entrega .anticon {
+  color: var(--cor-primaria);
+}
+
+.pedido-entrega span:last-child {
   overflow: hidden;
-  color: var(--cor-texto);
-  font-size: 12px;
-  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pedido-unidade .anticon {
-  flex: 0 0 auto;
-  color: var(--cor-primaria);
+.pedido-itens {
+  gap: 3px;
 }
 
-.pedido-resumo {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  padding: 8px 0;
-  background: var(--cor-campo);
-  border-block: 1px solid var(--cor-borda);
+.pedido-pagamento strong {
+  font-size: 16px;
 }
 
-.pedido-resumo span,
-.pedido-resumo strong {
+.pedido-status-linha strong {
   font-size: 13px;
 }
 
 .pedido-rodape {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
 }
 
-.pedido-acoes-card {
-  display: inline-flex;
-  flex: 0 0 auto;
-  gap: 6px;
-}
-
+.botao-pdf,
 .botao-detalhes {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  color: var(--cor-primaria);
-  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--cor-primaria) 28%, transparent);
+  min-height: 38px;
+  border-radius: 8px;
 }
 
 .estado-vazio {
@@ -127,13 +186,8 @@
   .lista-pedidos {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   }
-}
 
-@media (max-width: 520px) {
-  .pedido-tags nz-tag {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .grupo-pedidos {
+    align-content: start;
   }
 }

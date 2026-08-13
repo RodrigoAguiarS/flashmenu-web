@@ -1,27 +1,21 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { ItemCarrinho, ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { GrupoComplementoResponse } from '../../core/models/complemento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { GrupoComplementoService } from '../../core/services/grupo-complemento.service';
 import { ProdutoService } from '../../core/services/produto.service';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
@@ -31,21 +25,15 @@ import {
   selector: 'app-carrinho',
   standalone: true,
   imports: [
-    FormsModule,
     CurrencyPipe,
     RouterLink,
     NzButtonModule,
     NzCardModule,
-    NzDividerModule,
     NzDrawerModule,
     NzEmptyModule,
     NzIconModule,
-    NzInputNumberModule,
     NzPopconfirmModule,
-    NzTagModule,
-    NzTooltipModule,
-    ProdutoPersonalizacaoComponent,
-    PageHeaderComponent
+    ProdutoPersonalizacaoComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',
@@ -174,6 +162,14 @@ export class CarrinhoComponent implements OnInit {
 
   protected precoItem(item: ItemCarrinho): number {
     return this.carrinhoService.obterPrecoItem(item);
+  }
+
+  protected possuiPersonalizacao(item: ItemCarrinho): boolean {
+    return !!item.observacao || !!item.complementos?.length;
+  }
+
+  protected descricaoCurta(produto: ProdutoCarrinho): string {
+    return produto.descricao?.trim() || 'Sem descricao.';
   }
 
   protected estoqueMaximo(produto: ProdutoCarrinho): number {

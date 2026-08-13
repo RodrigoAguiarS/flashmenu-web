@@ -1,92 +1,49 @@
-<app-page-header titulo="Meus pedidos" descricao="Acompanhe seus pedidos realizados." />
+<header class="pedidos-topo">
+  <h1>Meus pedidos</h1>
+  <p>Acompanhe seus pedidos</p>
+</header>
+
+<nav class="filtros-pedidos" aria-label="Filtros de pedidos">
+  <button type="button" [class.ativo]="filtroSelecionado() === 'TODOS'" (click)="selecionarFiltro('TODOS')">
+    Todos
+  </button>
+  <button
+    type="button"
+    [class.ativo]="filtroSelecionado() === 'EM_ANDAMENTO'"
+    (click)="selecionarFiltro('EM_ANDAMENTO')"
+  >
+    Em andamento
+  </button>
+  <button
+    type="button"
+    [class.ativo]="filtroSelecionado() === 'CONCLUIDOS'"
+    (click)="selecionarFiltro('CONCLUIDOS')"
+  >
+    Concluidos
+  </button>
+</nav>
 
 <nz-spin [nzSpinning]="carregando()">
-  @if (possuiPedidos()) {
+  @if (possuiPedidos() && possuiPedidosFiltrados()) {
     <section class="lista-pedidos" aria-label="Meus pedidos">
-      @for (pedido of pedidos(); track pedido.id) {
-        <article
-          class="pedido-card"
-          role="link"
-          tabindex="0"
-          [attr.aria-label]="'Ver detalhes do pedido ' + pedido.id"
-          (click)="abrirDetalhe(pedido.id)"
-          (keydown.enter)="abrirDetalhe(pedido.id)"
-          (keydown.space)="abrirDetalhe(pedido.id, $event)"
-        >
-          <header class="pedido-topo">
-            <div>
-              <strong>Pedido #{{ pedido.id }}</strong>
-              <span class="pedido-unidade">
-                <span nz-icon nzType="shop" nzTheme="outline"></span>
-                {{ nomeUnidade(pedido) }}
-              </span>
-              <span>{{ pedido.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</span>
-            </div>
+      @if (pedidosEmAndamento().length) {
+        <section class="grupo-pedidos" aria-labelledby="pedidos-em-andamento">
+          <h2 id="pedidos-em-andamento">Em andamento</h2>
 
-            <div class="pedido-tags">
-              <nz-tag [nzColor]="corTipo(pedido.tipo)">{{ tipoTexto(pedido.tipo) }}</nz-tag>
-              <nz-tag [nzColor]="corStatus(pedido.status)">{{ statusTexto(pedido.status) }}</nz-tag>
-            </div>
-          </header>
+          @for (pedido of pedidosEmAndamento(); track pedido.id) {
+            <ng-container [ngTemplateOutlet]="pedidoCard" [ngTemplateOutletContext]="{ pedido: pedido }" />
+          }
+        </section>
+      }
 
-          <div class="pedido-resumo">
-            <span>
-              <small>Status</small>
-              {{ statusTexto(pedido.status) }}
-            </span>
-            <span>
-              <small>Itens</small>
-              {{ pedido.itens.length }}
-            </span>
-            <strong>
-              <small>Total</small>
-              {{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}
-            </strong>
-            <span>
-              <small>Pagamento</small>
-              {{ pedido.formaPagamento.nome }}
-            </span>
-          </div>
+      @if (pedidosAnteriores().length) {
+        <section class="grupo-pedidos" aria-labelledby="pedidos-anteriores">
+          <h2 id="pedidos-anteriores">Anteriores</h2>
 
-          <footer class="pedido-rodape">
-            <small>
-              @if (pedido.confirmadoEm) {
-                Confirmado em {{ pedido.confirmadoEm | date:'dd/MM/yyyy HH:mm' }}
-              } @else {
-                Ainda nao confirmado
-              }
-            </small>
-
-            <div class="pedido-acoes-card">
-              <button
-                class="botao-detalhes"
-                nz-button
-                nzType="text"
-                nzShape="circle"
-                type="button"
-                title="Exportar PDF"
-                aria-label="Exportar pedido em PDF"
-                [nzLoading]="pdfProcessandoId() === pedido.id"
-                (click)="exportarPdf(pedido, $event)"
-              >
-                <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
-              </button>
-
-              <button
-                class="botao-detalhes"
-                nz-button
-                nzType="text"
-                nzShape="circle"
-                type="button"
-                title="Ver detalhes"
-                aria-label="Ver detalhes do pedido"
-                (click)="abrirDetalhe(pedido.id, $event)"
-              >
-                <span nz-icon nzType="eye" nzTheme="outline"></span>
-              </button>
-            </div>
-          </footer>
-        </article>
+          @for (pedido of pedidosAnteriores(); track pedido.id) {
+            <ng-container [ngTemplateOutlet]="pedidoCard" [ngTemplateOutletContext]="{ pedido: pedido }" />
+          }
+        </section>
       }
     </section>
 
@@ -98,6 +55,10 @@
         (nzPageIndexChange)="alterarPagina($event)"
       ></nz-pagination>
     </div>
+  } @else if (possuiPedidos()) {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Nenhum pedido neste filtro."></nz-empty>
+    </section>
   } @else {
     <section class="estado-vazio cartao-sistema">
       <nz-empty nzNotFoundContent="Voce ainda nao possui pedidos."></nz-empty>
@@ -105,3 +66,69 @@
     </section>
   }
 </nz-spin>
+
+<ng-template #pedidoCard let-pedido="pedido">
+  <article
+    class="pedido-card"
+    role="link"
+    tabindex="0"
+    [attr.aria-label]="'Ver detalhes do pedido ' + pedido.id"
+    (click)="abrirDetalhe(pedido.id)"
+    (keydown.enter)="abrirDetalhe(pedido.id)"
+    (keydown.space)="abrirDetalhe(pedido.id, $event)"
+  >
+    <header class="pedido-topo">
+      <div>
+        <strong>Pedido #{{ pedido.id }}</strong>
+        <span>{{ dataHumana(pedido.dataCriacao) }}</span>
+      </div>
+
+      <span class="status-pill" [attr.data-status]="classeStatus(pedido.status)">
+        <span aria-hidden="true"></span>
+        {{ statusTexto(pedido.status) }}
+      </span>
+    </header>
+
+    <div class="pedido-entrega">
+      <span nz-icon [nzType]="tipoIcone(pedido.tipo)" nzTheme="outline"></span>
+      <span>{{ tipoTexto(pedido.tipo) }} · {{ nomeUnidade(pedido) }}</span>
+    </div>
+
+    <div class="pedido-itens">
+      @for (item of itensPreview(pedido); track item.id) {
+        <span>{{ item.quantidade }}x {{ item.produtoNome }}</span>
+      }
+
+      @if (itensRestantes(pedido) > 0) {
+        <span>+ {{ itensRestantes(pedido) }} itens</span>
+      }
+    </div>
+
+    <div class="pedido-pagamento">
+      <span>{{ pedido.formaPagamento.nome }}</span>
+      <strong>{{ pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+    </div>
+
+    <div class="pedido-status-linha" [attr.data-status]="classeStatus(pedido.status)">
+      <span aria-hidden="true"></span>
+      <strong>{{ statusLinha(pedido) }}</strong>
+    </div>
+
+    <footer class="pedido-rodape">
+      <button
+        class="botao-pdf"
+        nz-button
+        type="button"
+        [nzLoading]="pdfProcessandoId() === pedido.id"
+        (click)="exportarPdf(pedido, $event)"
+      >
+        <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+        PDF
+      </button>
+
+      <button class="botao-detalhes" nz-button nzType="primary" type="button" (click)="abrirDetalhe(pedido.id, $event)">
+        Ver detalhes
+      </button>
+    </footer>
+  </article>
+</ng-template>

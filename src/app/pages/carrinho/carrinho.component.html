@@ -1,4 +1,9 @@
-<app-page-header titulo="Carrinho" descricao="Revise os produtos antes de finalizar o pedido." />
+<header class="carrinho-topo">
+  <div>
+    <h1>Seu carrinho</h1>
+    <span>{{ carrinhoService.quantidadeTotal() }} item@if (carrinhoService.quantidadeTotal() !== 1) {s}</span>
+  </div>
+</header>
 
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">
@@ -25,112 +30,89 @@
             }
 
             <div class="item-conteudo">
-              <div class="item-topo">
-                <div class="produto-info">
-                  <strong>{{ item.produto.nome }}</strong>
-                  <nz-tag>{{ item.produto.categoria.nome }}</nz-tag>
-                  @if (item.observacao) {
-                    <small class="observacao-item">Obs: {{ item.observacao }}</small>
-                  }
-                  @if (item.complementos?.length) {
-                    <ul class="complementos-item">
-                      @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
-                        <li>+ {{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
-                      }
-                    </ul>
-                  }
-                </div>
+              <div class="produto-info">
+                <strong>{{ item.produto.nome }}</strong>
+                <p>{{ descricaoCurta(item.produto) }}</p>
 
+                @if (item.complementos?.length) {
+                  <ul class="complementos-item" aria-label="Opcoes do produto">
+                    @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
+                      <li>{{ complemento.nome }}@if (complemento.quantidade > 1) { x{{ complemento.quantidade }} }</li>
+                    }
+                  </ul>
+                }
+
+                @if (item.observacao) {
+                  <small class="observacao-item">{{ item.observacao }}</small>
+                }
+
+                @if (possuiPersonalizacao(item)) {
+                  <button class="editar-opcoes" nz-button nzType="link" type="button" (click)="editarPersonalizacao(item)">
+                    Editar opcoes
+                  </button>
+                }
               </div>
 
-              <div class="item-rodape">
-                <div class="item-valores">
-                  <span>
-                    <small>Preco</small>
-                    {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}
-                  </span>
-                  <strong>
-                    <small>Subtotal</small>
-                    {{ subtotal(item) | currency:'BRL':'symbol':'1.2-2' }}
-                  </strong>
-                </div>
+              <div class="item-valores">
+                <strong>{{ subtotal(item) | currency:'BRL':'symbol':'1.2-2' }}</strong>
 
+                @if (item.quantidade > 1) {
+                  <small>{{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }} cada</small>
+                }
+              </div>
+
+              <div class="item-acoes">
                 <div class="quantidade" aria-label="Quantidade">
-                  <button
-                    nz-button
-                    nzShape="circle"
-                    type="button"
-                    aria-label="Diminuir quantidade"
-                    (click)="decrementar(item)"
-                  >
+                  <button type="button" aria-label="Diminuir quantidade" (click)="decrementar(item)">
                     <span nz-icon nzType="minus" nzTheme="outline"></span>
                   </button>
 
-                  <nz-input-number
-                    [ngModel]="item.quantidade"
-                    [nzMin]="1"
-                    [nzMax]="estoqueMaximo(item.produto)"
-                    [nzStep]="1"
-                    (ngModelChange)="alterarQuantidade(item, $event)"
-                  ></nz-input-number>
+                  <span aria-live="polite">{{ item.quantidade }}</span>
 
-                  <button
-                    nz-button
-                    nzShape="circle"
-                    type="button"
-                    aria-label="Aumentar quantidade"
-                    (click)="incrementar(item)"
-                  >
+                  <button type="button" aria-label="Aumentar quantidade" (click)="incrementar(item)">
                     <span nz-icon nzType="plus" nzTheme="outline"></span>
                   </button>
-
-                  <button
-                    class="botao-editar"
-                    nz-button
-                    nzType="text"
-                    nzShape="circle"
-                    type="button"
-                    nz-tooltip
-                    nzTooltipTitle="Editar adicionais"
-                    aria-label="Editar adicionais"
-                    (click)="editarPersonalizacao(item)"
-                  >
-                    <span nz-icon nzType="edit" nzTheme="outline"></span>
-                  </button>
-
-                  <button
-                    class="botao-remover"
-                    nz-button
-                    nzType="text"
-                    nzDanger
-                    nzShape="circle"
-                    type="button"
-                    nz-popconfirm
-                    nzPopconfirmTitle="Deseja remover este produto?"
-                    nzOkText="Remover"
-                    nzCancelText="Cancelar"
-                    aria-label="Remover produto"
-                    (nzOnConfirm)="remover(item)"
-                  >
-                    <span nz-icon nzType="delete" nzTheme="outline"></span>
-                  </button>
                 </div>
+
+                <button
+                  class="botao-remover"
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  nzShape="circle"
+                  type="button"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Remover este produto?"
+                  nzOkText="Remover"
+                  nzCancelText="Cancelar"
+                  aria-label="Remover produto"
+                  (nzOnConfirm)="remover(item)"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
               </div>
             </div>
           </article>
         </nz-card>
       }
+
+      <a class="adicionar-produtos" [routerLink]="carrinhoService.cardapioLink()">
+        <span nz-icon nzType="plus" nzTheme="outline"></span>
+        Adicionar mais produtos
+      </a>
     </section>
 
-    <nz-card class="resumo resumo-mobile" nzTitle="Resumo">
+    <aside class="resumo" aria-label="Resumo do pedido">
+      <h2>Resumo do pedido</h2>
+
       <div class="linha-resumo">
-        <span>Itens</span>
-        <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
+        <span>Itens ({{ carrinhoService.quantidadeTotal() }})</span>
+        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
       </div>
 
       <div class="linha-resumo">
-        <span>Subtotal</span>
-        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        <span>Taxas</span>
+        <strong>{{ 0 | currency:'BRL':'symbol':'1.2-2' }}</strong>
       </div>
 
       <div class="linha-resumo total">
@@ -138,59 +120,33 @@
         <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
       </div>
 
-      <div class="acoes-resumo">
-        <button
-          nz-button
-          type="button"
-          nz-popconfirm
-          nzPopconfirmTitle="Deseja limpar o carrinho?"
-          nzOkText="Limpar"
-          nzCancelText="Cancelar"
-          (nzOnConfirm)="limpar()"
-        >
-          Limpar
-        </button>
+      <button
+        class="esvaziar-carrinho"
+        nz-button
+        nzType="link"
+        type="button"
+        nz-popconfirm
+        nzPopconfirmTitle="Esvaziar o carrinho?"
+        nzPopconfirmDescription="Todos os produtos serao removidos."
+        nzOkText="Esvaziar"
+        nzCancelText="Cancelar"
+        (nzOnConfirm)="limpar()"
+      >
+        Esvaziar carrinho
+      </button>
+    </aside>
 
-        <button nz-button nzType="primary" type="button" (click)="finalizar()">
-          Finalizar
-        </button>
-      </div>
-    </nz-card>
-
-    <nz-card class="resumo resumo-desktop" nzTitle="Resumo">
-      <div class="linha-resumo">
-        <span>Itens</span>
-        <strong>{{ carrinhoService.quantidadeTotal() }}</strong>
-      </div>
-
-      <div class="linha-resumo">
-        <span>Subtotal</span>
-        <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-      </div>
-
-      <nz-divider></nz-divider>
-
-      <div class="linha-resumo total">
+    <section class="fechamento-fixo" aria-label="Finalizar pedido">
+      <div>
         <span>Total</span>
         <strong>{{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
       </div>
 
       <button nz-button nzType="primary" type="button" (click)="finalizar()">
-        Finalizar pedido
+        Finalizar pedido · {{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}
+        <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
       </button>
-
-      <button
-        nz-button
-        type="button"
-        nz-popconfirm
-        nzPopconfirmTitle="Deseja limpar o carrinho?"
-        nzOkText="Limpar"
-        nzCancelText="Cancelar"
-        (nzOnConfirm)="limpar()"
-      >
-        Limpar carrinho
-      </button>
-    </nz-card>
+    </section>
   </section>
 }
 
