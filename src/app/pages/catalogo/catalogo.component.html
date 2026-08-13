@@ -23,17 +23,6 @@
             </nz-input-group>
           </nz-form-control>
         </nz-form-item>
-
-        <button
-          class="botao-filtros"
-          nz-button
-          nzShape="circle"
-          type="button"
-          aria-label="Abrir filtros"
-          (click)="abrirFiltros()"
-        >
-          <span nz-icon nzType="setting" nzTheme="outline"></span>
-        </button>
       </div>
 
       <nav class="categorias-menu" aria-label="Categorias do cardapio">
@@ -58,11 +47,6 @@
         }
       </nav>
 
-      @if (filtrosAplicados()) {
-        <button class="botao-limpar" nz-button nzType="text" type="button" (click)="limparFiltros()">
-          Limpar filtros
-        </button>
-      }
     </form>
   </section>
 
@@ -161,43 +145,6 @@
     <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
   </a>
 }
-
-<nz-drawer
-  [nzVisible]="filtrosDrawerAberto()"
-  nzTitle="Filtros"
-  nzPlacement="bottom"
-  [nzHeight]="'auto'"
-  (nzOnClose)="fecharFiltros()"
->
-  <ng-container *nzDrawerContent>
-    <form class="drawer-filtros" nz-form nzLayout="vertical" [formGroup]="filtros">
-      <nz-form-item>
-        <nz-form-label nzFor="categoriaDrawer">Categoria</nz-form-label>
-        <nz-form-control>
-          <nz-select
-            id="categoriaDrawer"
-            formControlName="categoriaId"
-            nzAllowClear
-            nzPlaceHolder="Todas as categorias"
-            [nzLoading]="carregandoCategorias()"
-          >
-            @for (categoria of categoriasMenu(); track categoria.id) {
-              <nz-option [nzValue]="categoria.id" [nzLabel]="categoria.nome"></nz-option>
-            }
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-
-      <div class="drawer-filtros-acoes">
-        @if (filtrosAplicados()) {
-          <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
-        }
-
-        <button nz-button nzType="primary" type="button" (click)="fecharFiltros()">Aplicar</button>
-      </div>
-    </form>
-  </ng-container>
-</nz-drawer>
 
 <nz-drawer
   [nzVisible]="drawerAberto()"

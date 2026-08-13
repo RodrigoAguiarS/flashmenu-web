@@ -17,7 +17,6 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -61,7 +60,6 @@ interface ProdutosPorCategoria {
     NzInputNumberModule,
     NzPaginationModule,
     NzResultModule,
-    NzSelectModule,
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
@@ -94,7 +92,6 @@ export class CatalogoComponent implements OnInit {
   protected readonly observacaoDetalhe = signal('');
   protected readonly carregando = signal(false);
   protected readonly carregandoCategorias = signal(false);
-  protected readonly filtrosDrawerAberto = signal(false);
   protected readonly filtroNome = signal('');
   protected readonly categoriaSelecionadaId = signal<number | null>(null);
   protected readonly total = signal(0);
@@ -104,7 +101,6 @@ export class CatalogoComponent implements OnInit {
   protected readonly cardapioIndisponivel = signal(false);
   protected readonly mensagemCardapioIndisponivel = signal('Cardapio nao encontrado.');
   protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardapio' : 'Catalogo');
-  protected readonly filtrosAplicados = computed(() => !!this.filtroNome().trim() || this.categoriaSelecionadaId() !== null);
   protected readonly produtosPorCategoria = computed<ProdutosPorCategoria[]>(() => {
     const grupos = new Map<number, ProdutosPorCategoria>();
 
@@ -184,26 +180,9 @@ export class CatalogoComponent implements OnInit {
     this.carregarProdutos();
   }
 
-  limparFiltros(): void {
-    this.filtroNome.set('');
-    this.categoriaSelecionadaId.set(null);
-    this.filtros.reset({
-      nome: '',
-      categoriaId: null
-    });
-  }
-
   selecionarCategoria(categoriaId: number | null): void {
     this.categoriaSelecionadaId.set(categoriaId);
     this.filtros.patchValue({ categoriaId });
-  }
-
-  abrirFiltros(): void {
-    this.filtrosDrawerAberto.set(true);
-  }
-
-  fecharFiltros(): void {
-    this.filtrosDrawerAberto.set(false);
   }
 
   abrirDetalhes(produto: ProdutoResponse): void {
