@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -20,9 +21,11 @@ import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { EntregaResponse, StatusEntrega } from '../../../core/models/entrega.model';
 import { TipoFormaPagamento } from '../../../core/models/forma-pagamento.model';
+import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
 import { StatusPagamento } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { EntregaService } from '../../../core/services/entrega.service';
+import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-notificacao-visual.service';
 
 @Component({
   selector: 'app-entrega-detalhe',
@@ -53,7 +56,9 @@ export class EntregaDetalheComponent implements OnInit, OnDestroy {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
   private readonly entregaService = inject(EntregaService);
+  private readonly pedidoNotificacaoVisualService = inject(PedidoNotificacaoVisualService);
   private readonly message = inject(NzMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly entrega = signal<EntregaResponse | null>(null);
   protected readonly carregando = signal(false);
@@ -73,16 +78,21 @@ export class EntregaDetalheComponent implements OnInit, OnDestroy {
 
   private readonly marcarOnline = (): void => this.online.set(true);
   private readonly marcarOffline = (): void => this.online.set(false);
+  private notificacaoEntregadorDestination: string | null = null;
 
   ngOnInit(): void {
     window.addEventListener('online', this.marcarOnline);
     window.addEventListener('offline', this.marcarOffline);
     this.carregarEntrega();
+    this.configurarNotificacoes();
   }
 
   ngOnDestroy(): void {
     window.removeEventListener('online', this.marcarOnline);
     window.removeEventListener('offline', this.marcarOffline);
+    if (this.notificacaoEntregadorDestination) {
+      this.pedidoNotificacaoVisualService.removerInscricao(this.notificacaoEntregadorDestination);
+    }
   }
 
   protected voltar(): void {
@@ -341,6 +351,59 @@ export class EntregaDetalheComponent implements OnInit, OnDestroy {
       next: (entrega) => this.entrega.set(entrega),
       error: (error: HttpErrorResponse) => this.erroCarregamento.set(this.extrairMensagemErro(error))
     });
+  }
+
+  private configurarNotificacoes(): void {
+    const entregadorId = this.authService.usuarioAutenticado()?.id;
+
+    if (!entregadorId) {
+      return;
+    }
+
+    this.notificacaoEntregadorDestination = `/topic/entregadores/${entregadorId}/entregas`;
+    this.pedidoNotificacaoVisualService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoVisualService.ouvirEntregador(entregadorId);
+    this.pedidoNotificacaoVisualService.notificacoes$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((notificacao) => {
+      if (notificacao.entregadorId && notificacao.entregadorId !== entregadorId) {
+        return;
+      }
+
+      this.processarNotificacaoEntrega(notificacao);
+    });
+  }
+
+  private processarNotificacaoEntrega(notificacao: PedidoStatusNotificacao): void {
+    const entrega = this.entrega();
+
+    if (!entrega || !this.entregaPertenceAoPedido(entrega, notificacao.pedidoId)) {
+      return;
+    }
+
+    const entregaAtualizada = this.aplicarNotificacaoEntrega(entrega, notificacao);
+    this.entrega.set(entregaAtualizada);
+
+    if (notificacao.statusEntrega === 'ATRIBUIDA') {
+      this.pedidoNotificacaoVisualService.notificar(notificacao, { entrega: entregaAtualizada });
+    }
+
+    this.carregarEntrega();
+  }
+
+  private aplicarNotificacaoEntrega(entrega: EntregaResponse, notificacao: PedidoStatusNotificacao): EntregaResponse {
+    return {
+      ...entrega,
+      status: (notificacao.statusEntrega ?? entrega.status) as StatusEntrega,
+      statusPedido: (notificacao.statusPedido ?? entrega.statusPedido) as EntregaResponse['statusPedido'],
+      statusPagamento: (notificacao.statusPagamento ?? entrega.statusPagamento) as EntregaResponse['statusPagamento'],
+      tipoFormaPagamento: (notificacao.tipoFormaPagamento ?? entrega.tipoFormaPagamento) as TipoFormaPagamento | null,
+      atualizadoEm: notificacao.dataHora ?? entrega.atualizadoEm
+    };
+  }
+
+  private entregaPertenceAoPedido(entrega: EntregaResponse, pedidoId: number): boolean {
+    return entrega.pedidoId === pedidoId || entrega.numeroPedido === pedidoId || entrega.pedido?.id === pedidoId;
   }
 
   private executarAcao(mensagemSucesso: string, operacao: () => ReturnType<EntregaService['aceitar']>): void {

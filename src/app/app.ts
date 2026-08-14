@@ -6,7 +6,7 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 
-import { NAV_ITEMS, NavItem } from './core/auth/permissoes';
+import { NAV_ITEMS, NavItem, PERMISSOES } from './core/auth/permissoes';
 import { AuthService } from './core/services/auth.service';
 import { CarrinhoService } from './core/services/carrinho.service';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
@@ -31,6 +31,9 @@ type RouterLinkValue = string | readonly unknown[];
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App implements OnInit {
+  private readonly idsNavegacaoClientePublica = new Set(['catalogo', 'carrinho']);
+  private readonly idsNavegacaoClienteAutenticado = new Set(['pedidos']);
+  private readonly idsNavegacaoAdministrativa = new Set(['pdv', 'gerenciar-pedidos', 'administrativo']);
   private readonly router = inject(Router);
   private readonly navigationHistoryService = inject(NavigationHistoryService);
   protected readonly authService = inject(AuthService);
@@ -131,6 +134,18 @@ export class App implements OnInit {
   }
 
   private podeExibirItemNavegacao(item: NavItem): boolean {
+    if (this.idsNavegacaoClientePublica.has(item.id) && !this.podeExibirNavegacaoClientePublica()) {
+      return false;
+    }
+
+    if (this.idsNavegacaoClienteAutenticado.has(item.id) && !this.podeExibirNavegacaoClienteAutenticado()) {
+      return false;
+    }
+
+    if (this.idsNavegacaoAdministrativa.has(item.id) && this.podeExibirNavegacaoClientePublica()) {
+      return false;
+    }
+
     if (item.authOnly && !this.authService.usuarioAutenticado()) {
       return false;
     }
@@ -140,6 +155,49 @@ export class App implements OnInit {
     }
 
     return this.authService.possuiAlgumaPermissao(item.permissoes);
+  }
+
+  private podeExibirNavegacaoClientePublica(): boolean {
+    return !this.authService.usuarioAutenticado() ||
+      (this.authService.ehCliente() && !this.possuiAreaAdministrativa());
+  }
+
+  private podeExibirNavegacaoClienteAutenticado(): boolean {
+    return !!this.authService.usuarioAutenticado() &&
+      this.authService.ehCliente() &&
+      !this.possuiAreaAdministrativa();
+  }
+
+  private possuiAreaAdministrativa(): boolean {
+    return this.authService.possuiAlgumaPermissao([
+      PERMISSOES.ADMIN,
+      PERMISSOES.ADMINISTRATIVO_CRIAR,
+      PERMISSOES.ADMINSTRATIVO_CRIAR,
+      PERMISSOES.DASHBOARD_VISUALIZAR,
+      PERMISSOES.PDV_CRIAR,
+      PERMISSOES.PEDIDO_ALTERAR_STATUS,
+      PERMISSOES.PAGAMENTO_CONFIRMAR,
+      PERMISSOES.ENTREGA_ATRIBUIR,
+      PERMISSOES.PRODUTO_LISTAR,
+      PERMISSOES.CATEGORIA_LISTAR,
+      PERMISSOES.MOVIMENTACAO_LISTAR,
+      PERMISSOES.MOVIMENTACAO_CRIAR,
+      PERMISSOES.USUARIO_LISTAR,
+      PERMISSOES.PERFIL_LISTAR,
+      PERMISSOES.PERMISSAO_LISTAR,
+      PERMISSOES.FORMA_PAGAMENTO_EDITAR,
+      PERMISSOES.CONFIGURACAO_COMERCIAL_DETALHAR,
+      PERMISSOES.CONFIGURACAO_COMERCIAL_CRIAR,
+      PERMISSOES.CONFIGURACAO_COMERCIAL_EDITAR,
+      PERMISSOES.EMPRESA_DETALHAR,
+      PERMISSOES.EMPRESA_CRIAR,
+      PERMISSOES.EMPRESA_EDITAR,
+      PERMISSOES.UNIDADE_LISTAR,
+      PERMISSOES.HORARIO_FUNCIONAMENTO_LISTAR,
+      PERMISSOES.HORARIO_FUNCIONAMENTO_CRIAR,
+      PERMISSOES.HORARIO_FUNCIONAMENTO_EDITAR,
+      PERMISSOES.HORARIO_FUNCIONAMENTO_DELETAR
+    ]);
   }
 
   private ehRotaSemLayout(): boolean {

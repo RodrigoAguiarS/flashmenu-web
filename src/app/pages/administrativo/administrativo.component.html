@@ -1,23 +1,39 @@
 <app-page-header
   titulo="Administrativo"
-  descricao="Acesse as rotinas de gestao liberadas para o seu perfil."
+  descricao="Ferramentas para operar e configurar sua unidade."
 />
 
-@if (atalhos().length) {
-  <section class="atalhos-admin" aria-label="Atalhos administrativos">
-    @for (atalho of atalhos(); track atalho.id) {
-      <a class="atalho-admin" [routerLink]="atalho.route">
-        <span class="atalho-admin__icone" nz-icon [nzType]="atalho.icon" nzTheme="outline"></span>
+@if (possuiAtalhos()) {
+  <main class="administrativo-layout" aria-label="Area administrativa">
+    @for (grupo of grupos(); track grupo.id) {
+      <section class="grupo-admin" [attr.aria-labelledby]="'grupo-admin-' + grupo.id">
+        <header class="grupo-admin__topo">
+          <h2 [id]="'grupo-admin-' + grupo.id">{{ grupo.titulo }}</h2>
+          <p>{{ grupo.descricao }}</p>
+        </header>
 
-        <span class="atalho-admin__conteudo">
-          <strong>{{ atalho.label }}</strong>
-          <small>{{ atalho.route }}</small>
-        </span>
+        <div class="atalhos-admin" [class.atalhos-admin--principais]="grupo.id === 'operacao'">
+          @for (atalho of grupo.itens; track atalho.id) {
+            <a
+              class="atalho-admin"
+              [class.atalho-admin--principal]="atalho.destaque === 'principal'"
+              [routerLink]="atalho.route"
+              [attr.aria-label]="atalho.label + ': ' + atalho.descricao"
+            >
+              <span class="atalho-admin__icone" nz-icon [nzType]="atalho.icon" nzTheme="outline"></span>
 
-        <span class="atalho-admin__seta" nz-icon nzType="arrow-left" nzTheme="outline"></span>
-      </a>
+              <span class="atalho-admin__conteudo">
+                <strong>{{ atalho.label }}</strong>
+                <small>{{ atalho.descricao }}</small>
+              </span>
+
+              <span class="atalho-admin__seta" nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            </a>
+          }
+        </div>
+      </section>
     }
-  </section>
+  </main>
 } @else {
   <section class="estado-vazio cartao-sistema">
     <nz-empty nzNotFoundContent="Nenhum atalho administrativo liberado."></nz-empty>

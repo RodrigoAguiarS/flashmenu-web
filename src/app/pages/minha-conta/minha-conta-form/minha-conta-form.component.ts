@@ -1,8 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, of, switchMap } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -18,7 +17,6 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { EnderecoRequest, EnderecoResponse } from '../../../core/models/endereco.model';
 import { UsuarioRequest, UsuarioResponse } from '../../../core/models/usuario.model';
-import { PERMISSOES_ROTAS } from '../../../core/auth/permissoes';
 import { AuthService } from '../../../core/services/auth.service';
 import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
@@ -34,7 +32,6 @@ type SecaoConta = 'hub' | 'dados' | 'enderecos' | 'seguranca';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     DocumentoMaskDirective,
     NzAlertModule,
     NzButtonModule,
@@ -72,9 +69,6 @@ export class MinhaContaFormComponent implements OnInit {
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly errosValidacao = signal<string[]>([]);
   protected readonly secaoAtual = signal<SecaoConta>('hub');
-  protected readonly podeAcessarAdministrativo = computed(() =>
-    this.authService.possuiAlgumaPermissao(PERMISSOES_ROTAS.ADMINISTRATIVO)
-  );
 
   protected readonly formulario = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],

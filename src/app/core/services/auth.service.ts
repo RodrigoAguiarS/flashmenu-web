@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 import { ClienteCheckoutRequest, ClienteIdentificacaoResponse, LoginRequest, LoginResponse } from '../models/auth.model';
 import { UsuarioResponse } from '../models/usuario.model';
 import { PERMISSOES } from '../auth/permissoes';
-import { PedidoNotificacaoService } from './pedido-notificacao.service';
+import { PedidoNotificacaoVisualService } from './pedido-notificacao-visual.service';
 
 const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
 const TOKEN_TYPE_KEY = 'flashmenu_token_type';
@@ -18,10 +18,11 @@ const USUARIO_KEY = 'flashmenu_usuario';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
+  private readonly pedidoNotificacaoVisualService = inject(PedidoNotificacaoVisualService);
   private readonly usuarioAtual = signal<UsuarioResponse | null>(this.carregarUsuario());
 
   readonly usuarioAutenticado: Signal<UsuarioResponse | null> = computed(() => this.usuarioAtual());
+  readonly perfilCliente = computed(() => this.ehPerfilCliente(this.usuarioAtual()));
   readonly permissoes = computed(() =>
     new Set(this.usuarioAtual()?.perfil?.permissoes.map((permissao) => permissao.authority) ?? [])
   );
@@ -63,7 +64,7 @@ export class AuthService {
   }
 
   limparSessao(): void {
-    this.pedidoNotificacaoService.desconectar();
+    this.pedidoNotificacaoVisualService.desconectar();
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(TOKEN_TYPE_KEY);
     localStorage.removeItem(USUARIO_KEY);
@@ -89,6 +90,10 @@ export class AuthService {
 
   obterUsuarioAtual(): UsuarioResponse | null {
     return this.usuarioAtual();
+  }
+
+  ehCliente(): boolean {
+    return this.perfilCliente();
   }
 
   atualizarUsuarioAtual(usuario: UsuarioResponse): void {
@@ -118,6 +123,18 @@ export class AuthService {
     return permissoes.has(PERMISSOES.ADMIN) ||
       permissoes.has(PERMISSOES.ADMINISTRATIVO_CRIAR) ||
       permissoes.has(PERMISSOES.ADMINSTRATIVO_CRIAR);
+  }
+
+  private ehPerfilCliente(usuario: UsuarioResponse | null): boolean {
+    return this.normalizarPerfil(usuario?.perfil?.descricao) === 'cliente';
+  }
+
+  private normalizarPerfil(descricao?: string | null): string {
+    return (descricao ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   private persistirSessao(response: LoginResponse): void {

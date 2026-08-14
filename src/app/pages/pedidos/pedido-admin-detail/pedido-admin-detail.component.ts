@@ -17,7 +17,7 @@ import { StandardError, ValidationError } from '../../../core/models/api-error.m
 import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
+import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-notificacao-visual.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -46,7 +46,7 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
-  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
+  private readonly pedidoNotificacaoVisualService = inject(PedidoNotificacaoVisualService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -65,7 +65,7 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.notificacaoPedidoDestination) {
-      this.pedidoNotificacaoService.removerInscricao(this.notificacaoPedidoDestination);
+      this.pedidoNotificacaoVisualService.removerInscricao(this.notificacaoPedidoDestination);
     }
   }
 
@@ -205,9 +205,9 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
     }
 
     this.notificacaoPedidoDestination = `/topic/pedidos/${pedidoId}`;
-    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
-    this.pedidoNotificacaoService.ouvirPedido(pedidoId);
-    this.pedidoNotificacaoService.notificacoes$.pipe(
+    this.pedidoNotificacaoVisualService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoVisualService.ouvirPedido(pedidoId);
+    this.pedidoNotificacaoVisualService.notificacoes$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((notificacao) => {
       if (notificacao.pedidoId !== pedidoId) {
@@ -219,9 +219,7 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
-    if (notificacao.mensagem) {
-      this.message.info(notificacao.mensagem);
-    }
+    this.pedidoNotificacaoVisualService.notificar(notificacao, { pedido: this.pedido() });
 
     this.carregarPedido();
   }

@@ -27,7 +27,7 @@ import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao
 import { PedidoResponse, StatusEntregaPedido, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { EntregaService } from '../../../core/services/entrega.service';
-import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
+import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-notificacao-visual.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -83,7 +83,7 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   private readonly pedidoService = inject(PedidoService);
   private readonly entregaService = inject(EntregaService);
   private readonly authService = inject(AuthService);
-  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
+  private readonly pedidoNotificacaoVisualService = inject(PedidoNotificacaoVisualService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -151,7 +151,7 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.notificacaoUnidadeDestination) {
-      this.pedidoNotificacaoService.removerInscricao(this.notificacaoUnidadeDestination);
+      this.pedidoNotificacaoVisualService.removerInscricao(this.notificacaoUnidadeDestination);
     }
   }
 
@@ -504,9 +504,9 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
     }
 
     this.notificacaoUnidadeDestination = `/topic/unidades/${unidadeId}/pedidos`;
-    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
-    this.pedidoNotificacaoService.ouvirUnidadePedidos(unidadeId);
-    this.pedidoNotificacaoService.notificacoes$.pipe(
+    this.pedidoNotificacaoVisualService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoVisualService.ouvirUnidadePedidos(unidadeId);
+    this.pedidoNotificacaoVisualService.notificacoes$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((notificacao) => {
       if (notificacao.unidadeId !== unidadeId) {
@@ -520,8 +520,8 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
     const pedidoExistente = this.pedidos().find((pedido) => pedido.id === notificacao.pedidoId);
 
-    if (notificacao.mensagem) {
-      this.message.info(notificacao.mensagem);
+    if (notificacao.statusPedido === 'AGUARDANDO_CONFIRMACAO') {
+      this.pedidoNotificacaoVisualService.notificar(notificacao, { pedido: pedidoExistente });
     }
 
     if (!pedidoExistente) {

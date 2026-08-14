@@ -69,31 +69,37 @@
                   (keydown.space)="abrirDetalhes(produto)"
                 >
                   <div class="produto-layout">
-                    @if (imagemPrincipal(produto); as imagem) {
-                      <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
-                    } @else {
-                      <div class="produto-sem-imagem" aria-hidden="true">
-                        <span nz-icon nzType="picture" nzTheme="outline"></span>
-                      </div>
-                    }
+                    <div class="produto-midia">
+                      @if (imagemPrincipal(produto); as imagem) {
+                        <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+                      } @else {
+                        <div class="produto-sem-imagem" aria-hidden="true">
+                          <span nz-icon nzType="picture" nzTheme="outline"></span>
+                        </div>
+                      }
+
+                      @if (!podeAdicionar(produto)) {
+                        <span class="produto-status">Indisponivel</span>
+                      }
+                    </div>
 
                     <div class="produto-conteudo">
-                      <div>
+                      <div class="produto-info-principal">
                         <div class="produto-titulo-linha">
                           <h3>{{ produto.nome }}</h3>
-
-                          @if (estoqueTextoConsumidor(produto); as estoque) {
-                            <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
-                              {{ estoque }}
-                            </span>
-                          }
                         </div>
 
                         <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+
+                        @if (estoqueTextoConsumidor(produto); as estoque) {
+                          <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
+                            {{ estoque }}
+                          </span>
+                        }
                       </div>
 
                       <div class="produto-rodape">
-                        <strong>{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                        <strong class="produto-preco">{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
 
                         @if (podeAdicionar(produto)) {
                           <button

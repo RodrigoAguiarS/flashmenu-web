@@ -168,6 +168,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: 'catalogo', label: 'Catalogo', route: '/catalogo', icon: 'appstore', exact: true },
   { id: 'carrinho', label: 'Carrinho', route: '/carrinho', icon: 'shopping-cart', exact: true },
   { id: 'pedidos', label: 'Pedidos', route: '/pedidos', icon: 'unordered-list', exact: true, permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },
+  { id: 'pdv', label: 'PDV', route: '/pdv', icon: 'credit-card', exact: true, permissoes: PERMISSOES_ROTAS.PDV },
+  { id: 'gerenciar-pedidos', label: 'Pedidos', route: '/pedidos/gerenciar', icon: 'check-circle', exact: false, permissoes: PERMISSOES_ROTAS.GERENCIAR_PEDIDOS },
   { id: 'minhas-entregas', label: 'Entregas', route: '/minhas-entregas', icon: 'car', exact: true, permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+  { id: 'administrativo', label: 'Admin', route: '/administrativo', icon: 'setting', exact: true, permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO },
   { id: 'minha-conta', label: 'Perfil', route: '/minha-conta', icon: 'user', authOnly: true }
 ];

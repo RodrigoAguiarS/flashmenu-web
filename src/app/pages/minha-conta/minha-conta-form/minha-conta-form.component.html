@@ -86,17 +86,6 @@
           <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
         </button>
 
-        @if (podeAcessarAdministrativo()) {
-          <a class="menu-item" routerLink="/administrativo">
-            <span class="menu-icone" nz-icon nzType="setting" nzTheme="outline"></span>
-            <span>
-              <strong>Area administrativa</strong>
-              <small>Gerencie sua operacao</small>
-            </span>
-            <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
-          </a>
-        }
-
         <button type="button" class="menu-item sair-conta" (click)="sair()">
           <span class="menu-icone" nz-icon nzType="logout" nzTheme="outline"></span>
           <span>

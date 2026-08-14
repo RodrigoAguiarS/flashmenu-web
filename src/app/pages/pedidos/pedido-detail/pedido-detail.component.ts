@@ -16,7 +16,7 @@ import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao
 import { PedidoResponse, StatusEntregaPedido, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { ProdutoResponse } from '../../../core/models/produto.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
+import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-notificacao-visual.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProdutoService } from '../../../core/services/produto.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
@@ -45,7 +45,7 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
-  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
+  private readonly pedidoNotificacaoVisualService = inject(PedidoNotificacaoVisualService);
   private readonly produtoService = inject(ProdutoService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -65,7 +65,7 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.notificacaoPedidoDestination) {
-      this.pedidoNotificacaoService.removerInscricao(this.notificacaoPedidoDestination);
+      this.pedidoNotificacaoVisualService.removerInscricao(this.notificacaoPedidoDestination);
     }
   }
 
@@ -103,42 +103,6 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
 
   protected corStatusPedido(pedido: PedidoResponse): string {
     return this.pagamentoPixPendente(pedido) ? 'warning' : this.corStatus(pedido.status);
-  }
-
-  protected statusClasse(status: StatusPedido): string {
-    const classes: Record<string, string> = {
-      AGUARDANDO_PAGAMENTO: 'aguardando',
-      AGUARDANDO_CONFIRMACAO: 'aguardando',
-      CONFIRMADO: 'confirmado',
-      CONCLUIDO: 'concluido',
-      CANCELADO: 'cancelado'
-    };
-
-    return classes[status] ?? 'neutro';
-  }
-
-  protected statusDescricao(pedido: PedidoResponse): string {
-    if (pedido.status === 'CANCELADO') {
-      return 'Este pedido foi cancelado.';
-    }
-
-    if (pedido.status === 'CONCLUIDO') {
-      return 'Pedido concluido.';
-    }
-
-    if (this.pagamentoPixPendente(pedido)) {
-      return 'Aguardando pagamento Pix.';
-    }
-
-    if (pedido.status === 'AGUARDANDO_PAGAMENTO') {
-      return 'Seu pedido foi criado e aguarda pagamento.';
-    }
-
-    if (pedido.status === 'AGUARDANDO_CONFIRMACAO') {
-      return this.pagamentoConfirmado(pedido) ? 'Pagamento pago. Aguardando confirmacao.' : 'Seu pedido foi enviado e aguarda confirmacao.';
-    }
-
-    return 'Pedido confirmado.';
   }
 
   protected entregaStatusTexto(status: StatusEntregaPedido): string {
@@ -202,16 +166,8 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
     return tipo ? cores[tipo] ?? 'default' : 'default';
   }
 
-  protected tipoIcone(tipo: TipoPedido | null): string {
-    return tipo === 'PDV' ? 'shop' : 'environment';
-  }
-
   protected pagamentoStatusTexto(pedido: PedidoResponse): string {
     return this.pagamentoConfirmado(pedido) ? 'Pago' : 'Pendente';
-  }
-
-  protected pagamentoStatusClasse(pedido: PedidoResponse): string {
-    return this.pagamentoConfirmado(pedido) ? 'concluido' : 'aguardando';
   }
 
   protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
@@ -300,9 +256,9 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
     }
 
     this.notificacaoPedidoDestination = `/topic/pedidos/${pedidoId}`;
-    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
-    this.pedidoNotificacaoService.ouvirPedido(pedidoId);
-    this.pedidoNotificacaoService.notificacoes$.pipe(
+    this.pedidoNotificacaoVisualService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoVisualService.ouvirPedido(pedidoId);
+    this.pedidoNotificacaoVisualService.notificacoes$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((notificacao) => {
       if (notificacao.pedidoId !== pedidoId) {
@@ -316,9 +272,7 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
   private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
     const pedido = this.pedido();
 
-    if (notificacao.mensagem) {
-      this.message.info(notificacao.mensagem);
-    }
+    this.pedidoNotificacaoVisualService.notificar(notificacao, { pedido });
 
     if (pedido) {
       this.pedido.set(this.aplicarNotificacaoPedido(pedido, notificacao));
