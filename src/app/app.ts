@@ -150,6 +150,10 @@ export class App implements OnInit {
       return false;
     }
 
+    if (item.perfis && !this.authService.possuiAlgumPerfil(item.perfis)) {
+      return false;
+    }
+
     if (!item.permissoes) {
       return true;
     }

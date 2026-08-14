@@ -323,8 +323,17 @@
   </aside>
 </section>
 
-<button class="barra-venda-mobile" nz-button nzType="primary" type="button" (click)="abrirVendaMobile()">
+<button
+  class="barra-venda-mobile"
+  [class.barra-venda-mobile--oculta]="vendaMobileAberta()"
+  nz-button
+  nzType="primary"
+  type="button"
+  [attr.aria-label]="'Abrir venda atual com ' + pdvService.quantidadeTotal() + ' itens no total de ' + (totalPrevisto() | currency:'BRL':'symbol':'1.2-2')"
+  (click)="abrirVendaMobile()"
+>
   <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+  <span class="barra-venda-mobile__quantidade">{{ pdvService.quantidadeTotal() }}</span>
   <strong>{{ pdvService.quantidadeTotal() }} itens · {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
   <span>Ver venda</span>
 </button>
@@ -333,6 +342,7 @@
   [nzVisible]="vendaMobileAberta()"
   nzTitle="Venda atual"
   nzPlacement="bottom"
+  nzWrapClassName="pdv-venda-mobile-drawer"
   [nzHeight]="'min(92vh, 760px)'"
   (nzOnClose)="fecharVendaMobile()"
 >

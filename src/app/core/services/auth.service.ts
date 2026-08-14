@@ -23,6 +23,7 @@ export class AuthService {
 
   readonly usuarioAutenticado: Signal<UsuarioResponse | null> = computed(() => this.usuarioAtual());
   readonly perfilCliente = computed(() => this.ehPerfilCliente(this.usuarioAtual()));
+  readonly perfilEntregador = computed(() => this.ehPerfilEntregador(this.usuarioAtual()));
   readonly permissoes = computed(() =>
     new Set(this.usuarioAtual()?.perfil?.permissoes.map((permissao) => permissao.authority) ?? [])
   );
@@ -96,6 +97,15 @@ export class AuthService {
     return this.perfilCliente();
   }
 
+  ehEntregador(): boolean {
+    return this.perfilEntregador();
+  }
+
+  possuiAlgumPerfil(perfis: readonly string[]): boolean {
+    const perfilAtual = this.normalizarPerfil(this.usuarioAtual()?.perfil?.descricao);
+    return perfis.some((perfil) => this.normalizarPerfil(perfil) === perfilAtual);
+  }
+
   atualizarUsuarioAtual(usuario: UsuarioResponse): void {
     this.usuarioAtual.set(usuario);
     localStorage.setItem(USUARIO_KEY, JSON.stringify(usuario));
@@ -127,6 +137,10 @@ export class AuthService {
 
   private ehPerfilCliente(usuario: UsuarioResponse | null): boolean {
     return this.normalizarPerfil(usuario?.perfil?.descricao) === 'cliente';
+  }
+
+  private ehPerfilEntregador(usuario: UsuarioResponse | null): boolean {
+    return this.normalizarPerfil(usuario?.perfil?.descricao) === 'entregador';
   }
 
   private normalizarPerfil(descricao?: string | null): string {

@@ -92,7 +92,7 @@ export const routes: Routes = [
   {
     path: 'minhas-entregas/:id',
     canActivate: [authGuard],
-    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: ['entregador'] },
     loadComponent: () =>
       import('./pages/entregas/entrega-detalhe/entrega-detalhe.component').then(
         (component) => component.EntregaDetalheComponent
@@ -101,7 +101,7 @@ export const routes: Routes = [
   {
     path: 'minhas-entregas',
     canActivate: [authGuard],
-    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: ['entregador'] },
     loadComponent: () =>
       import('./pages/entregas/minhas-entregas/minhas-entregas.component').then(
         (component) => component.MinhasEntregasComponent

@@ -53,11 +53,13 @@
 .indicador {
   display: grid;
   gap: 6px;
-  padding: 14px;
+  padding: 16px;
 }
 
 .indicador strong {
-  font-size: 22px;
+  color: var(--cor-texto);
+  font-size: 24px;
+  line-height: 1.05;
 }
 
 .indicador.principal {
@@ -88,10 +90,12 @@
 .painel-dashboard {
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 14px;
   max-width: 100%;
   overflow: hidden;
-  padding: 14px;
+  padding: 16px;
+  border-color: color-mix(in srgb, var(--cor-borda) 72%, transparent);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
 }
 
 .painel-dashboard header {
@@ -103,14 +107,16 @@
 
 .painel-dashboard h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
+  color: var(--cor-texto);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .lista-barras,
 .lista-pagamentos {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .linha-barra {
@@ -125,15 +131,15 @@
 .lista-pagamentos i {
   display: block;
   overflow: hidden;
-  height: 8px;
-  background: var(--cor-campo);
+  height: 6px;
+  background: color-mix(in srgb, var(--cor-campo) 84%, var(--cor-superficie));
   border-radius: 999px;
 }
 
 .barra i,
 .produto-ranking span,
 .lista-pagamentos i {
-  background: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 88%, var(--cor-texto));
 }
 
 .produto-ranking {
@@ -164,12 +170,87 @@
 }
 
 .lista-pagamentos > div {
+  position: relative;
   display: grid;
-  gap: 5px;
+  gap: 6px;
+  padding-bottom: 2px;
+}
+
+.lista-pagamentos > div::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: 6px;
+  background: color-mix(in srgb, var(--cor-campo) 84%, var(--cor-superficie));
+  border-radius: 999px;
+  content: '';
+}
+
+.lista-pagamentos span {
+  color: var(--cor-texto);
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .lista-pagamentos strong {
-  font-size: 16px;
+  color: var(--cor-texto);
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.lista-pagamentos i {
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+:host ::ng-deep .painel-estoque .ant-table-wrapper {
+  display: none;
+}
+
+.painel-estoque .lista-mobile {
+  display: grid;
+  gap: 0;
+}
+
+.painel-estoque .mobile-card {
+  padding: 12px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--cor-borda) 70%, transparent);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.painel-estoque .mobile-card:last-child {
+  border-bottom: 0;
+}
+
+.painel-estoque .mobile-card__topo {
+  align-items: center;
+  gap: 12px;
+}
+
+.painel-estoque .mobile-card__titulo {
+  color: var(--cor-texto);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.painel-estoque .mobile-card__texto {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+:host ::ng-deep .painel-estoque .ant-tag {
+  margin: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 800;
 }
 
 @media (min-width: 960px) {
@@ -177,7 +258,7 @@
     grid-template-areas:
       "vendas produtos"
       "estoque pagamentos";
-    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.9fr);
     align-items: start;
   }
 

@@ -16,6 +16,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
 
   const permissoes = route.data['permissoes'];
+  const perfis = route.data['perfis'];
+
+  if (Array.isArray(perfis) && !authService.possuiAlgumPerfil(perfis)) {
+    return router.createUrlTree(['/catalogo']);
+  }
 
   if (!Array.isArray(permissoes) || authService.possuiAlgumaPermissao(permissoes)) {
     return true;
