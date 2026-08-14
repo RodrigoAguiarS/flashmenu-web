@@ -2,10 +2,21 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
   AppstoreOutline,
+  CarOutline,
+  CheckCircleOutline,
+  CreditCardOutline,
+  KeyOutline,
   LoginOutline,
   MoonOutline,
+  SafetyCertificateOutline,
+  SettingOutline,
+  ShopOutline,
   ShoppingCartOutline,
-  SunOutline
+  SunOutline,
+  TagsOutline,
+  TeamOutline,
+  UnorderedListOutline,
+  UserOutline
 } from '@ant-design/icons-angular/icons';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { App } from './app';
@@ -18,10 +29,21 @@ describe('App', () => {
         provideRouter([]),
         provideNzIcons([
           AppstoreOutline,
+          CarOutline,
+          CheckCircleOutline,
+          CreditCardOutline,
+          KeyOutline,
           LoginOutline,
           MoonOutline,
+          SafetyCertificateOutline,
+          SettingOutline,
+          ShopOutline,
           ShoppingCartOutline,
-          SunOutline
+          SunOutline,
+          TagsOutline,
+          TeamOutline,
+          UnorderedListOutline,
+          UserOutline
         ])
       ]
     }).compileComponents();

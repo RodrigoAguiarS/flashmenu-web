@@ -1,0 +1,154 @@
+<app-page-header titulo="Minhas entregas" descricao="Acompanhe suas entregas e atualize o andamento.">
+  <button nz-button nzType="primary" type="button" (click)="selecionarStatus(statusSelecionado())">
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Atualizar
+  </button>
+</app-page-header>
+
+<section class="chips-status" aria-label="Filtrar entregas por status">
+  @for (filtro of statusFiltros; track filtro.label) {
+    <button
+      nz-button
+      type="button"
+      [nzType]="filtroAtivo(filtro.status) ? 'primary' : 'default'"
+      [attr.aria-pressed]="filtroAtivo(filtro.status)"
+      (click)="selecionarStatus(filtro.status)"
+    >
+      {{ filtro.label }}
+    </button>
+  }
+</section>
+
+<nz-spin [nzSpinning]="carregando()">
+  @if (possuiEntregas()) {
+    <section class="lista-entregas" aria-label="Minhas entregas">
+      @for (entrega of entregas(); track entrega.id) {
+        <article class="entrega-card">
+          <header class="entrega-topo">
+            <div>
+              <strong>Pedido #{{ numeroPedido(entrega) }}</strong>
+              <span>{{ clienteNome(entrega) }}</span>
+            </div>
+            <nz-tag [nzColor]="corStatusEntrega(entrega.status)">{{ statusEntregaTexto(entrega.status) }}</nz-tag>
+          </header>
+
+          <div class="endereco">
+            <span nz-icon nzType="environment" nzTheme="outline"></span>
+            <span>{{ enderecoTexto(entrega) }}</span>
+          </div>
+
+          <dl class="horarios">
+            <div>
+              <dt>Atribuido</dt>
+              <dd>{{ entrega.atribuidoEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            <div>
+              <dt>Aceito</dt>
+              <dd>{{ entrega.aceitoEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            <div>
+              <dt>Em rota</dt>
+              <dd>{{ entrega.saiuParaEntregaEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            <div>
+              <dt>Entregue</dt>
+              <dd>{{ entrega.entregueEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+          </dl>
+
+          <footer class="acoes-entrega">
+            @if (podeAceitarEntrega(entrega)) {
+              <button
+                nz-button
+                nzType="primary"
+                type="button"
+                [nzLoading]="processandoId() === entrega.id"
+                [disabled]="processandoId() !== null"
+                (click)="aceitar(entrega)"
+              >
+                Aceitar
+              </button>
+            }
+            @if (podeRecusarEntrega(entrega)) {
+              <button nz-button type="button" [disabled]="processandoId() !== null" (click)="abrirRecusa(entrega)">
+                Recusar
+              </button>
+            }
+            @if (podeIniciarEntrega(entrega)) {
+              <button
+                nz-button
+                nzType="primary"
+                type="button"
+                [nzLoading]="processandoId() === entrega.id"
+                [disabled]="processandoId() !== null"
+                (click)="iniciar(entrega)"
+              >
+                Iniciar
+              </button>
+            }
+            @if (podeConcluirEntrega(entrega)) {
+              <button
+                nz-button
+                nzType="primary"
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Deseja concluir esta entrega?"
+                nzOkText="Concluir"
+                nzCancelText="Cancelar"
+                [nzLoading]="processandoId() === entrega.id"
+                [disabled]="processandoId() !== null"
+                (nzOnConfirm)="concluir(entrega)"
+              >
+                Concluir
+              </button>
+            }
+          </footer>
+        </article>
+      }
+    </section>
+
+    <div class="paginacao">
+      <nz-pagination
+        [nzPageIndex]="pageIndex()"
+        [nzPageSize]="pageSize()"
+        [nzTotal]="total()"
+        [nzShowSizeChanger]="true"
+        [nzPageSizeOptions]="pageSizeOptions()"
+        (nzPageIndexChange)="alterarPagina($event)"
+        (nzPageSizeChange)="alterarTamanhoPagina($event)"
+      ></nz-pagination>
+    </div>
+  } @else {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Nenhuma entrega encontrada."></nz-empty>
+    </section>
+  }
+</nz-spin>
+
+<nz-modal
+  [nzVisible]="modalRecusaAberto()"
+  nzTitle="Recusar entrega"
+  nzOkText="Recusar"
+  nzCancelText="Cancelar"
+  [nzOkDanger]="true"
+  [nzOkLoading]="processandoId() !== null"
+  (nzOnOk)="confirmarRecusa()"
+  (nzOnCancel)="fecharRecusa()"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="recusaForm">
+      <nz-form-item>
+        <nz-form-label nzFor="observacao">Motivo</nz-form-label>
+        <nz-form-control>
+          <textarea
+            id="observacao"
+            nz-input
+            formControlName="observacao"
+            rows="4"
+            placeholder="Motivo opcional"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

@@ -81,6 +81,24 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'entregas',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.ENTREGAS },
+    loadComponent: () =>
+      import('./pages/entregas/entrega-admin-list/entrega-admin-list.component').then(
+        (component) => component.EntregaAdminListComponent
+      )
+  },
+  {
+    path: 'minhas-entregas',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+    loadComponent: () =>
+      import('./pages/entregas/minhas-entregas/minhas-entregas.component').then(
+        (component) => component.MinhasEntregasComponent
+      )
+  },
+  {
     path: 'pedidos/:id',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },

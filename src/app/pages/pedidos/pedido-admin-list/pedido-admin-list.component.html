@@ -190,6 +190,32 @@
                     Gerar PDF
                   </button>
                 </li>
+                @if (podeGerenciarEntrega(view.pedido)) {
+                  <li nz-menu-item>
+                    <button
+                      class="menu-acao"
+                      type="button"
+                      nz-popconfirm
+                      nzPopconfirmTitle="Deseja distribuir esta entrega automaticamente?"
+                      nzOkText="Distribuir"
+                      nzCancelText="Cancelar"
+                      [disabled]="entregaProcessandoId() !== null"
+                      (nzOnConfirm)="distribuirEntrega(view.pedido)"
+                    >
+                      Distribuir entrega
+                    </button>
+                  </li>
+                  <li nz-menu-item>
+                    <button
+                      class="menu-acao"
+                      type="button"
+                      [disabled]="entregaProcessandoId() !== null"
+                      (click)="abrirAtribuicaoEntrega(view.pedido)"
+                    >
+                      Atribuir entregador
+                    </button>
+                  </li>
+                }
                 @if (podeExecutarCancelamento(view.pedido)) {
                   <li nz-menu-item>
                     <button
@@ -230,3 +256,30 @@
     </section>
   }
 </nz-spin>
+
+<nz-modal
+  [nzVisible]="modalAtribuicaoAberto()"
+  nzTitle="Atribuir entregador"
+  nzOkText="Atribuir"
+  nzCancelText="Cancelar"
+  [nzOkLoading]="entregaProcessandoId() !== null"
+  (nzOnOk)="confirmarAtribuicaoEntrega()"
+  (nzOnCancel)="fecharAtribuicaoEntrega()"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="atribuicaoEntregaForm">
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="pedidoEntregadorId">Entregador</nz-form-label>
+        <nz-form-control nzErrorTip="Informe o ID do entregador.">
+          <nz-input-number
+            id="pedidoEntregadorId"
+            formControlName="entregadorId"
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="ID do entregador"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

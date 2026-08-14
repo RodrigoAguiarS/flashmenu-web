@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -12,6 +12,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
@@ -23,6 +24,7 @@ import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { EntregaService } from '../../../core/services/entrega.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -61,6 +63,7 @@ interface PedidoOperacionalView {
     NzIconModule,
     NzInputNumberModule,
     NzMenuModule,
+    NzModalModule,
     NzPaginationModule,
     NzPopconfirmModule,
     NzSelectModule,
@@ -75,12 +78,16 @@ interface PedidoOperacionalView {
 export class PedidoAdminListComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly pedidoService = inject(PedidoService);
+  private readonly entregaService = inject(EntregaService);
   private readonly authService = inject(AuthService);
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
   protected readonly processandoId = signal<number | null>(null);
+  protected readonly entregaProcessandoId = signal<number | null>(null);
   protected readonly pdfProcessandoId = signal<number | null>(null);
+  protected readonly pedidoAtribuicao = signal<PedidoResponse | null>(null);
+  protected readonly modalAtribuicaoAberto = signal(false);
   protected readonly filtrosAvancadosAbertos = signal(false);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
   protected readonly total = signal(0);
@@ -108,6 +115,7 @@ export class PedidoAdminListComponent implements OnInit {
   protected readonly podeCancelarPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_CANCELAR));
   protected readonly podeConfirmarPagamento = computed(() => this.authService.possuiPermissao(PERMISSOES.PAGAMENTO_CONFIRMAR));
   protected readonly podeAlterarStatusPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
+  protected readonly podeAtribuirEntrega = computed(() => this.authService.possuiPermissao(PERMISSOES.ENTREGA_ATRIBUIR));
   protected readonly tipoOptions: TipoPedido[] = ['DELIVERY', 'PDV'];
   protected readonly statusFiltros: Array<{ label: string; status: StatusFiltroOperacional; contador: () => number }> = [
     { label: 'Todos', status: null, contador: () => this.total() },
@@ -123,6 +131,10 @@ export class PedidoAdminListComponent implements OnInit {
     usuarioId: this.fb.control<number | null>(null),
     status: this.fb.control<StatusPedido | null>(null),
     tipo: this.fb.control<TipoPedido | null>(null)
+  });
+
+  protected readonly atribuicaoEntregaForm = this.fb.group({
+    entregadorId: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)])
   });
 
   ngOnInit(): void {
@@ -189,6 +201,72 @@ export class PedidoAdminListComponent implements OnInit {
       finalize(() => this.pdfProcessandoId.set(null))
     ).subscribe({
       next: (arquivo) => salvarArquivo(arquivo, `pedido-${pedido.id}.pdf`),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
+  protected podeGerenciarEntrega(pedido: PedidoResponse): boolean {
+    return this.podeAtribuirEntrega() && pedido.tipo === 'DELIVERY' && pedido.status === 'CONFIRMADO';
+  }
+
+  protected distribuirEntrega(pedido: PedidoResponse): void {
+    if (!this.podeGerenciarEntrega(pedido)) {
+      return;
+    }
+
+    this.entregaProcessandoId.set(pedido.id);
+
+    this.entregaService.distribuirPedido(pedido.id).pipe(
+      finalize(() => this.entregaProcessandoId.set(null))
+    ).subscribe({
+      next: () => this.message.success('Entrega distribuida com sucesso.'),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
+  protected abrirAtribuicaoEntrega(pedido: PedidoResponse): void {
+    if (!this.podeGerenciarEntrega(pedido)) {
+      return;
+    }
+
+    this.pedidoAtribuicao.set(pedido);
+    this.atribuicaoEntregaForm.reset({ entregadorId: null });
+    this.modalAtribuicaoAberto.set(true);
+  }
+
+  protected fecharAtribuicaoEntrega(): void {
+    this.modalAtribuicaoAberto.set(false);
+    this.pedidoAtribuicao.set(null);
+    this.atribuicaoEntregaForm.reset({ entregadorId: null });
+  }
+
+  protected confirmarAtribuicaoEntrega(): void {
+    const pedido = this.pedidoAtribuicao();
+
+    if (!pedido) {
+      return;
+    }
+
+    if (this.atribuicaoEntregaForm.invalid) {
+      this.atribuicaoEntregaForm.markAllAsTouched();
+      return;
+    }
+
+    const { entregadorId } = this.atribuicaoEntregaForm.getRawValue();
+
+    if (!entregadorId) {
+      return;
+    }
+
+    this.entregaProcessandoId.set(pedido.id);
+
+    this.entregaService.atribuirPedido(pedido.id, { entregadorId }).pipe(
+      finalize(() => this.entregaProcessandoId.set(null))
+    ).subscribe({
+      next: () => {
+        this.message.success('Entregador atribuido com sucesso.');
+        this.fecharAtribuicaoEntrega();
+      },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }

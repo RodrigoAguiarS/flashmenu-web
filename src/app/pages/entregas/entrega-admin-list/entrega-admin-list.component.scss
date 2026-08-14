@@ -1,0 +1,80 @@
+.filtros-entrega {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+}
+
+.filtros-entrega nz-form-item {
+  margin-bottom: 0;
+}
+
+.filtros-entrega nz-select,
+.filtros-entrega nz-input-number,
+nz-modal nz-input-number {
+  width: 100%;
+}
+
+.acoes-filtro {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+
+.tabela-entregas {
+  overflow: hidden;
+}
+
+.acoes-linha {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.paginacao {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.estado-vazio {
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+.detalhe-entrega {
+  display: grid;
+  gap: 16px;
+}
+
+.linha-tempo {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.linha-tempo h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.linha-tempo strong,
+.linha-tempo span {
+  display: block;
+}
+
+.linha-tempo span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+@media (min-width: 720px) {
+  .filtros-entrega {
+    grid-template-columns: repeat(2, minmax(180px, 260px)) auto;
+    align-items: end;
+  }
+}

@@ -1,0 +1,200 @@
+<app-page-header titulo="Gestao de entregas" descricao="Acompanhe distribuicao, entregadores e status das entregas.">
+  <button nz-button nzType="primary" type="button" (click)="filtrar()">
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Atualizar
+  </button>
+</app-page-header>
+
+<form class="filtros-entrega cartao-sistema" nz-form [formGroup]="filtros" (ngSubmit)="filtrar()">
+  <nz-form-item>
+    <nz-form-label nzFor="status">Status</nz-form-label>
+    <nz-form-control>
+      <nz-select id="status" formControlName="status" nzAllowClear nzPlaceHolder="Todos">
+        @for (status of statusOptions; track status) {
+          <nz-option [nzValue]="status" [nzLabel]="statusEntregaTexto(status)"></nz-option>
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzFor="entregadorId">Entregador</nz-form-label>
+    <nz-form-control>
+      <nz-input-number id="entregadorId" formControlName="entregadorId" [nzMin]="1" [nzStep]="1" nzPlaceHolder="ID"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="acoes-filtro">
+    <button nz-button nzType="primary" type="submit">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      Filtrar
+    </button>
+    <button nz-button type="button" (click)="limparFiltros()">Limpar</button>
+  </div>
+</form>
+
+<nz-spin [nzSpinning]="carregando()">
+  @if (possuiEntregas()) {
+    <section class="tabela-entregas cartao-sistema" aria-label="Lista de entregas">
+      <nz-table
+        #entregasTable
+        [nzData]="entregas()"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        nzSize="middle"
+        [nzScroll]="{ x: '1180px' }"
+      >
+        <thead>
+          <tr>
+            <th nzWidth="110px">Pedido</th>
+            <th nzWidth="170px">Cliente</th>
+            <th nzWidth="280px">Endereco</th>
+            <th nzWidth="170px">Entregador</th>
+            <th nzWidth="140px">Entrega</th>
+            <th nzWidth="140px">Pedido</th>
+            <th nzWidth="170px">Atribuido</th>
+            <th nzWidth="170px">Aceito</th>
+            <th nzWidth="170px">Em rota</th>
+            <th nzWidth="170px">Entregue</th>
+            <th nzRight nzWidth="210px">Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entrega of entregasTable.data; track entrega.id) {
+            <tr>
+              <td>#{{ numeroPedido(entrega) }}</td>
+              <td>{{ clienteNome(entrega) }}</td>
+              <td>{{ enderecoTexto(entrega) }}</td>
+              <td>{{ entregadorNome(entrega) }}</td>
+              <td><nz-tag [nzColor]="corStatusEntrega(entrega.status)">{{ statusEntregaTexto(entrega.status) }}</nz-tag></td>
+              <td>{{ statusPedidoTexto(statusPedido(entrega)) }}</td>
+              <td>{{ entrega.atribuidoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ entrega.aceitoEm | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ entrega.saiuParaEntregaEm | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ entrega.entregueEm | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td nzRight>
+                <div class="acoes-linha">
+                  <button nz-button type="button" title="Detalhar" aria-label="Detalhar entrega" (click)="visualizar(entrega)">
+                    <span nz-icon nzType="eye" nzTheme="outline"></span>
+                  </button>
+                  @if (podeAtribuirEntrega()) {
+                    <button
+                      nz-button
+                      type="button"
+                      title="Distribuir automaticamente"
+                      aria-label="Distribuir automaticamente"
+                      [nzLoading]="processandoId() === entrega.id"
+                      [disabled]="processandoId() !== null"
+                      nz-popconfirm
+                      nzPopconfirmTitle="Deseja distribuir esta entrega automaticamente?"
+                      nzOkText="Distribuir"
+                      nzCancelText="Cancelar"
+                      (nzOnConfirm)="distribuir(entrega)"
+                    >
+                      <span nz-icon nzType="thunderbolt" nzTheme="outline"></span>
+                    </button>
+                    <button
+                      nz-button
+                      type="button"
+                      title="Atribuir entregador"
+                      aria-label="Atribuir entregador"
+                      [disabled]="processandoId() !== null"
+                      (click)="abrirAtribuicao(entrega)"
+                    >
+                      <span nz-icon nzType="user-add" nzTheme="outline"></span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </nz-table>
+    </section>
+
+    <div class="paginacao">
+      <nz-pagination
+        [nzPageIndex]="pageIndex()"
+        [nzPageSize]="pageSize()"
+        [nzTotal]="total()"
+        [nzShowSizeChanger]="true"
+        [nzPageSizeOptions]="pageSizeOptions()"
+        (nzPageIndexChange)="alterarPagina($event)"
+        (nzPageSizeChange)="alterarTamanhoPagina($event)"
+      ></nz-pagination>
+    </div>
+  } @else {
+    <section class="estado-vazio cartao-sistema">
+      <nz-empty nzNotFoundContent="Nenhuma entrega encontrada."></nz-empty>
+    </section>
+  }
+</nz-spin>
+
+<nz-drawer
+  [nzVisible]="drawerAberto()"
+  nzTitle="Detalhe da entrega"
+  nzPlacement="right"
+  [nzWidth]="560"
+  (nzOnClose)="fecharDetalhe()"
+>
+  <ng-container *nzDrawerContent>
+    <nz-spin [nzSpinning]="carregandoDetalhe()">
+      @if (entregaDetalhe(); as entrega) {
+        <div class="detalhe-entrega">
+          <nz-descriptions nzBordered [nzColumn]="1" nzSize="small">
+            <nz-descriptions-item nzTitle="Pedido">#{{ numeroPedido(entrega) }}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Cliente">{{ clienteNome(entrega) }}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Endereco">{{ enderecoTexto(entrega) }}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Unidade">{{ entrega.unidade?.nome || 'Nao informada' }}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Entregador">{{ entregadorNome(entrega) }}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Status">
+              <nz-tag [nzColor]="corStatusEntrega(entrega.status)">{{ statusEntregaTexto(entrega.status) }}</nz-tag>
+            </nz-descriptions-item>
+            @if (entrega.observacao) {
+              <nz-descriptions-item nzTitle="Observacao">{{ entrega.observacao }}</nz-descriptions-item>
+            }
+          </nz-descriptions>
+
+          <section class="linha-tempo" aria-label="Linha do tempo da entrega">
+            <h2>Linha do tempo</h2>
+            <nz-timeline>
+              @for (item of timeline(entrega); track item.titulo) {
+                <nz-timeline-item [nzColor]="item.data ? item.cor : 'gray'">
+                  <strong>{{ item.titulo }}</strong>
+                  <span>{{ item.data ? (item.data | date:'dd/MM/yyyy HH:mm') : 'Pendente' }}</span>
+                </nz-timeline-item>
+              }
+            </nz-timeline>
+          </section>
+        </div>
+      }
+    </nz-spin>
+  </ng-container>
+</nz-drawer>
+
+<nz-modal
+  [nzVisible]="modalAtribuicaoAberto()"
+  nzTitle="Atribuir entregador"
+  nzOkText="Atribuir"
+  nzCancelText="Cancelar"
+  [nzOkLoading]="processandoId() !== null"
+  (nzOnOk)="confirmarAtribuicao()"
+  (nzOnCancel)="fecharAtribuicao()"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="atribuicaoForm">
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="modalEntregadorId">Entregador</nz-form-label>
+        <nz-form-control nzErrorTip="Informe o ID do entregador.">
+          <nz-input-number
+            id="modalEntregadorId"
+            formControlName="entregadorId"
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="ID do entregador"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
