@@ -44,7 +44,7 @@ interface PedidoOperacionalView {
   pagamentoStatusClasse: string;
   novo: boolean;
   atrasado: boolean;
-  acaoPrincipal: 'confirmar-pagamento' | 'concluir-pedido' | 'ver-pedido' | 'aguardar-pagamento' | null;
+  acaoPrincipal: 'confirmar-pedido' | 'concluir-pedido' | 'ver-pedido' | 'aguardar-pagamento' | null;
   acaoPrincipalLabel: string | null;
 }
 
@@ -176,9 +176,9 @@ export class PedidoAdminListComponent implements OnInit {
     this.carregarPedidos();
   }
 
-  protected confirmarPagamento(pedido: PedidoResponse): void {
+  protected confirmarPedido(pedido: PedidoResponse): void {
     this.executarAcao(pedido.id, 'Pagamento confirmado com sucesso.', () =>
-      this.pedidoService.confirmarPagamento(pedido.id)
+      this.pedidoService.confirmarPedido(pedido.id)
     );
   }
 
@@ -354,7 +354,7 @@ export class PedidoAdminListComponent implements OnInit {
 
   private acaoPrincipal(pedido: PedidoResponse): PedidoOperacionalView['acaoPrincipal'] {
     if (this.podeExecutarConfirmacao(pedido)) {
-      return 'confirmar-pagamento';
+      return 'confirmar-pedido';
     }
 
     if (this.pagamentoPixPendente(pedido)) {
@@ -375,7 +375,7 @@ export class PedidoAdminListComponent implements OnInit {
   private acaoPrincipalLabel(pedido: PedidoResponse): string | null {
     const acao = this.acaoPrincipal(pedido);
     const labels: Record<NonNullable<PedidoOperacionalView['acaoPrincipal']>, string> = {
-      'confirmar-pagamento': 'Confirmar pagamento',
+      'confirmar-pedido': 'Confirmar pedido',
       'concluir-pedido': 'Concluir pedido',
       'ver-pedido': 'Ver pedido',
       'aguardar-pagamento': 'Aguardando pagamento'

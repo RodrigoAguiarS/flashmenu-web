@@ -21,6 +21,8 @@ export interface ItemPedidoRequest {
 export interface PedidoRequest {
   formaPagamentoId: number;
   tipo?: TipoPedido;
+  valorRecebido?: number | null;
+  troco?: number | null;
   itens: ItemPedidoRequest[];
 }
 

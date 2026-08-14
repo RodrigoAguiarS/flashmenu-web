@@ -534,6 +534,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     const request: PedidoRequest = {
       formaPagamentoId: this.formulario.controls.formaPagamentoId.value ?? 0,
       tipo: 'PDV',
+      ...(this.pagamentoEmDinheiro() ? this.criarPagamentoDinheiroRequest() : {}),
       itens: this.pdvService.itens().map((item) => ({
         produtoId: item.produto.id,
         quantidade: item.quantidade,
@@ -834,6 +835,13 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   private normalizarValorMonetario(valor: number): number {
     return Math.round((Number(valor) + Number.EPSILON) * 100) / 100;
+  }
+
+  private criarPagamentoDinheiroRequest(): Pick<PedidoRequest, 'valorRecebido' | 'troco'> {
+    return {
+      valorRecebido: this.normalizarValorMonetario(this.formulario.controls.valorRecebidoDinheiro.value ?? 0),
+      troco: this.normalizarValorMonetario(this.troco())
+    };
   }
 
   private extrairMensagemErro(error: HttpErrorResponse): string {

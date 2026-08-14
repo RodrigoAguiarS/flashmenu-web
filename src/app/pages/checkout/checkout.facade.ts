@@ -205,6 +205,7 @@ export class CheckoutFacade {
 
     const request: PedidoRequest = {
       formaPagamentoId: this.formulario.controls.formaPagamentoId.value ?? 0,
+      ...(this.pagamentoEmDinheiro() ? this.criarPagamentoDinheiroRequest() : {}),
       itens: this.carrinhoService.itens().map((item) => ({
         produtoId: item.produto.id,
         quantidade: item.quantidade,
@@ -386,6 +387,13 @@ export class CheckoutFacade {
 
   private normalizarValorMonetario(valor: number): number {
     return Math.round(Number(valor ?? 0) * 100) / 100;
+  }
+
+  private criarPagamentoDinheiroRequest(): Pick<PedidoRequest, 'valorRecebido' | 'troco'> {
+    return {
+      valorRecebido: this.normalizarValorMonetario(this.formulario.controls.valorRecebidoDinheiro.value ?? 0),
+      troco: this.normalizarValorMonetario(this.troco())
+    };
   }
 
   private carregarConfiguracaoComercial(): void {

@@ -35,18 +35,20 @@ export class App implements OnInit {
   private readonly navigationHistoryService = inject(NavigationHistoryService);
   protected readonly authService = inject(AuthService);
   protected readonly carrinhoService = inject(CarrinhoService);
+  private readonly urlAtual = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+  protected readonly portalEntregador = computed(() => this.urlAtual().startsWith('/minhas-entregas'));
   protected readonly itensNavegacao = computed(() =>
     NAV_ITEMS.filter((item) => this.podeExibirItemNavegacao(item))
   );
 
-  protected readonly rotaSemLayout = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.ehRotaSemLayout()),
-      startWith(this.ehRotaSemLayout())
-    ),
-    { initialValue: false }
-  );
+  protected readonly rotaSemLayout = computed(() => this.ehRotaSemLayout());
 
   ngOnInit(): void {
     this.navigationHistoryService.inicializar();
@@ -92,7 +94,15 @@ export class App implements OnInit {
     }
 
     if (unidade.abertaAgora === true) {
+      if (this.portalEntregador()) {
+        return 'Entregador';
+      }
+
       return 'Aberto agora';
+    }
+
+    if (this.portalEntregador()) {
+      return 'Entregador';
     }
 
     if (unidade.abertaAgora === false) {
@@ -133,6 +143,7 @@ export class App implements OnInit {
   }
 
   private ehRotaSemLayout(): boolean {
-    return this.router.url.startsWith('/login') || /^\/loja(?:\/[^/?#]+)?(?:[?#].*)?$/.test(this.router.url);
+    const url = this.urlAtual();
+    return url.startsWith('/login') || /^\/loja(?:\/[^/?#]+)?(?:[?#].*)?$/.test(url);
   }
 }

@@ -8,41 +8,46 @@ import { PageResponse } from '../models/page.model';
 import { AlterarStatusPedidoRequest, PedidoFiltros, PedidoRequest, PedidoResponse } from '../models/pedido.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PedidoService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/pedidos`;
 
   finalizarPedido(request: PedidoRequest): Observable<PedidoResponse> {
-    return this.http.post<PedidoResponse>(this.baseUrl, request).pipe(
-      map((pedido) => this.normalizarPedido(pedido))
-    );
+    return this.http
+      .post<PedidoResponse>(this.baseUrl, request)
+      .pipe(map((pedido) => this.normalizarPedido(pedido)));
   }
 
-  listarMeusPedidosPaginado(usuarioId: number, filtros: Pick<PedidoFiltros, 'page' | 'size' | 'sort'>): Observable<PageResponse<PedidoResponse>> {
+  listarMeusPedidosPaginado(
+    usuarioId: number,
+    filtros: Pick<PedidoFiltros, 'page' | 'size' | 'sort'>,
+  ): Observable<PageResponse<PedidoResponse>> {
     return this.listarTodosPaginado({
       ...filtros,
       usuarioId,
-      tipo: 'DELIVERY'
+      tipo: 'DELIVERY',
     });
   }
 
   listarTodosPaginado(filtros: PedidoFiltros): Observable<PageResponse<PedidoResponse>> {
-    return this.http.get<PageResponse<PedidoResponse>>(`${this.baseUrl}/listarTodosPaginado`, {
-      params: this.criarParametros(filtros)
-    }).pipe(
-      map((page) => ({
-        ...page,
-        content: page.content.map((pedido) => this.normalizarPedido(pedido))
-      }))
-    );
+    return this.http
+      .get<PageResponse<PedidoResponse>>(`${this.baseUrl}/listarTodosPaginado`, {
+        params: this.criarParametros(filtros),
+      })
+      .pipe(
+        map((page) => ({
+          ...page,
+          content: page.content.map((pedido) => this.normalizarPedido(pedido)),
+        })),
+      );
   }
 
   buscarMeuPedido(id: number): Observable<PedidoResponse> {
-    return this.http.get<PedidoResponse>(`${this.baseUrl}/${id}`).pipe(
-      map((pedido) => this.normalizarPedido(pedido))
-    );
+    return this.http
+      .get<PedidoResponse>(`${this.baseUrl}/${id}`)
+      .pipe(map((pedido) => this.normalizarPedido(pedido)));
   }
 
   buscarPedidoAdministrativo(id: number): Observable<PedidoResponse> {
@@ -55,42 +60,44 @@ export class PedidoService {
         }
 
         return pedido;
-      })
+      }),
     );
   }
 
   confirmarPagamento(id: number): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/confirmar-pagamento`, {}).pipe(
-      map((pedido) => this.normalizarPedido(pedido))
-    );
+    return this.http
+      .patch<PedidoResponse>(`${this.baseUrl}/${id}/confirmar-pagamento`, {})
+      .pipe(map((pedido) => this.normalizarPedido(pedido)));
   }
 
   cancelarPedido(id: number): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/cancelar`, {}).pipe(
-      map((pedido) => this.normalizarPedido(pedido))
-    );
+    return this.http
+      .patch<PedidoResponse>(`${this.baseUrl}/${id}/cancelar`, {})
+      .pipe(map((pedido) => this.normalizarPedido(pedido)));
   }
 
   alterarStatusPedido(id: number, request: AlterarStatusPedidoRequest): Observable<PedidoResponse> {
-    return this.http.patch<PedidoResponse>(`${this.baseUrl}/${id}/status`, request).pipe(
-      map((pedido) => this.normalizarPedido(pedido))
-    );
+    return this.http
+      .patch<PedidoResponse>(`${this.baseUrl}/${id}/status`, request)
+      .pipe(map((pedido) => this.normalizarPedido(pedido)));
   }
 
   concluirPedido(id: number): Observable<PedidoResponse> {
     return this.alterarStatusPedido(id, { status: 'CONCLUIDO' });
   }
 
+  confirmarPedido(id: number): Observable<PedidoResponse> {
+    return this.alterarStatusPedido(id, { status: 'CONFIRMADO' });
+  }
+
   exportarPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${id}/pdf`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
   private criarParametros(filtros: PedidoFiltros): HttpParams {
-    let params = new HttpParams()
-      .set('page', filtros.page)
-      .set('size', filtros.size);
+    let params = new HttpParams().set('page', filtros.page).set('size', filtros.size);
 
     const opcionais: Record<string, string | number | undefined> = {
       sort: filtros.sort,
@@ -98,7 +105,7 @@ export class PedidoService {
       usuarioId: filtros.usuarioId,
       unidadeId: filtros.unidadeId,
       status: filtros.status,
-      tipo: filtros.tipo
+      tipo: filtros.tipo,
     };
 
     Object.entries(opcionais).forEach(([chave, valor]) => {
@@ -113,7 +120,7 @@ export class PedidoService {
   private normalizarPedido(pedido: PedidoResponse): PedidoResponse {
     return {
       ...pedido,
-      confirmadoEm: this.obterConfirmadoEm(pedido)
+      confirmadoEm: this.obterConfirmadoEm(pedido),
     };
   }
 

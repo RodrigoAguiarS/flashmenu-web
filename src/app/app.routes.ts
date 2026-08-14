@@ -90,6 +90,15 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'minhas-entregas/:id',
+    canActivate: [authGuard],
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+    loadComponent: () =>
+      import('./pages/entregas/entrega-detalhe/entrega-detalhe.component').then(
+        (component) => component.EntregaDetalheComponent
+      )
+  },
+  {
     path: 'minhas-entregas',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },

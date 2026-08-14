@@ -1,14 +1,79 @@
+:host {
+  display: block;
+}
+
+.entregador-shell {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding-bottom: 10px;
+}
+
+.entregador-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.entregador-header div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.entregador-header span {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.entregador-header h1 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 28px;
+  line-height: 1.08;
+}
+
+.botao-atualizar.ant-btn {
+  display: inline-grid;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  place-items: center;
+  padding: 0;
+  border-radius: 999px;
+}
+
 .chips-status {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 2px;
+  margin-inline: -12px;
+  padding: 0 12px 2px;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chips-status::-webkit-scrollbar {
+  display: none;
 }
 
 .chips-status button {
   flex: 0 0 auto;
+  min-height: 42px;
+  padding-inline: 16px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda);
   border-radius: 999px;
+  font-weight: 700;
+}
+
+.chips-status button.ativo {
+  color: #fff;
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
 }
 
 .lista-entregas {
@@ -18,111 +83,215 @@
 
 .entrega-card {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
-  padding: 14px;
+  padding: 16px;
+  color: var(--cor-texto);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+  border-left: 5px solid var(--cor-borda);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgb(15 23 42 / 8%);
 }
 
-.entrega-topo,
-.endereco,
-.acoes-entrega {
+.entrega-card[data-status='ATRIBUIDA'] {
+  border-left-color: var(--cor-primaria);
+}
+
+.entrega-card[data-status='ACEITA'] {
+  border-left-color: #1677ff;
+}
+
+.entrega-card[data-status='EM_ROTA'] {
+  border-left-color: #faad14;
+}
+
+.entrega-card[data-status='ENTREGUE'] {
+  border-left-color: #52c41a;
+}
+
+.card-topo {
   display: flex;
-  gap: 8px;
-}
-
-.entrega-topo {
   align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
 }
 
-.entrega-topo div {
+.card-topo div {
   display: grid;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
-.entrega-topo strong {
-  font-size: 16px;
-}
-
-.entrega-topo span,
-.endereco,
-.horarios dt {
+.pedido {
   color: var(--cor-texto-suave);
+  font-size: 13px;
+  font-weight: 800;
 }
 
-.endereco {
-  align-items: flex-start;
-}
-
-.endereco span:last-child {
+.card-topo strong {
+  font-size: 19px;
+  line-height: 1.18;
   overflow-wrap: anywhere;
 }
 
-.horarios {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.card-topo nz-tag {
+  flex: 0 0 auto;
   margin: 0;
+  border-radius: 999px;
+  font-weight: 800;
 }
 
-.horarios div {
+.endereco-bloco {
   display: grid;
-  gap: 2px;
-  min-width: 0;
-  padding: 8px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  color: inherit;
+  text-decoration: none;
   background: var(--cor-campo);
   border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
-.horarios dt {
-  font-size: 12px;
-}
-
-.horarios dd {
-  margin: 0;
-  color: var(--cor-texto);
-  font-size: 13px;
-}
-
-.acoes-entrega {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  padding-top: 4px;
-}
-
-.estado-vazio {
-  display: grid;
+.endereco-icone {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
   place-items: center;
-  padding: 40px 20px;
+  color: var(--cor-primaria);
+  font-size: 19px;
 }
 
-.paginacao {
+.endereco-bloco span:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.endereco-bloco strong {
+  font-size: 17px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.endereco-bloco small {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.pagamento-linha,
+.status-momento {
   display: flex;
-  justify-content: center;
-  margin-top: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-textarea {
+.pagamento-linha span,
+.status-momento span {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  color: var(--cor-texto-suave);
+  font-weight: 700;
+}
+
+.pagamento-linha strong {
+  font-size: 19px;
+  white-space: nowrap;
+}
+
+.status-momento {
+  padding-top: 2px;
+}
+
+.status-momento strong {
+  color: var(--cor-texto);
+  font-size: 16px;
+}
+
+.acoes-card {
+  display: grid;
+  gap: 10px;
+}
+
+.botao-principal.ant-btn,
+.botao-rota.ant-btn,
+.botao-secundario.ant-btn,
+.botao-carregar-mais.ant-btn,
+.estado-feedback .ant-btn,
+.bottom-sheet .ant-btn {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.botao-principal.ant-btn,
+.botao-rota.ant-btn {
+  width: 100%;
+}
+
+.botao-secundario.ant-btn {
+  width: 100%;
+}
+
+.botao-carregar-mais.ant-btn {
+  width: 100%;
+  background: var(--cor-superficie);
+}
+
+.estado-feedback {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 34px 18px;
+  color: var(--cor-texto);
+  text-align: center;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 14px;
+}
+
+.estado-feedback strong {
+  font-size: 17px;
+}
+
+.estado-feedback span {
+  color: var(--cor-texto-suave);
+}
+
+.bottom-sheet {
+  display: grid;
+  gap: 10px;
+  padding: 4px 2px calc(8px + env(safe-area-inset-bottom));
+  color: var(--cor-texto);
+}
+
+.bottom-sheet h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.bottom-sheet strong {
+  font-size: 17px;
+}
+
+.bottom-sheet span,
+.bottom-sheet p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.bottom-sheet textarea {
   resize: vertical;
 }
 
-@media (min-width: 760px) {
-  .lista-entregas {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .horarios {
-    grid-template-columns: 1fr;
-  }
-
-  .acoes-entrega button {
-    flex: 1 1 120px;
+@media (min-width: 640px) {
+  .entregador-shell {
+    padding-inline: 8px;
   }
 }

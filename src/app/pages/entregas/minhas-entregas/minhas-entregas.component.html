@@ -1,105 +1,128 @@
-<app-page-header titulo="Minhas entregas" descricao="Acompanhe suas entregas e atualize o andamento.">
-  <button nz-button nzType="primary" type="button" (click)="selecionarStatus(statusSelecionado())">
-    <span nz-icon nzType="reload" nzTheme="outline"></span>
-    Atualizar
-  </button>
-</app-page-header>
+<main class="entregador-shell" aria-label="Portal do entregador">
+  <header class="entregador-header">
+    <div>
+      <span>Portal do entregador</span>
+      <h1>Minhas entregas</h1>
+    </div>
 
-<section class="chips-status" aria-label="Filtrar entregas por status">
-  @for (filtro of statusFiltros; track filtro.label) {
-    <button
-      nz-button
-      type="button"
-      [nzType]="filtroAtivo(filtro.status) ? 'primary' : 'default'"
-      [attr.aria-pressed]="filtroAtivo(filtro.status)"
-      (click)="selecionarStatus(filtro.status)"
-    >
-      {{ filtro.label }}
+    <button nz-button type="button" class="botao-atualizar" (click)="tentarNovamente()" aria-label="Atualizar entregas">
+      <span nz-icon nzType="reload" nzTheme="outline"></span>
     </button>
-  }
-</section>
+  </header>
 
-<nz-spin [nzSpinning]="carregando()">
-  @if (possuiEntregas()) {
-    <section class="lista-entregas" aria-label="Minhas entregas">
+  @if (!online()) {
+    <nz-alert
+      nzType="warning"
+      nzMessage="Sem conexao"
+      nzDescription="As entregas e mudancas de status precisam de confirmacao da API."
+      nzShowIcon
+    ></nz-alert>
+  }
+
+  <section class="chips-status" aria-label="Filtrar entregas por status">
+    @for (filtro of statusFiltros; track filtro.label) {
+      <button
+        nz-button
+        type="button"
+        [class.ativo]="filtroAtivo(filtro.status)"
+        [attr.aria-pressed]="filtroAtivo(filtro.status)"
+        (click)="selecionarStatus(filtro.status)"
+      >
+        {{ filtro.label }}
+      </button>
+    }
+  </section>
+
+  @if (carregando()) {
+    <section class="lista-entregas" aria-label="Carregando entregas">
+      @for (item of skeletonCards; track item) {
+        <article class="entrega-card entrega-card--skeleton">
+          <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 5 }"></nz-skeleton>
+        </article>
+      }
+    </section>
+  } @else if (erroCarregamento()) {
+    <section class="estado-feedback">
+      <strong>Nao foi possivel carregar suas entregas.</strong>
+      <span>{{ erroCarregamento() }}</span>
+      <button nz-button nzType="primary" type="button" (click)="tentarNovamente()">Tentar novamente</button>
+    </section>
+  } @else if (possuiEntregas()) {
+    <section class="lista-entregas" aria-label="Lista de entregas">
       @for (entrega of entregas(); track entrega.id) {
-        <article class="entrega-card">
-          <header class="entrega-topo">
+        <article class="entrega-card" [attr.data-status]="entrega.status">
+          <header class="card-topo">
             <div>
-              <strong>Pedido #{{ numeroPedido(entrega) }}</strong>
-              <span>{{ clienteNome(entrega) }}</span>
+              <span class="pedido">Pedido #{{ numeroPedido(entrega) }}</span>
+              <strong>{{ clienteNome(entrega) }}</strong>
             </div>
+
             <nz-tag [nzColor]="corStatusEntrega(entrega.status)">{{ statusEntregaTexto(entrega.status) }}</nz-tag>
           </header>
 
-          <div class="endereco">
-            <span nz-icon nzType="environment" nzTheme="outline"></span>
-            <span>{{ enderecoTexto(entrega) }}</span>
+          <a class="endereco-bloco" [routerLink]="['/minhas-entregas', entrega.id]" aria-label="Abrir detalhe da entrega">
+            <span class="endereco-icone" nz-icon nzType="environment" nzTheme="outline"></span>
+            <span>
+              <strong>{{ enderecoLinhaPrincipal(entrega) }}</strong>
+              @if (enderecoLinhaSecundaria(entrega)) {
+                <small>{{ enderecoLinhaSecundaria(entrega) }}</small>
+              }
+            </span>
+          </a>
+
+          <div class="pagamento-linha">
+            <span>
+              <span nz-icon nzType="credit-card" nzTheme="outline"></span>
+              {{ pagamentoResumo(entrega) }}
+            </span>
+            @if (valorTotal(entrega) !== null) {
+              <strong>{{ valorTotal(entrega) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            }
           </div>
 
-          <dl class="horarios">
-            <div>
-              <dt>Atribuido</dt>
-              <dd>{{ entrega.atribuidoEm | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-            <div>
-              <dt>Aceito</dt>
-              <dd>{{ entrega.aceitoEm | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-            <div>
-              <dt>Em rota</dt>
-              <dd>{{ entrega.saiuParaEntregaEm | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-            <div>
-              <dt>Entregue</dt>
-              <dd>{{ entrega.entregueEm | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-          </dl>
+          <div class="status-momento">
+            <span>{{ textoMomentoStatus(entrega) }}</span>
+            @if (dataStatusAtual(entrega)) {
+              <strong>{{ dataStatusAtual(entrega) | date:'HH:mm' }}</strong>
+            }
+          </div>
 
-          <footer class="acoes-entrega">
-            @if (podeAceitarEntrega(entrega)) {
+          <footer class="acoes-card">
+            @if (entrega.status === 'EM_ROTA') {
+              <button nz-button type="button" class="botao-rota" (click)="abrirRota(entrega)">
+                <span nz-icon nzType="environment" nzTheme="outline"></span>
+                Abrir rota
+              </button>
+            }
+
+            @if (podeAceitarEntrega(entrega) || podeIniciarEntrega(entrega) || podeConcluirEntrega(entrega)) {
               <button
                 nz-button
                 nzType="primary"
                 type="button"
+                class="botao-principal"
                 [nzLoading]="processandoId() === entrega.id"
-                [disabled]="processandoId() !== null"
-                (click)="aceitar(entrega)"
+                [disabled]="processandoId() !== null || !online()"
+                (click)="executarAcaoPrincipal(entrega)"
               >
-                Aceitar
+                @if (entrega.status === 'EM_ROTA') {
+                  <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                }
+                {{ textoAcaoPrincipal(entrega) }}
               </button>
+            } @else {
+              <a nz-button class="botao-principal" [routerLink]="['/minhas-entregas', entrega.id]">Ver detalhes</a>
             }
+
             @if (podeRecusarEntrega(entrega)) {
-              <button nz-button type="button" [disabled]="processandoId() !== null" (click)="abrirRecusa(entrega)">
+              <button
+                nz-button
+                type="button"
+                class="botao-secundario"
+                [disabled]="processandoId() !== null || !online()"
+                (click)="abrirRecusa(entrega)"
+              >
                 Recusar
-              </button>
-            }
-            @if (podeIniciarEntrega(entrega)) {
-              <button
-                nz-button
-                nzType="primary"
-                type="button"
-                [nzLoading]="processandoId() === entrega.id"
-                [disabled]="processandoId() !== null"
-                (click)="iniciar(entrega)"
-              >
-                Iniciar
-              </button>
-            }
-            @if (podeConcluirEntrega(entrega)) {
-              <button
-                nz-button
-                nzType="primary"
-                type="button"
-                nz-popconfirm
-                nzPopconfirmTitle="Deseja concluir esta entrega?"
-                nzOkText="Concluir"
-                nzCancelText="Cancelar"
-                [nzLoading]="processandoId() === entrega.id"
-                [disabled]="processandoId() !== null"
-                (nzOnConfirm)="concluir(entrega)"
-              >
-                Concluir
               </button>
             }
           </footer>
@@ -107,48 +130,100 @@
       }
     </section>
 
-    <div class="paginacao">
-      <nz-pagination
-        [nzPageIndex]="pageIndex()"
-        [nzPageSize]="pageSize()"
-        [nzTotal]="total()"
-        [nzShowSizeChanger]="true"
-        [nzPageSizeOptions]="pageSizeOptions()"
-        (nzPageIndexChange)="alterarPagina($event)"
-        (nzPageSizeChange)="alterarTamanhoPagina($event)"
-      ></nz-pagination>
-    </div>
+    @if (podeCarregarMais()) {
+      <button
+        nz-button
+        type="button"
+        class="botao-carregar-mais"
+        [nzLoading]="carregandoMais()"
+        [disabled]="carregandoMais()"
+        (click)="carregarMais()"
+      >
+        Carregar mais
+      </button>
+    }
   } @else {
-    <section class="estado-vazio cartao-sistema">
-      <nz-empty nzNotFoundContent="Nenhuma entrega encontrada."></nz-empty>
+    <section class="estado-feedback">
+      <nz-empty nzNotFoundContent="Nenhuma entrega em andamento."></nz-empty>
+      <span>Suas novas entregas aparecerao aqui.</span>
+      <button nz-button type="button" (click)="tentarNovamente()">Atualizar</button>
     </section>
   }
-</nz-spin>
+</main>
 
-<nz-modal
-  [nzVisible]="modalRecusaAberto()"
-  nzTitle="Recusar entrega"
-  nzOkText="Recusar"
-  nzCancelText="Cancelar"
-  [nzOkDanger]="true"
-  [nzOkLoading]="processandoId() !== null"
-  (nzOnOk)="confirmarRecusa()"
-  (nzOnCancel)="fecharRecusa()"
+<nz-drawer
+  [nzVisible]="!!entregaConclusao()"
+  nzPlacement="bottom"
+  [nzHeight]="'auto'"
+  [nzClosable]="false"
+  (nzOnClose)="fecharConfirmacaoConclusao()"
 >
-  <ng-container *nzModalContent>
-    <form nz-form [formGroup]="recusaForm">
-      <nz-form-item>
-        <nz-form-label nzFor="observacao">Motivo</nz-form-label>
-        <nz-form-control>
-          <textarea
-            id="observacao"
-            nz-input
-            formControlName="observacao"
-            rows="4"
-            placeholder="Motivo opcional"
-          ></textarea>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+  <ng-container *nzDrawerContent>
+    @if (entregaConclusao(); as entrega) {
+      <section class="bottom-sheet" aria-label="Confirmar entrega">
+        <h2>Confirmar entrega?</h2>
+        <strong>Pedido #{{ numeroPedido(entrega) }}</strong>
+        <span>{{ clienteNome(entrega) }}</span>
+        <p>Confirme que o pedido foi entregue ao cliente.</p>
+
+        <button nz-button type="button" (click)="fecharConfirmacaoConclusao()">Voltar</button>
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [nzLoading]="processandoId() === entrega.id"
+          [disabled]="processandoId() !== null || !online()"
+          (click)="confirmarConclusao()"
+        >
+          <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+          Confirmar entrega
+        </button>
+      </section>
+    }
   </ng-container>
-</nz-modal>
+</nz-drawer>
+
+<nz-drawer
+  [nzVisible]="!!entregaRecusa()"
+  nzPlacement="bottom"
+  [nzHeight]="'auto'"
+  [nzClosable]="false"
+  (nzOnClose)="fecharRecusa()"
+>
+  <ng-container *nzDrawerContent>
+    @if (entregaRecusa(); as entrega) {
+      <section class="bottom-sheet" aria-label="Recusar entrega">
+        <h2>Recusar entrega</h2>
+        <strong>Pedido #{{ numeroPedido(entrega) }}</strong>
+        <span>{{ clienteNome(entrega) }}</span>
+
+        <form nz-form [formGroup]="recusaForm">
+          <nz-form-item>
+            <nz-form-label nzFor="observacaoRecusa">Motivo</nz-form-label>
+            <nz-form-control>
+              <textarea
+                id="observacaoRecusa"
+                nz-input
+                formControlName="observacao"
+                rows="4"
+                placeholder="Motivo opcional"
+              ></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+
+        <button nz-button type="button" (click)="fecharRecusa()">Voltar</button>
+        <button
+          nz-button
+          nzDanger
+          type="button"
+          [nzLoading]="processandoId() === entrega.id"
+          [disabled]="processandoId() !== null || !online()"
+          (click)="confirmarRecusa()"
+        >
+          Recusar entrega
+        </button>
+      </section>
+    }
+  </ng-container>
+</nz-drawer>

@@ -1,0 +1,236 @@
+:host {
+  display: block;
+}
+
+.detalhe-shell {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 560px);
+  margin: 0 auto;
+}
+
+.detalhe-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin: -14px -12px 0;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--cor-fundo) 92%, transparent);
+  border-bottom: 1px solid var(--cor-borda);
+  backdrop-filter: blur(12px);
+}
+
+.botao-voltar-mobile.ant-btn {
+  display: inline-grid;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.detalhe-header div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.detalhe-header span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detalhe-header h1 {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.detalhe-header nz-tag {
+  margin: 0;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.painel-mobile,
+.estado-feedback {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 14px;
+}
+
+.estado-feedback {
+  justify-items: center;
+  padding: 34px 18px;
+  text-align: center;
+}
+
+.estado-feedback span {
+  color: var(--cor-texto-suave);
+}
+
+.secao-label {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.entrega-principal h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.endereco-destaque {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 12px;
+}
+
+.endereco-destaque > span {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: var(--cor-primaria);
+  font-size: 20px;
+}
+
+.endereco-destaque div {
+  display: grid;
+  gap: 4px;
+}
+
+.endereco-destaque strong {
+  font-size: 18px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.endereco-destaque small,
+.observacao {
+  color: var(--cor-texto-suave);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.botao-rota.ant-btn,
+.botao-contato.ant-btn,
+.action-bar .ant-btn,
+.bottom-sheet .ant-btn,
+.estado-feedback .ant-btn {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.linha-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.linha-info span {
+  color: var(--cor-texto-suave);
+  font-weight: 700;
+}
+
+.linha-info strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.linha-info.total strong {
+  font-size: 24px;
+}
+
+.linha-info nz-tag {
+  margin: 0;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.andamento {
+  padding-bottom: 4px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.timeline-item strong {
+  color: var(--cor-texto);
+}
+
+.timeline-item span {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
+
+.timeline-item[data-status='current'] strong {
+  color: var(--cor-primaria);
+}
+
+.action-spacer {
+  min-height: 96px;
+}
+
+.action-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: grid;
+  gap: 8px;
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--cor-superficie) 96%, transparent);
+  border-top: 1px solid var(--cor-borda);
+  box-shadow: 0 -10px 30px rgb(15 23 42 / 14%);
+  backdrop-filter: blur(12px);
+}
+
+.bottom-sheet {
+  display: grid;
+  gap: 10px;
+  padding: 4px 2px calc(8px + env(safe-area-inset-bottom));
+  color: var(--cor-texto);
+}
+
+.bottom-sheet h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.bottom-sheet span,
+.bottom-sheet p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.bottom-sheet textarea {
+  resize: vertical;
+}

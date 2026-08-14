@@ -1,0 +1,240 @@
+<main class="detalhe-shell" aria-label="Detalhe da entrega">
+  <header class="detalhe-header">
+    <button nz-button type="button" class="botao-voltar-mobile" (click)="voltar()" aria-label="Voltar">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    </button>
+
+    <div>
+      <span>Detalhe da entrega</span>
+      @if (entrega(); as entregaDetalhe) {
+        <h1>Pedido #{{ numeroPedido(entregaDetalhe) }}</h1>
+      } @else {
+        <h1>Entrega</h1>
+      }
+    </div>
+
+    @if (entrega(); as entregaDetalhe) {
+      <nz-tag [nzColor]="corStatusEntrega(entregaDetalhe.status)">{{ statusEntregaTexto(entregaDetalhe.status) }}</nz-tag>
+    }
+  </header>
+
+  @if (!online()) {
+    <nz-alert
+      nzType="warning"
+      nzMessage="Sem conexao"
+      nzDescription="As mudancas de status precisam ser confirmadas pela API."
+      nzShowIcon
+    ></nz-alert>
+  }
+
+  @if (carregando()) {
+    <section class="painel-mobile">
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 8 }"></nz-skeleton>
+    </section>
+  } @else if (erroCarregamento()) {
+    <section class="estado-feedback">
+      <strong>Nao foi possivel carregar a entrega.</strong>
+      <span>{{ erroCarregamento() }}</span>
+      <button nz-button nzType="primary" type="button" (click)="tentarNovamente()">Tentar novamente</button>
+      <a nz-button routerLink="/minhas-entregas">Voltar para entregas</a>
+    </section>
+  } @else if (entrega(); as entregaDetalhe) {
+    <section class="painel-mobile entrega-principal">
+      <span class="secao-label">Entrega</span>
+      <h2>{{ entregaDetalhe.cliente?.nome || 'Cliente nao informado' }}</h2>
+
+      <div class="endereco-destaque">
+        <span nz-icon nzType="environment" nzTheme="outline"></span>
+        <div>
+          <strong>{{ enderecoLinhaPrincipal(entregaDetalhe) }}</strong>
+          @if (enderecoLinhaSecundaria(entregaDetalhe)) {
+            <small>{{ enderecoLinhaSecundaria(entregaDetalhe) }}</small>
+          }
+        </div>
+      </div>
+
+      <button nz-button type="button" class="botao-rota" (click)="abrirRota()">
+        <span nz-icon nzType="environment" nzTheme="outline"></span>
+        Abrir no mapa
+      </button>
+    </section>
+
+    <section class="painel-mobile">
+      <span class="secao-label">Contato</span>
+      <div class="linha-info">
+        <span>Telefone</span>
+        <strong>{{ entregaDetalhe.cliente?.telefone || 'Nao informado' }}</strong>
+      </div>
+      <button nz-button type="button" class="botao-contato" [disabled]="!entregaDetalhe.cliente?.telefone" (click)="ligarCliente()">
+        <span nz-icon nzType="phone" nzTheme="outline"></span>
+        Ligar
+      </button>
+    </section>
+
+    <section class="painel-mobile">
+      <span class="secao-label">Pagamento</span>
+      <div class="linha-info">
+        <span>Forma</span>
+        <strong>{{ tipoFormaPagamentoTexto(entregaDetalhe.tipoFormaPagamento) }}</strong>
+      </div>
+      <div class="linha-info total">
+        <span>Total</span>
+        <strong>{{ entregaDetalhe.valorTotal !== null && entregaDetalhe.valorTotal !== undefined ? (entregaDetalhe.valorTotal | currency:'BRL':'symbol':'1.2-2') : 'Nao informado' }}</strong>
+      </div>
+      @if (entregaEmDinheiro(entregaDetalhe)) {
+        <div class="linha-info">
+          <span>Valor recebido</span>
+          <strong>{{ valorRecebidoTexto(entregaDetalhe) }}</strong>
+        </div>
+        <div class="linha-info">
+          <span>Troco</span>
+          <strong>{{ trocoTexto(entregaDetalhe) }}</strong>
+        </div>
+      }
+      <div class="linha-info">
+        <span>Pagamento</span>
+        <nz-tag [nzColor]="corStatusPagamento(entregaDetalhe.statusPagamento)">
+          {{ statusPagamentoTexto(entregaDetalhe.statusPagamento) }}
+        </nz-tag>
+      </div>
+    </section>
+
+    @if (entregaDetalhe.observacao) {
+      <section class="painel-mobile">
+        <span class="secao-label">Observacao</span>
+        <p class="observacao">{{ entregaDetalhe.observacao }}</p>
+      </section>
+    }
+
+    <section class="painel-mobile andamento">
+      <span class="secao-label">Andamento</span>
+      <nz-timeline>
+        @for (item of timeline(entregaDetalhe); track item.titulo) {
+          <nz-timeline-item [nzColor]="item.status === 'pending' ? 'gray' : item.status === 'current' ? 'blue' : 'green'">
+            <div class="timeline-item" [attr.data-status]="item.status">
+              <strong>{{ item.titulo }}</strong>
+              <span>{{ item.data ? (item.data | date:'HH:mm') : 'Pendente' }}</span>
+            </div>
+          </nz-timeline-item>
+        }
+      </nz-timeline>
+    </section>
+
+    <div class="action-spacer" aria-hidden="true"></div>
+
+    @if (podeAceitarEntrega(entregaDetalhe) || podeIniciarEntrega(entregaDetalhe) || podeConcluirEntrega(entregaDetalhe)) {
+      <footer class="action-bar">
+        @if (podeAceitarEntrega(entregaDetalhe)) {
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [nzLoading]="processando()"
+            [disabled]="processando() || !online()"
+            (click)="aceitar()"
+          >
+            Aceitar entrega
+          </button>
+        }
+        @if (podeIniciarEntrega(entregaDetalhe)) {
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [nzLoading]="processando()"
+            [disabled]="processando() || !online()"
+            (click)="iniciar()"
+          >
+            Iniciar entrega
+          </button>
+        }
+        @if (podeConcluirEntrega(entregaDetalhe)) {
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [nzLoading]="processando()"
+            [disabled]="processando() || !online()"
+            (click)="abrirConfirmacaoConclusao()"
+          >
+            <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+            Confirmar entrega
+          </button>
+        }
+        @if (podeRecusarEntrega(entregaDetalhe)) {
+          <button nz-button type="button" [disabled]="processando() || !online()" (click)="abrirRecusa()">Recusar</button>
+        }
+      </footer>
+    }
+  } @else {
+    <section class="estado-feedback">
+      <nz-empty nzNotFoundContent="Entrega nao encontrada."></nz-empty>
+      <a nz-button routerLink="/minhas-entregas">Voltar para entregas</a>
+    </section>
+  }
+</main>
+
+<nz-drawer
+  [nzVisible]="confirmarConclusaoAberto()"
+  nzPlacement="bottom"
+  [nzHeight]="'auto'"
+  [nzClosable]="false"
+  (nzOnClose)="fecharConfirmacaoConclusao()"
+>
+  <ng-container *nzDrawerContent>
+    @if (entrega(); as entregaDetalhe) {
+      <section class="bottom-sheet" aria-label="Confirmar entrega">
+        <h2>Confirmar entrega?</h2>
+        <strong>Pedido #{{ numeroPedido(entregaDetalhe) }}</strong>
+        <span>{{ entregaDetalhe.cliente?.nome || 'Cliente nao informado' }}</span>
+        <p>Confirme que o pedido foi entregue ao cliente.</p>
+
+        <button nz-button type="button" (click)="fecharConfirmacaoConclusao()">Voltar</button>
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [nzLoading]="processando()"
+          [disabled]="processando() || !online()"
+          (click)="confirmarConclusao()"
+        >
+          <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+          Confirmar entrega
+        </button>
+      </section>
+    }
+  </ng-container>
+</nz-drawer>
+
+<nz-drawer
+  [nzVisible]="confirmarRecusaAberto()"
+  nzPlacement="bottom"
+  [nzHeight]="'auto'"
+  [nzClosable]="false"
+  (nzOnClose)="fecharRecusa()"
+>
+  <ng-container *nzDrawerContent>
+    <section class="bottom-sheet" aria-label="Recusar entrega">
+      <h2>Recusar entrega</h2>
+      <form nz-form [formGroup]="recusaForm">
+        <nz-form-item>
+          <nz-form-label nzFor="observacaoRecusaDetalhe">Motivo</nz-form-label>
+          <nz-form-control>
+            <textarea
+              id="observacaoRecusaDetalhe"
+              nz-input
+              formControlName="observacao"
+              rows="4"
+              placeholder="Motivo opcional"
+            ></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+
+      <button nz-button type="button" (click)="fecharRecusa()">Voltar</button>
+      <button nz-button nzDanger type="button" [nzLoading]="processando()" [disabled]="processando() || !online()" (click)="confirmarRecusa()">
+        Recusar entrega
+      </button>
+    </section>
+  </ng-container>
+</nz-drawer>

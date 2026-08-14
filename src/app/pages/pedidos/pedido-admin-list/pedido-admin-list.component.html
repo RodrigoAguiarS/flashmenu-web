@@ -131,7 +131,7 @@
           </div>
 
           <footer class="acoes-pedido" aria-label="Acoes do pedido">
-            @if (view.acaoPrincipal === 'confirmar-pagamento') {
+            @if (view.acaoPrincipal === 'confirmar-pedido') {
               <button
                 nz-button
                 nzType="primary"
@@ -142,7 +142,7 @@
                 nzCancelText="Cancelar"
                 [nzLoading]="processandoId() === view.pedido.id"
                 [disabled]="processandoId() !== null"
-                (nzOnConfirm)="confirmarPagamento(view.pedido)"
+                (nzOnConfirm)="confirmarPedido(view.pedido)"
               >
                 {{ view.acaoPrincipalLabel }}
               </button>

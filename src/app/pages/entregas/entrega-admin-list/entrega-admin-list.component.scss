@@ -1,34 +1,198 @@
-.filtros-entrega {
+.indicadores-operacao {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.indicador {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.indicador span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.indicador strong {
+  font-size: 24px;
+}
+
+.chips-status,
+.linha-filtros,
+.acoes-entrega,
+.detalhe-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.central-filtros {
   display: grid;
   gap: 12px;
   margin-bottom: 16px;
   padding: 12px;
 }
 
-.filtros-entrega nz-form-item {
+.chips-status {
+  flex-wrap: wrap;
+}
+
+.chips-status button {
+  min-height: 34px;
+  border-radius: 999px;
+}
+
+.linha-filtros {
+  flex-wrap: wrap;
+}
+
+.linha-filtros nz-form-item {
   margin-bottom: 0;
 }
 
-.filtros-entrega nz-select,
-.filtros-entrega nz-input-number,
-nz-modal nz-input-number {
+.linha-filtros .busca {
+  flex: 1 1 260px;
+}
+
+.linha-filtros .entregador {
+  flex: 1 1 220px;
+}
+
+.linha-filtros input,
+.linha-filtros nz-select,
+nz-modal nz-select {
   width: 100%;
 }
 
-.acoes-filtro {
-  display: flex;
-  align-items: end;
+.lista-operacional {
+  display: grid;
+  gap: 10px;
+}
+
+.entrega-operacional {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid transparent;
+  border-radius: 8px;
+}
+
+.entrega-operacional[data-status='AGUARDANDO_ENTREGADOR'],
+.entrega-operacional[data-status='RECUSADA'] {
+  border-left-color: #faad14;
+  box-shadow: 0 10px 24px rgb(15 23 42 / 8%);
+}
+
+.entrega-operacional[data-status='ATRIBUIDA'] {
+  border-left-color: var(--cor-primaria);
+}
+
+.entrega-prioridade {
+  display: grid;
+  place-items: start center;
+  padding-top: 3px;
+}
+
+.alerta-operacional {
+  color: #d48806;
+  font-size: 18px;
+}
+
+.entrega-conteudo {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.entrega-topo,
+.entrega-info {
+  display: grid;
   gap: 8px;
 }
 
-.tabela-entregas {
-  overflow: hidden;
+.entrega-topo {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
 }
 
-.acoes-linha {
-  display: flex;
+.entrega-topo div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.entrega-topo strong {
+  font-size: 16px;
+}
+
+.entrega-topo span,
+.info-bloco span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.entrega-topo nz-tag {
+  margin: 0;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.info-bloco {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.entrega-info {
+  grid-template-columns: minmax(240px, 2fr) minmax(160px, 1fr) minmax(120px, 0.7fr);
+}
+
+.pagamento-dinheiro {
+  grid-column: 1 / -1;
+}
+
+.info-bloco strong {
+  overflow-wrap: anywhere;
+}
+
+.pendencia-operacional {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 6px;
+  padding: 5px 8px;
+  color: #ad6800;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.acoes-entrega {
+  align-self: center;
   justify-content: flex-end;
-  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 210px;
+}
+
+.acoes-entrega .ant-btn {
+  min-height: 34px;
+  border-radius: 8px;
 }
 
 .paginacao {
@@ -48,6 +212,31 @@ nz-modal nz-input-number {
   gap: 16px;
 }
 
+.detalhe-resumo {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.detalhe-resumo header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detalhe-resumo span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.detalhe-resumo strong {
+  font-size: 20px;
+}
+
 .linha-tempo {
   display: grid;
   gap: 12px;
@@ -59,7 +248,6 @@ nz-modal nz-input-number {
 
 .linha-tempo h2 {
   margin: 0;
-  font-size: 16px;
 }
 
 .linha-tempo strong,
@@ -72,9 +260,60 @@ nz-modal nz-input-number {
   font-size: 12px;
 }
 
-@media (min-width: 720px) {
-  .filtros-entrega {
-    grid-template-columns: repeat(2, minmax(180px, 260px)) auto;
-    align-items: end;
+@media (min-width: 900px) {
+  .indicadores-operacao {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .entrega-operacional {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .entrega-prioridade {
+    display: none;
+  }
+
+  .entrega-info {
+    grid-template-columns: 1fr;
+  }
+
+  .acoes-entrega {
+    justify-content: stretch;
+    min-width: 0;
+  }
+
+  .acoes-entrega .ant-btn {
+    flex: 1 1 150px;
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 640px) {
+  .central-filtros,
+  .entrega-operacional {
+    padding: 12px;
+  }
+
+  .chips-status {
+    flex-wrap: nowrap;
+    margin-inline: -12px;
+    padding-inline: 12px;
+    overflow-x: auto;
+  }
+
+  .chips-status button {
+    flex: 0 0 auto;
+  }
+
+  .linha-filtros {
+    align-items: stretch;
+  }
+
+  .linha-filtros .busca,
+  .linha-filtros .entregador,
+  .linha-filtros button {
+    flex: 1 1 100%;
   }
 }

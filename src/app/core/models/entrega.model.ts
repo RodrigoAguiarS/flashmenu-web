@@ -1,8 +1,16 @@
+import { TipoFormaPagamento } from './forma-pagamento.model';
 import { EnderecoResponse } from './endereco.model';
-import { PedidoParticipanteResponse, PedidoResponse, StatusPedido } from './pedido.model';
+import { PedidoParticipanteResponse, PedidoResponse, StatusPagamento, StatusPedido } from './pedido.model';
 import { UnidadeResumo } from './unidade.model';
 
-export type StatusEntrega = 'CRIADA' | 'ATRIBUIDA' | 'ACEITA' | 'EM_ROTA' | 'ENTREGUE' | 'RECUSADA' | 'CANCELADA';
+export type StatusEntrega =
+  | 'AGUARDANDO_ENTREGADOR'
+  | 'ATRIBUIDA'
+  | 'ACEITA'
+  | 'EM_ROTA'
+  | 'ENTREGUE'
+  | 'CANCELADA'
+  | 'RECUSADA';
 
 export interface EntregaFiltros {
   page: number;
@@ -45,6 +53,11 @@ export interface EntregaResponse {
   entregadorId?: number | null;
   status: StatusEntrega;
   statusPedido?: StatusPedido | null;
+  tipoFormaPagamento?: TipoFormaPagamento | null;
+  valorTotal?: number | null;
+  valorRecebido?: number | null;
+  troco?: number | null;
+  statusPagamento?: StatusPagamento | null;
   observacao?: string | null;
   criadoEm?: string | null;
   atribuidoEm?: string | null;
@@ -53,4 +66,5 @@ export interface EntregaResponse {
   entregueEm?: string | null;
   canceladoEm?: string | null;
   recusadoEm?: string | null;
+  atualizadoEm?: string | null;
 }
