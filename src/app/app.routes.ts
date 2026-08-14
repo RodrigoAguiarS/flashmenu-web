@@ -30,7 +30,10 @@ export const routes: Routes = [
   },
   {
     path: 'loja',
-    loadComponent: () => import('./pages/loja-publica/loja-publica.component').then((component) => component.LojaPublicaComponent)
+    loadComponent: () =>
+      import('./pages/empresa-publica/empresa-publica.component').then(
+        (component) => component.EmpresaPublicaComponent
+      )
   },
   {
     path: 'carrinho',

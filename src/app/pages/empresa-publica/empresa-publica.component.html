@@ -1,0 +1,110 @@
+<main class="empresa-publica">
+  <nz-spin [nzSpinning]="carregando()">
+    @if (mensagemErro()) {
+      <nz-alert class="alerta-empresa-publica" nzType="warning" [nzMessage]="mensagemErro()" nzShowIcon></nz-alert>
+    }
+
+    @if (empresa(); as empresaDados) {
+      <section class="empresa-hero" aria-label="Empresa">
+        <div class="empresa-marca" aria-hidden="true">{{ iniciaisEmpresa() }}</div>
+
+        <div class="empresa-titulo">
+          <h1>{{ empresaDados.nomeFantasia }}</h1>
+          <p>Escolha onde deseja fazer seu pedido.</p>
+        </div>
+
+        <div class="empresa-contatos" aria-label="Contatos da empresa">
+          @if (empresaDados.telefone) {
+            <span>
+              <span nz-icon nzType="phone" nzTheme="outline" aria-hidden="true"></span>
+              {{ empresaDados.telefone | telefone }}
+            </span>
+          }
+
+          @if (empresaDados.email) {
+            <span>
+              <span nz-icon nzType="mail" nzTheme="outline" aria-hidden="true"></span>
+              {{ empresaDados.email }}
+            </span>
+          }
+        </div>
+      </section>
+
+      <section class="unidades-secao" aria-label="Unidades disponiveis">
+        <header>
+          <div>
+            <h2>Escolha uma unidade</h2>
+            <p>{{ unidadesAtivas().length }} unidade{{ unidadesAtivas().length === 1 ? '' : 's' }} disponivel{{ unidadesAtivas().length === 1 ? '' : 'is' }}</p>
+          </div>
+        </header>
+
+        @if (unidadesAtivas().length) {
+          <div class="unidades-grid">
+            @for (unidade of unidadesAtivas(); track unidade.id) {
+              <a class="unidade-card" [routerLink]="['/loja', unidade.slug]" [attr.aria-label]="'Ver cardapio de ' + unidade.nome">
+                <div class="unidade-topo">
+                  <div class="unidade-logo" aria-hidden="true">
+                    @if (logoUnidade(unidade); as logo) {
+                      <img [src]="logo" [alt]="unidade.nome" />
+                    } @else {
+                      <span>{{ iniciaisUnidade(unidade) }}</span>
+                    }
+                  </div>
+
+                  <nz-tag [nzColor]="statusCor(unidade)">{{ statusTexto(unidade) }}</nz-tag>
+                </div>
+
+                <div class="unidade-conteudo">
+                  <h3>{{ unidade.nome }}</h3>
+
+                  <div class="unidade-status" [class.aberta]="lojaAberta(unidade)">
+                    <span aria-hidden="true"></span>
+                    <strong>{{ statusTexto(unidade) }}</strong>
+                    @if (statusDetalhe(unidade); as detalhe) {
+                      <small>{{ detalhe }}</small>
+                    }
+                  </div>
+
+                  @if (enderecoPrincipal(unidade); as endereco) {
+                    <span class="unidade-info endereco-principal">
+                      <span nz-icon nzType="environment" nzTheme="outline" aria-hidden="true"></span>
+                      <span>{{ endereco }}</span>
+                    </span>
+                  }
+
+                  @if (cidadeEstado(unidade); as cidade) {
+                    <p>{{ cidade }}</p>
+                  }
+
+                  @if (contatoUnidade(unidade); as contato) {
+                    <span class="unidade-info">
+                      <span nz-icon nzType="phone" nzTheme="outline" aria-hidden="true"></span>
+                      {{ contato | telefone }}
+                    </span>
+                  }
+                </div>
+
+                <span class="acessar-loja">
+                  Ver cardapio
+                  <span nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
+                </span>
+              </a>
+            }
+          </div>
+        } @else {
+          <section class="estado-vazio cartao-sistema">
+            <nz-empty nzNotFoundContent="Nenhuma unidade disponivel no momento."></nz-empty>
+          </section>
+        }
+      </section>
+    } @else if (!carregando() && !mensagemErro()) {
+      <section class="estado-vazio cartao-sistema">
+        <nz-result
+          nzStatus="404"
+          nzTitle="Empresa nao encontrada"
+          nzSubTitle="Confira o endereco informado ou tente novamente mais tarde."
+        ></nz-result>
+      </section>
+    }
+  </nz-spin>
+</main>
