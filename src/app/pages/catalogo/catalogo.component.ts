@@ -16,7 +16,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -58,7 +57,6 @@ interface ProdutosPorCategoria {
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
-    NzPaginationModule,
     NzResultModule,
     NzSpinModule,
     NzTagModule,
@@ -91,13 +89,16 @@ export class CatalogoComponent implements OnInit {
   protected readonly quantidadeDetalhe = signal(1);
   protected readonly observacaoDetalhe = signal('');
   protected readonly carregando = signal(false);
+  protected readonly carregandoMais = signal(false);
   protected readonly carregandoCategorias = signal(false);
   protected readonly filtroNome = signal('');
   protected readonly categoriaSelecionadaId = signal<number | null>(null);
   protected readonly total = signal(0);
-  protected readonly pageIndex = signal(1);
+  protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(12);
+  protected readonly ultimaPagina = signal(true);
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
+  protected readonly podeCarregarMais = computed(() => this.possuiProdutos() && !this.ultimaPagina());
   protected readonly cardapioIndisponivel = signal(false);
   protected readonly mensagemCardapioIndisponivel = signal('Cardapio nao encontrado.');
   protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardapio' : 'Catalogo');
@@ -150,9 +151,9 @@ export class CatalogoComponent implements OnInit {
         this.unidadeSlug.set(slug);
         this.carrinhoService.definirUnidadeSlug(slug);
         this.cardapioIndisponivel.set(false);
-        this.pageIndex.set(1);
+        this.pageIndex.set(0);
         this.carregarCategorias();
-        this.carregarProdutos();
+        this.carregarProdutos(true);
 
         if (Number.isFinite(produtoId) && produtoId > 0) {
           this.carregarProdutoPublico(produtoId, true);
@@ -170,14 +171,16 @@ export class CatalogoComponent implements OnInit {
 
         this.filtroNome.set(filtros.nome.trim());
         this.categoriaSelecionadaId.set(filtros.categoriaId);
-        this.pageIndex.set(1);
-        this.carregarProdutos();
+        this.carregarProdutos(true);
       });
   }
 
-  alterarPagina(pageIndex: number): void {
-    this.pageIndex.set(pageIndex);
-    this.carregarProdutos();
+  carregarMais(): void {
+    if (this.carregandoMais() || this.ultimaPagina()) {
+      return;
+    }
+
+    this.carregarProdutos(false);
   }
 
   selecionarCategoria(categoriaId: number | null): void {
@@ -307,34 +310,49 @@ export class CatalogoComponent implements OnInit {
     return this.carrinhoService.possuiEstoque(produto);
   }
 
-  private carregarProdutos(): void {
+  private carregarProdutos(reset: boolean): void {
     const slug = this.unidadeSlug();
 
     if (!slug) {
       this.produtos.set([]);
       this.total.set(0);
+      this.ultimaPagina.set(true);
       return;
     }
 
     const filtros = this.filtros.getRawValue();
-    this.carregando.set(true);
+    const proximaPagina = reset ? 0 : this.pageIndex() + 1;
+
+    if (reset) {
+      this.carregando.set(true);
+    } else {
+      this.carregandoMais.set(true);
+    }
 
     this.produtoService.listarPublicoPorUnidade(slug, {
-      page: this.pageIndex() - 1,
+      page: proximaPagina,
       size: this.pageSize(),
       sort: 'nome',
       nome: filtros.nome?.trim() || undefined,
       categoriaId: filtros.categoriaId ?? undefined
     }).pipe(
-      finalize(() => this.carregando.set(false))
+      finalize(() => {
+        this.carregando.set(false);
+        this.carregandoMais.set(false);
+      })
     ).subscribe({
       next: (page) => {
-        this.produtos.set(page.content);
+        this.pageIndex.set(page.number);
+        this.produtos.set(reset ? page.content : [...this.produtos(), ...page.content]);
         this.total.set(page.totalElements);
+        this.ultimaPagina.set(page.last);
       },
       error: (error: HttpErrorResponse) => {
-        this.produtos.set([]);
-        this.total.set(0);
+        if (reset) {
+          this.produtos.set([]);
+          this.total.set(0);
+          this.ultimaPagina.set(true);
+        }
         this.tratarErroCardapio(error);
         this.message.error(this.extrairMensagemErro(error));
       }
@@ -418,6 +436,7 @@ export class CatalogoComponent implements OnInit {
     this.produtos.set([]);
     this.categorias.set([]);
     this.total.set(0);
+    this.ultimaPagina.set(true);
     this.cardapioIndisponivel.set(true);
     this.mensagemCardapioIndisponivel.set('Acesse o cardapio pelo link publico da unidade.');
   }

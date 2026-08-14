@@ -47,17 +47,34 @@
       }
     </section>
 
-    <div class="paginacao">
-      <nz-pagination
-        [nzPageIndex]="pageIndex()"
-        [nzPageSize]="pageSize()"
-        [nzTotal]="total()"
-        (nzPageIndexChange)="alterarPagina($event)"
-      ></nz-pagination>
-    </div>
+    @if (podeCarregarMais()) {
+      <button
+        nz-button
+        type="button"
+        class="botao-carregar-mais"
+        [nzLoading]="carregandoMais()"
+        [disabled]="carregandoMais()"
+        (click)="carregarMais()"
+      >
+        Carregar mais
+      </button>
+    }
   } @else if (possuiPedidos()) {
     <section class="estado-vazio cartao-sistema">
       <nz-empty nzNotFoundContent="Nenhum pedido neste filtro."></nz-empty>
+
+      @if (podeCarregarMais()) {
+        <button
+          nz-button
+          type="button"
+          class="botao-carregar-mais"
+          [nzLoading]="carregandoMais()"
+          [disabled]="carregandoMais()"
+          (click)="carregarMais()"
+        >
+          Carregar mais
+        </button>
+      }
     </section>
   } @else {
     <section class="estado-vazio cartao-sistema">
@@ -92,6 +109,20 @@
       <span nz-icon [nzType]="tipoIcone(pedido.tipo)" nzTheme="outline"></span>
       <span>{{ tipoTexto(pedido.tipo) }} · {{ nomeUnidade(pedido) }}</span>
     </div>
+
+    @if (pedido.entrega; as entrega) {
+      <div class="pedido-entrega-status">
+        <span nz-icon nzType="car" nzTheme="outline"></span>
+        <span>
+          Entrega:
+          <strong>{{ entregaStatusTexto(entrega.status) }}</strong>
+          · {{ entregadorNome(pedido) }}
+        </span>
+        <nz-tag class="status-tag" [attr.data-status]="entregaStatusClasse(entrega.status)">
+          {{ entregaStatusTexto(entrega.status) }}
+        </nz-tag>
+      </div>
+    }
 
     <div class="pedido-itens">
       @for (item of itensPreview(pedido); track item.id) {

@@ -122,14 +122,18 @@
         }
       </section>
 
-      <div class="paginacao">
-        <nz-pagination
-          [nzPageIndex]="pageIndex()"
-          [nzPageSize]="pageSize()"
-          [nzTotal]="total()"
-          (nzPageIndexChange)="alterarPagina($event)"
-        ></nz-pagination>
-      </div>
+      @if (podeCarregarMais()) {
+        <button
+          nz-button
+          type="button"
+          class="botao-carregar-mais"
+          [nzLoading]="carregandoMais()"
+          [disabled]="carregandoMais()"
+          (click)="carregarMais()"
+        >
+          Carregar mais
+        </button>
+      }
     } @else {
       <section class="estado-vazio cartao-sistema">
         <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>

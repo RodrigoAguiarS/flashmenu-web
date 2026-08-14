@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,8 +12,11 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
+import { PedidoResponse, StatusEntregaPedido, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { ProdutoResponse } from '../../../core/models/produto.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProdutoService } from '../../../core/services/produto.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
@@ -37,11 +41,14 @@ import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedi
   styleUrl: './pedido-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PedidoDetailComponent implements OnInit {
+export class PedidoDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
+  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
   private readonly produtoService = inject(ProdutoService);
   private readonly message = inject(NzMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly carregando = signal(false);
   protected readonly exportandoPdf = signal(false);
@@ -49,9 +56,17 @@ export class PedidoDetailComponent implements OnInit {
   protected readonly produtos = signal<Record<number, ProdutoResponse>>({});
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
   protected readonly possuiPedido = computed(() => this.pedido() !== null);
+  private notificacaoPedidoDestination: string | null = null;
 
   ngOnInit(): void {
     this.carregarPedido();
+    this.configurarNotificacoes();
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificacaoPedidoDestination) {
+      this.pedidoNotificacaoService.removerInscricao(this.notificacaoPedidoDestination);
+    }
   }
 
   protected statusTexto(status: StatusPedido): string {
@@ -124,6 +139,49 @@ export class PedidoDetailComponent implements OnInit {
     }
 
     return 'Pedido confirmado.';
+  }
+
+  protected entregaStatusTexto(status: StatusEntregaPedido): string {
+    const labels: Record<StatusEntregaPedido, string> = {
+      AGUARDANDO_ENTREGADOR: 'Aguardando entregador',
+      ATRIBUIDA: 'Atribuida',
+      ACEITA: 'Aceita',
+      EM_ROTA: 'Em rota',
+      ENTREGUE: 'Entregue',
+      CANCELADA: 'Cancelada',
+      RECUSADA: 'Recusada'
+    };
+
+    return labels[status] ?? status;
+  }
+
+  protected entregaStatusCor(status: StatusEntregaPedido): string {
+    const cores: Record<StatusEntregaPedido, string> = {
+      AGUARDANDO_ENTREGADOR: 'default',
+      ATRIBUIDA: 'processing',
+      ACEITA: 'blue',
+      EM_ROTA: 'warning',
+      ENTREGUE: 'success',
+      CANCELADA: 'error',
+      RECUSADA: 'error'
+    };
+
+    return cores[status] ?? 'default';
+  }
+
+  protected entregaTimeline(pedido: PedidoResponse): Array<{ label: string; data: string | null | undefined }> {
+    const entrega = pedido.entrega;
+
+    if (!entrega) {
+      return [];
+    }
+
+    return [
+      { label: 'Atribuida', data: entrega.atribuidoEm },
+      { label: 'Aceita pelo entregador', data: entrega.aceitoEm },
+      { label: 'Saiu para entrega', data: entrega.saiuParaEntregaEm },
+      { label: 'Entregue', data: entrega.entregueEm }
+    ];
   }
 
   protected tipoTexto(tipo: TipoPedido | null): string {
@@ -232,6 +290,60 @@ export class PedidoDetailComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
+  }
+
+  private configurarNotificacoes(): void {
+    const pedidoId = this.pedidoIdRota();
+
+    if (!pedidoId) {
+      return;
+    }
+
+    this.notificacaoPedidoDestination = `/topic/pedidos/${pedidoId}`;
+    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoService.ouvirPedido(pedidoId);
+    this.pedidoNotificacaoService.notificacoes$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((notificacao) => {
+      if (notificacao.pedidoId !== pedidoId) {
+        return;
+      }
+
+      this.processarNotificacaoPedido(notificacao);
+    });
+  }
+
+  private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
+    const pedido = this.pedido();
+
+    if (notificacao.mensagem) {
+      this.message.info(notificacao.mensagem);
+    }
+
+    if (pedido) {
+      this.pedido.set(this.aplicarNotificacaoPedido(pedido, notificacao));
+    }
+
+    this.carregarPedido();
+  }
+
+  private aplicarNotificacaoPedido(pedido: PedidoResponse, notificacao: PedidoStatusNotificacao): PedidoResponse {
+    return {
+      ...pedido,
+      status: (notificacao.statusPedido ?? pedido.status) as StatusPedido,
+      tipo: (notificacao.tipoPedido ?? pedido.tipo) as TipoPedido | null,
+      pagamento: pedido.pagamento && notificacao.statusPagamento
+        ? { ...pedido.pagamento, status: notificacao.statusPagamento as StatusPagamento }
+        : pedido.pagamento,
+      entrega: pedido.entrega && notificacao.statusEntrega
+        ? { ...pedido.entrega, status: notificacao.statusEntrega as StatusEntregaPedido }
+        : pedido.entrega
+    };
+  }
+
+  private pedidoIdRota(): number | null {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    return Number.isFinite(id) && id > 0 ? id : null;
   }
 
   private carregarProdutosPedido(pedido: PedidoResponse) {

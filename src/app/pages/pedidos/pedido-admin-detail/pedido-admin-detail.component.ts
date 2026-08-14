@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -13,8 +14,10 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
+import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
 import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -39,11 +42,13 @@ import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedi
   styleUrl: './pedido-admin-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PedidoAdminDetailComponent implements OnInit {
+export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly pedidoService = inject(PedidoService);
+  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
   private readonly message = inject(NzMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly carregando = signal(false);
   protected readonly processando = signal(false);
@@ -51,9 +56,17 @@ export class PedidoAdminDetailComponent implements OnInit {
   protected readonly pedido = signal<PedidoResponse | null>(null);
   protected readonly possuiPedido = computed(() => this.pedido() !== null);
   protected readonly podeAlterarStatusPedido = computed(() => this.authService.possuiPermissao(PERMISSOES.PEDIDO_ALTERAR_STATUS));
+  private notificacaoPedidoDestination: string | null = null;
 
   ngOnInit(): void {
     this.carregarPedido();
+    this.configurarNotificacoes();
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificacaoPedidoDestination) {
+      this.pedidoNotificacaoService.removerInscricao(this.notificacaoPedidoDestination);
+    }
   }
 
   protected corStatus(status: StatusPedido): string {
@@ -182,6 +195,40 @@ export class PedidoAdminDetailComponent implements OnInit {
       next: (pedido) => this.pedido.set(pedido),
       error: (error: HttpErrorResponse | Error) => this.message.error(this.extrairMensagemErro(error))
     });
+  }
+
+  private configurarNotificacoes(): void {
+    const pedidoId = this.pedidoIdRota();
+
+    if (!pedidoId) {
+      return;
+    }
+
+    this.notificacaoPedidoDestination = `/topic/pedidos/${pedidoId}`;
+    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoService.ouvirPedido(pedidoId);
+    this.pedidoNotificacaoService.notificacoes$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((notificacao) => {
+      if (notificacao.pedidoId !== pedidoId) {
+        return;
+      }
+
+      this.processarNotificacaoPedido(notificacao);
+    });
+  }
+
+  private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
+    if (notificacao.mensagem) {
+      this.message.info(notificacao.mensagem);
+    }
+
+    this.carregarPedido();
+  }
+
+  private pedidoIdRota(): number | null {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    return Number.isFinite(id) && id > 0 ? id : null;
   }
 
   private extrairMensagemErro(error: HttpErrorResponse | Error): string {

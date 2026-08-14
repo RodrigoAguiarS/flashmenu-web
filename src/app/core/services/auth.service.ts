@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 import { ClienteCheckoutRequest, ClienteIdentificacaoResponse, LoginRequest, LoginResponse } from '../models/auth.model';
 import { UsuarioResponse } from '../models/usuario.model';
 import { PERMISSOES } from '../auth/permissoes';
+import { PedidoNotificacaoService } from './pedido-notificacao.service';
 
 const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
 const TOKEN_TYPE_KEY = 'flashmenu_token_type';
@@ -17,6 +18,7 @@ const USUARIO_KEY = 'flashmenu_usuario';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
   private readonly usuarioAtual = signal<UsuarioResponse | null>(this.carregarUsuario());
 
   readonly usuarioAutenticado: Signal<UsuarioResponse | null> = computed(() => this.usuarioAtual());
@@ -61,6 +63,7 @@ export class AuthService {
   }
 
   limparSessao(): void {
+    this.pedidoNotificacaoService.desconectar();
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(TOKEN_TYPE_KEY);
     localStorage.removeItem(USUARIO_KEY);

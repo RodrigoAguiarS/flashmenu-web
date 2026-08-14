@@ -101,20 +101,41 @@
 }
 
 .pedido-entrega,
+.pedido-entrega-status,
 .pedido-status-linha {
   display: flex;
   align-items: center;
   min-width: 0;
 }
 
-.pedido-entrega .anticon {
+.pedido-entrega .anticon,
+.pedido-entrega-status .anticon {
   color: var(--cor-primaria);
 }
 
-.pedido-entrega span:last-child {
+.pedido-entrega span:last-child,
+.pedido-entrega-status > span:nth-child(2) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.pedido-entrega-status {
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--cor-campo);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+.pedido-entrega-status > span:nth-child(2) {
+  flex: 1 1 auto;
+  color: var(--cor-texto-suave);
+}
+
+.pedido-entrega-status strong {
+  color: var(--cor-texto);
 }
 
 .pedido-itens {
@@ -142,10 +163,16 @@
   padding: 40px 20px;
 }
 
-.paginacao {
+.botao-carregar-mais.ant-btn {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  margin: 16px auto 0;
+  background: var(--cor-superficie);
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 @media (min-width: 700px) {

@@ -7,12 +7,18 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { ItemPedidoResponse, PedidoResponse, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import {
+  ItemPedidoResponse,
+  PedidoResponse,
+  StatusEntregaPedido,
+  StatusPagamento,
+  StatusPedido,
+  TipoPedido
+} from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
@@ -29,7 +35,6 @@ type FiltroPedidos = 'TODOS' | 'EM_ANDAMENTO' | 'CONCLUIDOS';
     NzButtonModule,
     NzEmptyModule,
     NzIconModule,
-    NzPaginationModule,
     NzSpinModule,
     NzTagModule
   ],
@@ -44,13 +49,16 @@ export class PedidoListComponent implements OnInit {
   private readonly message = inject(NzMessageService);
 
   protected readonly carregando = signal(false);
+  protected readonly carregandoMais = signal(false);
   protected readonly pdfProcessandoId = signal<number | null>(null);
   protected readonly pedidos = signal<PedidoResponse[]>([]);
   protected readonly filtroSelecionado = signal<FiltroPedidos>('TODOS');
   protected readonly total = signal(0);
-  protected readonly pageIndex = signal(1);
+  protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(10);
+  protected readonly ultimaPagina = signal(true);
   protected readonly possuiPedidos = computed(() => this.pedidos().length > 0);
+  protected readonly podeCarregarMais = computed(() => this.possuiPedidos() && !this.ultimaPagina());
   protected readonly pedidosFiltrados = computed(() =>
     this.pedidos()
       .filter((pedido) => {
@@ -73,7 +81,7 @@ export class PedidoListComponent implements OnInit {
   protected readonly pedidosAnteriores = computed(() => this.pedidosFiltrados().filter((pedido) => !this.pedidoEmAndamento(pedido)));
 
   ngOnInit(): void {
-    this.carregarPedidos();
+    this.carregarPedidos(true);
   }
 
   protected selecionarFiltro(filtro: FiltroPedidos): void {
@@ -130,6 +138,38 @@ export class PedidoListComponent implements OnInit {
 
   protected statusLinha(pedido: PedidoResponse): string {
     return `Pagamento: ${this.statusPagamentoTexto(pedido.pagamento?.status)}`;
+  }
+
+  protected entregaStatusTexto(status: StatusEntregaPedido): string {
+    const labels: Record<StatusEntregaPedido, string> = {
+      AGUARDANDO_ENTREGADOR: 'Aguardando entregador',
+      ATRIBUIDA: 'Atribuida',
+      ACEITA: 'Aceita',
+      EM_ROTA: 'Em rota',
+      ENTREGUE: 'Entregue',
+      CANCELADA: 'Cancelada',
+      RECUSADA: 'Recusada'
+    };
+
+    return labels[status] ?? status;
+  }
+
+  protected entregaStatusClasse(status: StatusEntregaPedido): string {
+    const classes: Record<StatusEntregaPedido, string> = {
+      AGUARDANDO_ENTREGADOR: 'aguardando',
+      ATRIBUIDA: 'aguardando',
+      ACEITA: 'confirmado',
+      EM_ROTA: 'andamento',
+      ENTREGUE: 'concluido',
+      CANCELADA: 'cancelado',
+      RECUSADA: 'cancelado'
+    };
+
+    return classes[status] ?? 'neutro';
+  }
+
+  protected entregadorNome(pedido: PedidoResponse): string {
+    return pedido.entrega?.entregador?.nome ?? 'Entregador nao atribuido';
   }
 
   protected classeStatusPagamento(pedido: PedidoResponse): string {
@@ -216,9 +256,12 @@ export class PedidoListComponent implements OnInit {
     void this.router.navigate(['/pedidos', id]);
   }
 
-  protected alterarPagina(pageIndex: number): void {
-    this.pageIndex.set(pageIndex);
-    this.carregarPedidos();
+  protected carregarMais(): void {
+    if (this.carregandoMais() || this.ultimaPagina()) {
+      return;
+    }
+
+    this.carregarPedidos(false);
   }
 
   protected exportarPdf(pedido: PedidoResponse, event: Event): void {
@@ -233,30 +276,50 @@ export class PedidoListComponent implements OnInit {
     });
   }
 
-  private carregarPedidos(): void {
+  private carregarPedidos(reset: boolean): void {
     const usuarioId = this.authService.usuarioAutenticado()?.id;
 
     if (!usuarioId) {
       this.pedidos.set([]);
       this.total.set(0);
+      this.ultimaPagina.set(true);
       this.message.warning('Nao foi possivel identificar seu usuario.');
       return;
     }
 
-    this.carregando.set(true);
+    const proximaPagina = reset ? 0 : this.pageIndex() + 1;
+
+    if (reset) {
+      this.carregando.set(true);
+    } else {
+      this.carregandoMais.set(true);
+    }
 
     this.pedidoService.listarMeusPedidosPaginado(usuarioId, {
-      page: this.pageIndex() - 1,
+      page: proximaPagina,
       size: this.pageSize(),
       sort: 'id'
     }).pipe(
-      finalize(() => this.carregando.set(false))
+      finalize(() => {
+        this.carregando.set(false);
+        this.carregandoMais.set(false);
+      })
     ).subscribe({
       next: (page) => {
-        this.pedidos.set(page.content);
+        this.pageIndex.set(page.number);
+        this.pedidos.set(reset ? page.content : [...this.pedidos(), ...page.content]);
         this.total.set(page.totalElements);
+        this.ultimaPagina.set(page.last);
       },
-      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+      error: (error: HttpErrorResponse) => {
+        if (reset) {
+          this.pedidos.set([]);
+          this.total.set(0);
+          this.ultimaPagina.set(true);
+        }
+
+        this.message.error(this.extrairMensagemErro(error));
+      }
     });
   }
 

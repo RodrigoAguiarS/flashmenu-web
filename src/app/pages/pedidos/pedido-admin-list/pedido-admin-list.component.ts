@@ -1,6 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -22,9 +23,11 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
-import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
+import { PedidoResponse, StatusEntregaPedido, StatusPagamento, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { EntregaService } from '../../../core/services/entrega.service';
+import { PedidoNotificacaoService } from '../../../core/services/pedido-notificacao.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -75,12 +78,14 @@ interface PedidoOperacionalView {
   styleUrl: './pedido-admin-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PedidoAdminListComponent implements OnInit {
+export class PedidoAdminListComponent implements OnInit, OnDestroy {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly pedidoService = inject(PedidoService);
   private readonly entregaService = inject(EntregaService);
   private readonly authService = inject(AuthService);
+  private readonly pedidoNotificacaoService = inject(PedidoNotificacaoService);
   private readonly message = inject(NzMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly carregando = signal(false);
   protected readonly processandoId = signal<number | null>(null);
@@ -137,8 +142,17 @@ export class PedidoAdminListComponent implements OnInit {
     entregadorId: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)])
   });
 
+  private notificacaoUnidadeDestination: string | null = null;
+
   ngOnInit(): void {
     this.carregarPedidos();
+    this.configurarNotificacoes();
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificacaoUnidadeDestination) {
+      this.pedidoNotificacaoService.removerInscricao(this.notificacaoUnidadeDestination);
+    }
   }
 
   protected filtrar(): void {
@@ -480,6 +494,100 @@ export class PedidoAdminListComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
+  }
+
+  private configurarNotificacoes(): void {
+    const unidadeId = this.authService.usuarioAutenticado()?.unidade?.id;
+
+    if (!unidadeId) {
+      return;
+    }
+
+    this.notificacaoUnidadeDestination = `/topic/unidades/${unidadeId}/pedidos`;
+    this.pedidoNotificacaoService.conectar(undefined, this.authService.obterToken());
+    this.pedidoNotificacaoService.ouvirUnidadePedidos(unidadeId);
+    this.pedidoNotificacaoService.notificacoes$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((notificacao) => {
+      if (notificacao.unidadeId !== unidadeId) {
+        return;
+      }
+
+      this.processarNotificacaoPedido(notificacao);
+    });
+  }
+
+  private processarNotificacaoPedido(notificacao: PedidoStatusNotificacao): void {
+    const pedidoExistente = this.pedidos().find((pedido) => pedido.id === notificacao.pedidoId);
+
+    if (notificacao.mensagem) {
+      this.message.info(notificacao.mensagem);
+    }
+
+    if (!pedidoExistente) {
+      if (this.notificacaoCombinaComFiltros(notificacao)) {
+        this.carregarPedidos();
+      }
+      return;
+    }
+
+    this.pedidos.update((pedidos) =>
+      pedidos.map((pedido) => pedido.id === notificacao.pedidoId ? this.aplicarNotificacaoPedido(pedido, notificacao) : pedido)
+    );
+
+    if (!this.pedidoCombinaComFiltros(this.aplicarNotificacaoPedido(pedidoExistente, notificacao))) {
+      this.carregarPedidos();
+      return;
+    }
+
+    this.pedidoService.buscarPedidoAdministrativo(notificacao.pedidoId).subscribe({
+      next: (pedidoAtualizado) => {
+        this.pedidos.update((pedidos) =>
+          pedidos.map((pedido) => pedido.id === pedidoAtualizado.id ? pedidoAtualizado : pedido)
+        );
+      },
+      error: () => undefined
+    });
+  }
+
+  private aplicarNotificacaoPedido(pedido: PedidoResponse, notificacao: PedidoStatusNotificacao): PedidoResponse {
+    return {
+      ...pedido,
+      status: (notificacao.statusPedido ?? pedido.status) as StatusPedido,
+      tipo: (notificacao.tipoPedido ?? pedido.tipo) as TipoPedido | null,
+      pagamento: pedido.pagamento && notificacao.statusPagamento
+        ? { ...pedido.pagamento, status: notificacao.statusPagamento as StatusPagamento }
+        : pedido.pagamento,
+      entrega: pedido.entrega && notificacao.statusEntrega
+        ? { ...pedido.entrega, status: notificacao.statusEntrega as StatusEntregaPedido }
+        : pedido.entrega
+    };
+  }
+
+  private notificacaoCombinaComFiltros(notificacao: PedidoStatusNotificacao): boolean {
+    const filtros = this.filtros.getRawValue();
+
+    if (filtros.id && filtros.id !== notificacao.pedidoId) {
+      return false;
+    }
+
+    if (filtros.status && notificacao.statusPedido && filtros.status !== notificacao.statusPedido) {
+      return false;
+    }
+
+    if (filtros.tipo && notificacao.tipoPedido && filtros.tipo !== notificacao.tipoPedido) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private pedidoCombinaComFiltros(pedido: PedidoResponse): boolean {
+    const filtros = this.filtros.getRawValue();
+
+    return (!filtros.id || filtros.id === pedido.id) &&
+      (!filtros.status || filtros.status === pedido.status) &&
+      (!filtros.tipo || filtros.tipo === pedido.tipo);
   }
 
   private executarAcao(

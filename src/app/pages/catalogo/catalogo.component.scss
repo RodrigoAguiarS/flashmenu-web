@@ -126,10 +126,16 @@
   line-height: 1.2;
 }
 
-.paginacao {
+.botao-carregar-mais.ant-btn {
   display: flex;
   justify-content: center;
-  margin-top: 14px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  margin: 14px auto 0;
+  background: var(--cor-superficie);
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 .carrinho-flutuante {

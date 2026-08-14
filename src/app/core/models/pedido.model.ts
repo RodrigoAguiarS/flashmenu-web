@@ -5,6 +5,14 @@ import { UnidadeResumo } from './unidade.model';
 export type StatusPedido = 'AGUARDANDO_PAGAMENTO' | 'AGUARDANDO_CONFIRMACAO' | 'CONFIRMADO' | 'CONCLUIDO' | 'CANCELADO';
 export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'EXPIRADO' | 'CANCELADO' | 'ERRO';
 export type TipoPedido = 'DELIVERY' | 'PDV';
+export type StatusEntregaPedido =
+  | 'AGUARDANDO_ENTREGADOR'
+  | 'ATRIBUIDA'
+  | 'ACEITA'
+  | 'EM_ROTA'
+  | 'ENTREGUE'
+  | 'CANCELADA'
+  | 'RECUSADA';
 
 export interface ItemPedidoComplementoRequest {
   opcaoComplementoId: number;
@@ -84,6 +92,16 @@ export interface PedidoParticipanteResponse {
   telefone?: string | null;
 }
 
+export interface PedidoEntregaResponse {
+  id: number;
+  status: StatusEntregaPedido;
+  entregador?: PedidoParticipanteResponse | null;
+  atribuidoEm?: string | null;
+  aceitoEm?: string | null;
+  saiuParaEntregaEm?: string | null;
+  entregueEm?: string | null;
+}
+
 export interface PedidoResponse {
   id: number;
   status: StatusPedido;
@@ -104,6 +122,7 @@ export interface PedidoResponse {
   vendedor: PedidoParticipanteResponse | null;
   unidade: UnidadeResumo | null;
   enderecoEntrega: EnderecoResponse | null;
+  entrega?: PedidoEntregaResponse | null;
 }
 
 export interface PedidoResumoFinanceiro {
