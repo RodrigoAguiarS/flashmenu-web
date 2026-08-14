@@ -96,6 +96,52 @@
   color-scheme: dark;
 }
 
+.theme-system {
+  --color-primary: #0d9488;
+  --color-primary-hover: #14b8a6;
+  --color-primary-active: #0f766e;
+  --bg-page: #eef5f3;
+  --bg-surface: #fbfefd;
+  --bg-surface-elevated: #f5fbf9;
+  --bg-input: #ffffff;
+  --text-primary: #10201f;
+  --text-secondary: #35504d;
+  --text-muted: #647a76;
+  --border-color: #cfe0dc;
+  --divider-color: #dceae7;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --info: #0e7490;
+  --status-success-bg: #edfdf3;
+  --status-success-text: #166534;
+  --status-warning-bg: #fff7ed;
+  --status-warning-text: #9a3412;
+  --status-danger-bg: #fef2f2;
+  --status-danger-text: #b91c1c;
+  --status-info-bg: #ecfeff;
+  --status-info-text: #155e75;
+  --shadow-panel: 0 14px 34px rgba(13, 76, 69, 0.1);
+
+  --cor-fundo: var(--bg-page);
+  --cor-superficie: var(--bg-surface);
+  --cor-campo: var(--bg-input);
+  --cor-texto: var(--text-primary);
+  --cor-texto-suave: var(--text-muted);
+  --cor-borda: var(--border-color);
+  --cor-primaria: var(--color-primary);
+  --cor-perigo: var(--danger);
+  --sombra-painel: var(--shadow-panel);
+  --color-bg: var(--bg-page);
+  --color-surface: var(--bg-surface);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-color);
+  --color-danger: var(--danger);
+
+  color-scheme: light;
+}
+
 html,
 body {
   min-height: 100%;
@@ -293,6 +339,23 @@ a {
 .ant-spin-blur::after {
   background: color-mix(in srgb, var(--cor-fundo) 42%, transparent);
   opacity: 1;
+}
+
+.theme-dark .ant-spin-container,
+.theme-dark .ant-spin-container::after,
+.theme-dark .ant-spin-blur,
+.theme-dark .ant-spin-blur::after {
+  transition: none;
+}
+
+.theme-dark .ant-spin-blur {
+  opacity: 1;
+  filter: none;
+}
+
+.theme-dark .ant-spin-blur::after {
+  background: transparent;
+  opacity: 0;
 }
 
 .mobile-card {
@@ -1037,6 +1100,38 @@ app-pdv .estado-vazio {
   display: grid;
   place-items: center;
   min-height: 240px;
+}
+
+app-checkout .pedido-collapse {
+  overflow: hidden;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+}
+
+app-checkout .pedido-collapse.ant-collapse-ghost > .ant-collapse-item {
+  border-bottom: 0;
+}
+
+app-checkout .pedido-collapse .ant-collapse-header {
+  align-items: center;
+  padding: 12px;
+  color: var(--cor-texto);
+  font-weight: 700;
+}
+
+app-checkout .pedido-collapse .ant-collapse-arrow {
+  color: var(--cor-texto-suave);
+}
+
+app-checkout .pedido-collapse .ant-collapse-content {
+  color: var(--cor-texto);
+  background: transparent;
+}
+
+app-checkout .pedido-collapse .ant-collapse-content-box {
+  padding: 0 12px 12px;
 }
 
 .painel-venda {

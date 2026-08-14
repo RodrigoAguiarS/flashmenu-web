@@ -148,6 +148,22 @@
   vertical-align: middle;
 }
 
+:host ::ng-deep .secao-tabela .ant-table-placeholder,
+:host ::ng-deep .secao-tabela .ant-table-placeholder:hover > td,
+:host ::ng-deep .secao-tabela .ant-table-placeholder > td {
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+}
+
+:host ::ng-deep .secao-tabela .ant-empty {
+  color: var(--cor-texto-suave);
+}
+
+:host ::ng-deep .secao-tabela .ant-empty-description {
+  color: var(--cor-texto);
+  background: transparent;
+}
+
 :host ::ng-deep .secao-tabela .ant-pagination {
   display: flex;
   flex-wrap: wrap;

@@ -47,7 +47,7 @@
           <div class="avatar-conta" aria-hidden="true">{{ iniciaisUsuario() }}</div>
           <strong>{{ usuarioAtual.nome }}</strong>
           <span>{{ usuarioAtual.email }}</span>
-          <span>{{ usuarioAtual.telefone || 'Telefone nao informado' }}</span>
+          <span>{{ usuarioAtual.telefone ? (usuarioAtual.telefone | telefone) : 'Telefone nao informado' }}</span>
 
           <button nz-button nzType="link" type="button" (click)="abrirSecao('dados')">
             Editar dados
@@ -85,15 +85,6 @@
           </span>
           <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
         </button>
-
-        <div class="menu-item menu-item-tema">
-          <span class="menu-icone" nz-icon nzType="setting" nzTheme="outline"></span>
-          <span>
-            <strong>Aparencia</strong>
-            <small>Claro, escuro ou sistema</small>
-          </span>
-          <app-theme-toggle />
-        </div>
 
         @if (podeAcessarAdministrativo()) {
           <a class="menu-item" routerLink="/administrativo">

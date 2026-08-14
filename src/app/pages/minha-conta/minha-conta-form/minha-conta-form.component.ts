@@ -24,7 +24,7 @@ import { EnderecoService } from '../../../core/services/endereco.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
-import { ThemeToggleComponent } from '../../../shared/components/theme-toggle/theme-toggle.component';
+import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 
 const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
 type SecaoConta = 'hub' | 'dados' | 'enderecos' | 'seguranca';
@@ -45,7 +45,7 @@ type SecaoConta = 'hub' | 'dados' | 'enderecos' | 'seguranca';
     NzInputModule,
     NzSpinModule,
     NzSwitchModule,
-    ThemeToggleComponent
+    TelefonePipe
   ],
   templateUrl: './minha-conta-form.component.html',
   styleUrl: './minha-conta-form.component.scss',

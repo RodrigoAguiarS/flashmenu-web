@@ -77,7 +77,7 @@
       <section class="checkout-secao">
         <span class="secao-indice">2. PEDIDO</span>
 
-        <nz-collapse nzGhost>
+        <nz-collapse class="pedido-collapse" nzGhost>
           <nz-collapse-panel [nzHeader]="carrinhoService.quantidadeTotal() + ' itens do pedido'">
             <div class="itens-pedido">
               @for (item of carrinhoService.itens(); track item.id) {

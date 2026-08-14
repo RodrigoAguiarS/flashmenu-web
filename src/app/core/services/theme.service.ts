@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 
-export type ThemeMode = 'light' | 'dark';
-export type ThemePreference = ThemeMode | 'system';
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemePreference = ThemeMode;
 
 const THEME_KEY = 'flashmenu_theme';
 
@@ -11,19 +11,17 @@ const THEME_KEY = 'flashmenu_theme';
 })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
-  private readonly temaAtual = signal<ThemeMode>('light');
+  private readonly temaAtual = signal<ThemePreference>('light');
   private readonly preferenciaAtual = signal<ThemePreference>('system');
 
-  readonly tema: Signal<ThemeMode> = computed(() => this.temaAtual());
+  readonly tema: Signal<ThemePreference> = computed(() => this.temaAtual());
   readonly preferencia: Signal<ThemePreference> = computed(() => this.preferenciaAtual());
 
   definirTema(preferencia: ThemePreference): void {
-    const tema = preferencia === 'system' ? this.obterTemaPreferido() : preferencia;
-
     this.preferenciaAtual.set(preferencia);
-    this.temaAtual.set(tema);
+    this.temaAtual.set(preferencia);
     localStorage.setItem(THEME_KEY, preferencia);
-    this.aplicarTema(tema, preferencia);
+    this.aplicarTema(preferencia);
   }
 
   alternarTema(): void {
@@ -35,39 +33,19 @@ export class ThemeService {
   inicializarTema(): void {
     const savedTheme = localStorage.getItem(THEME_KEY);
     const preferencia = this.ehPreferenciaValida(savedTheme) ? savedTheme : 'system';
-    const nextTheme = preferencia === 'system' ? this.obterTemaPreferido() : preferencia;
 
     this.preferenciaAtual.set(preferencia);
-    this.temaAtual.set(nextTheme);
-    this.aplicarTema(nextTheme, preferencia);
-    this.observarPreferenciaSistema();
+    this.temaAtual.set(preferencia);
+    this.aplicarTema(preferencia);
   }
 
-  private aplicarTema(theme: ThemeMode, preferencia: ThemePreference): void {
+  private aplicarTema(theme: ThemePreference): void {
     const root = this.document.documentElement;
 
-    root.classList.remove('theme-light', 'theme-dark');
+    root.classList.remove('theme-light', 'theme-dark', 'theme-system');
     root.classList.add(`theme-${theme}`);
     root.setAttribute('data-theme', theme);
-    root.setAttribute('data-theme-preference', preferencia);
-  }
-
-  private obterTemaPreferido(): ThemeMode {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
-  private observarPreferenciaSistema(): void {
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-
-    media.addEventListener('change', () => {
-      if (this.preferenciaAtual() !== 'system') {
-        return;
-      }
-
-      const tema = this.obterTemaPreferido();
-      this.temaAtual.set(tema);
-      this.aplicarTema(tema, 'system');
-    });
+    root.setAttribute('data-theme-preference', theme);
   }
 
   private ehPreferenciaValida(value: string | null): value is ThemePreference {
