@@ -1,11 +1,20 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
-import { PedidoResponse, StatusPedido } from '../../core/models/pedido.model';
+import { PedidoResponse, StatusEntregaPedido, StatusPedido } from '../../core/models/pedido.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
+import {
+  EntregaTimelineItem,
+  entregaStatusCor,
+  entregaStatusTexto,
+  entregaTimelinePedido
+} from '../../shared/utils/entrega-status.util';
 import {
   pagamentoConfirmadoPedido,
   pagamentoPixPendentePedido,
@@ -17,7 +26,7 @@ import {
 @Component({
   selector: 'app-pedido-sucesso',
   standalone: true,
-  imports: [RouterLink, NzButtonModule, NzResultModule, PedidoResumoFinanceiroComponent],
+  imports: [DatePipe, RouterLink, NzButtonModule, NzIconModule, NzResultModule, NzTagModule, PedidoResumoFinanceiroComponent],
   templateUrl: './pedido-sucesso.component.html',
   styleUrl: './pedido-sucesso.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -57,6 +66,18 @@ export class PedidoSucessoComponent {
 
   protected pagamentoStatusClasse(pedido: PedidoResponse): string {
     return statusPagamentoClasse(statusPagamentoPedido(pedido));
+  }
+
+  protected entregaStatusTexto(status: StatusEntregaPedido): string {
+    return entregaStatusTexto(status);
+  }
+
+  protected entregaStatusCor(status: StatusEntregaPedido): string {
+    return entregaStatusCor(status);
+  }
+
+  protected entregaTimeline(pedido: PedidoResponse): EntregaTimelineItem[] {
+    return entregaTimelinePedido(pedido);
   }
 
   private pagamentoPixPendente(pedido: PedidoResponse): boolean {

@@ -2,6 +2,8 @@
 .pagamento-topo span,
 .grade-valores small,
 .linha-pagamento span,
+.entrega-resumo span,
+.entrega-timeline span,
 .item-pedido span {
   color: var(--cor-texto-suave);
 }
@@ -115,6 +117,47 @@
   border-top: 1px solid var(--cor-borda);
 }
 
+.entrega-resumo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.entrega-resumo > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.entrega-resumo strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entrega-resumo nz-tag {
+  margin: 0;
+}
+
+.entrega-timeline {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entrega-timeline li {
+  display: grid;
+  gap: 2px;
+  padding-left: 10px;
+  border-left: 3px solid var(--cor-borda);
+}
+
+.entrega-timeline li.concluido {
+  border-color: var(--cor-primaria);
+}
+
 .itens-pedido {
   display: grid;
   gap: 8px;
@@ -171,15 +214,20 @@
     grid-column: 1;
   }
 
+  .acompanhamento-entrega {
+    grid-column: 1;
+  }
+
   .resumo-financeiro {
     grid-column: 2;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span 4;
   }
 }
 
 @media (max-width: 520px) {
   .resumo-compacto,
-  .grade-valores {
+  .grade-valores,
+  .entrega-resumo {
     grid-template-columns: 1fr;
   }
 

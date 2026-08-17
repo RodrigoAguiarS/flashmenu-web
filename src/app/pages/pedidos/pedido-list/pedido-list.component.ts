@@ -22,6 +22,10 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
+import {
+  entregaStatusClasse,
+  entregaStatusTexto
+} from '../../../shared/utils/entrega-status.util';
 
 type FiltroPedidos = 'TODOS' | 'EM_ANDAMENTO' | 'CONCLUIDOS';
 
@@ -141,31 +145,11 @@ export class PedidoListComponent implements OnInit {
   }
 
   protected entregaStatusTexto(status: StatusEntregaPedido): string {
-    const labels: Record<StatusEntregaPedido, string> = {
-      AGUARDANDO_ENTREGADOR: 'Aguardando entregador',
-      ATRIBUIDA: 'Atribuida',
-      ACEITA: 'Aceita',
-      EM_ROTA: 'Em rota',
-      ENTREGUE: 'Entregue',
-      CANCELADA: 'Cancelada',
-      RECUSADA: 'Recusada'
-    };
-
-    return labels[status] ?? status;
+    return entregaStatusTexto(status);
   }
 
   protected entregaStatusClasse(status: StatusEntregaPedido): string {
-    const classes: Record<StatusEntregaPedido, string> = {
-      AGUARDANDO_ENTREGADOR: 'aguardando',
-      ATRIBUIDA: 'aguardando',
-      ACEITA: 'confirmado',
-      EM_ROTA: 'andamento',
-      ENTREGUE: 'concluido',
-      CANCELADA: 'cancelado',
-      RECUSADA: 'cancelado'
-    };
-
-    return classes[status] ?? 'neutro';
+    return entregaStatusClasse(status);
   }
 
   protected entregadorNome(pedido: PedidoResponse): string {

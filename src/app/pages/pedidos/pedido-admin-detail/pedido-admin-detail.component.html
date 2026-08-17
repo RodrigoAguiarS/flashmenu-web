@@ -110,6 +110,42 @@
         }
       </article>
 
+      @if (pedidoDetalhe.entrega; as entrega) {
+        <article class="painel-detalhe acompanhamento-entrega">
+          <header class="secao-topo">
+            <span nz-icon nzType="car" nzTheme="outline"></span>
+            <h2>Acompanhamento da entrega</h2>
+          </header>
+
+          <div class="entrega-resumo">
+            <div>
+              <span>Status da entrega</span>
+              <strong>{{ entregaStatusTexto(entrega.status) }}</strong>
+            </div>
+
+            <div>
+              <span>Entregador</span>
+              <strong>{{ entrega.entregador?.nome || 'Nao atribuido' }}</strong>
+            </div>
+
+            <nz-tag [nzColor]="entregaStatusCor(entrega.status)">
+              {{ entregaStatusTexto(entrega.status) }}
+            </nz-tag>
+          </div>
+
+          <ol class="entrega-timeline" aria-label="Linha do tempo da entrega">
+            @for (evento of entregaTimeline(pedidoDetalhe); track evento.label) {
+              <li [class.concluido]="!!evento.data">
+                <div>
+                  <strong>{{ evento.label }}</strong>
+                  <span>{{ evento.data ? (evento.data | date:'dd/MM/yyyy HH:mm') : 'Pendente' }}</span>
+                </div>
+              </li>
+            }
+          </ol>
+        </article>
+      }
+
       <article class="painel-detalhe resumo-financeiro">
         <header class="secao-topo">
           <span nz-icon nzType="credit-card" nzTheme="outline"></span>
@@ -136,6 +172,9 @@
         <app-pedido-resumo-financeiro
           [resumo]="pedidoDetalhe"
           [rotuloTotal]="pagamentoConfirmado(pedidoDetalhe) ? 'Total pago' : 'Total do pedido'"
+          [formaPagamentoTipo]="pedidoDetalhe.formaPagamento.tipo"
+          [valorRecebido]="pedidoDetalhe.valorRecebido"
+          [troco]="pedidoDetalhe.troco"
         />
 
         @if (!pagamentoConfirmado(pedidoDetalhe)) {

@@ -169,7 +169,8 @@ nz-modal nz-input-number {
 }
 
 .pedido-status,
-.pedido-pagamento {
+.pedido-pagamento,
+.pedido-entrega-status {
   display: inline-flex;
   align-items: center;
   min-width: 0;
@@ -181,14 +182,24 @@ nz-modal nz-input-number {
   font-weight: 650;
 }
 
-.pedido-pagamento span:last-child {
+.pedido-pagamento span:last-child,
+.pedido-entrega-status > span:nth-child(2) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pedido-pagamento {
+.pedido-pagamento,
+.pedido-entrega-status {
   flex-wrap: wrap;
+}
+
+.pedido-entrega-status > span:nth-child(2) {
+  flex: 1 1 160px;
+}
+
+.pedido-entrega-status strong {
+  color: var(--cor-texto);
 }
 
 .pedido-total {

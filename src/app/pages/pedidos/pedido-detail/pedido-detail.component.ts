@@ -23,6 +23,12 @@ import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import {
+  EntregaTimelineItem,
+  entregaStatusCor,
+  entregaStatusTexto,
+  entregaTimelinePedido
+} from '../../../shared/utils/entrega-status.util';
+import {
   pagamentoConfirmadoPedido,
   pagamentoPixPendentePedido,
   statusPagamentoClasse,
@@ -113,46 +119,15 @@ export class PedidoDetailComponent implements OnInit, OnDestroy {
   }
 
   protected entregaStatusTexto(status: StatusEntregaPedido): string {
-    const labels: Record<StatusEntregaPedido, string> = {
-      AGUARDANDO_ENTREGADOR: 'Aguardando entregador',
-      ATRIBUIDA: 'Atribuida',
-      ACEITA: 'Aceita',
-      EM_ROTA: 'Em rota',
-      ENTREGUE: 'Entregue',
-      CANCELADA: 'Cancelada',
-      RECUSADA: 'Recusada'
-    };
-
-    return labels[status] ?? status;
+    return entregaStatusTexto(status);
   }
 
   protected entregaStatusCor(status: StatusEntregaPedido): string {
-    const cores: Record<StatusEntregaPedido, string> = {
-      AGUARDANDO_ENTREGADOR: 'default',
-      ATRIBUIDA: 'processing',
-      ACEITA: 'blue',
-      EM_ROTA: 'warning',
-      ENTREGUE: 'success',
-      CANCELADA: 'error',
-      RECUSADA: 'error'
-    };
-
-    return cores[status] ?? 'default';
+    return entregaStatusCor(status);
   }
 
-  protected entregaTimeline(pedido: PedidoResponse): Array<{ label: string; data: string | null | undefined }> {
-    const entrega = pedido.entrega;
-
-    if (!entrega) {
-      return [];
-    }
-
-    return [
-      { label: 'Atribuida', data: entrega.atribuidoEm },
-      { label: 'Aceita pelo entregador', data: entrega.aceitoEm },
-      { label: 'Saiu para entrega', data: entrega.saiuParaEntregaEm },
-      { label: 'Entregue', data: entrega.entregueEm }
-    ];
+  protected entregaTimeline(pedido: PedidoResponse): EntregaTimelineItem[] {
+    return entregaTimelinePedido(pedido);
   }
 
   protected tipoTexto(tipo: TipoPedido | null): string {

@@ -29,4 +29,24 @@
     <span>{{ rotuloTotal() }}</span>
     <strong>{{ valor(resumo().valorTotal) | currency:'BRL':'symbol':'1.2-2' }}</strong>
   </div>
+
+  @if (exibirPagamentoDinheiro()) {
+    <div class="linha-resumo pagamento-dinheiro">
+      <span>Valor recebido</span>
+      @if (valorInformado(valorRecebido())) {
+        <strong>{{ valor(valorRecebido()) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      } @else {
+        <strong>Nao informado</strong>
+      }
+    </div>
+
+    <div class="linha-resumo pagamento-dinheiro">
+      <span>Troco</span>
+      @if (valorInformado(troco())) {
+        <strong>{{ valor(troco()) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      } @else {
+        <strong>Nao informado</strong>
+      }
+    </div>
+  }
 </div>

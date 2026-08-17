@@ -15,13 +15,19 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PedidoStatusNotificacao } from '../../../core/models/pedido-notificacao.model';
-import { PedidoResponse, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
+import { PedidoResponse, StatusEntregaPedido, StatusPedido, TipoPedido } from '../../../core/models/pedido.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-notificacao-visual.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
+import {
+  EntregaTimelineItem,
+  entregaStatusCor,
+  entregaStatusTexto,
+  entregaTimelinePedido
+} from '../../../shared/utils/entrega-status.util';
 import {
   pagamentoConfirmadoPedido,
   pagamentoPixPendentePedido,
@@ -144,6 +150,18 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
 
   protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
     return pagamentoPixPendentePedido(pedido);
+  }
+
+  protected entregaStatusTexto(status: StatusEntregaPedido): string {
+    return entregaStatusTexto(status);
+  }
+
+  protected entregaStatusCor(status: StatusEntregaPedido): string {
+    return entregaStatusCor(status);
+  }
+
+  protected entregaTimeline(pedido: PedidoResponse): EntregaTimelineItem[] {
+    return entregaTimelinePedido(pedido);
   }
 
   protected podeConcluirPedido(pedido: PedidoResponse): boolean {

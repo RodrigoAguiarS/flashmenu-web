@@ -32,6 +32,10 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import {
+  entregaStatusClasse,
+  entregaStatusTexto
+} from '../../../shared/utils/entrega-status.util';
+import {
   pagamentoConfirmadoPedido,
   pagamentoPixPendentePedido,
   statusPagamentoClasse,
@@ -349,6 +353,18 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
     };
 
     return tipo ? labels[tipo] ?? tipo : 'Nao informado';
+  }
+
+  protected entregaStatusTexto(status: StatusEntregaPedido): string {
+    return entregaStatusTexto(status);
+  }
+
+  protected entregaStatusClasse(status: StatusEntregaPedido): string {
+    return entregaStatusClasse(status);
+  }
+
+  protected entregadorNome(pedido: PedidoResponse): string {
+    return pedido.entrega?.entregador?.nome ?? 'Entregador nao atribuido';
   }
 
   private criarPedidoOperacional(pedido: PedidoResponse): PedidoOperacionalView {

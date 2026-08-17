@@ -115,6 +115,8 @@ export interface PedidoResponse {
   percentualAcrescimo: number;
   valorAcrescimo: number;
   valorTotal: number;
+  valorRecebido?: number | null;
+  troco?: number | null;
   formaPagamento: FormaPagamentoResponse;
   itens: ItemPedidoResponse[];
   pagamento: PagamentoResponse | null;

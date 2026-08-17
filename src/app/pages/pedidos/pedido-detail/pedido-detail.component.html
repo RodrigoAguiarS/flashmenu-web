@@ -154,6 +154,9 @@
         <app-pedido-resumo-financeiro
           [resumo]="pedidoDetalhe"
           [rotuloTotal]="pagamentoConfirmado(pedidoDetalhe) ? 'Total pago' : 'Total do pedido'"
+          [formaPagamentoTipo]="pedidoDetalhe.formaPagamento.tipo"
+          [valorRecebido]="pedidoDetalhe.valorRecebido"
+          [troco]="pedidoDetalhe.troco"
         />
 
         @if (!pagamentoConfirmado(pedidoDetalhe)) {

@@ -21,6 +21,9 @@
       <app-pedido-resumo-financeiro
         [resumo]="pedido"
         [rotuloTotal]="pagamentoConfirmado(pedido) ? 'Total pago' : 'Total do pedido'"
+        [formaPagamentoTipo]="pedido.formaPagamento.tipo"
+        [valorRecebido]="pedido.valorRecebido"
+        [troco]="pedido.troco"
       />
 
       @if (!pagamentoConfirmado(pedido)) {
@@ -28,6 +31,42 @@
           <span>Pagamento</span>
           <strong>{{ pagamentoStatusTexto(pedido) }}</strong>
         </div>
+      }
+
+      @if (pedido.entrega; as entrega) {
+        <section class="acompanhamento-entrega" aria-label="Acompanhamento da entrega">
+          <header class="secao-topo">
+            <span nz-icon nzType="car" nzTheme="outline"></span>
+            <h2>Acompanhamento da entrega</h2>
+          </header>
+
+          <div class="entrega-resumo">
+            <div>
+              <span>Status da entrega</span>
+              <strong>{{ entregaStatusTexto(entrega.status) }}</strong>
+            </div>
+
+            <div>
+              <span>Entregador</span>
+              <strong>{{ entrega.entregador?.nome || 'Nao atribuido' }}</strong>
+            </div>
+
+            <nz-tag [nzColor]="entregaStatusCor(entrega.status)">
+              {{ entregaStatusTexto(entrega.status) }}
+            </nz-tag>
+          </div>
+
+          <ol class="entrega-timeline" aria-label="Linha do tempo da entrega">
+            @for (evento of entregaTimeline(pedido); track evento.label) {
+              <li [class.concluido]="!!evento.data">
+                <div>
+                  <strong>{{ evento.label }}</strong>
+                  <span>{{ evento.data ? (evento.data | date:'dd/MM/yyyy HH:mm') : 'Pendente' }}</span>
+                </div>
+              </li>
+            }
+          </ol>
+        </section>
       }
     </section>
   }

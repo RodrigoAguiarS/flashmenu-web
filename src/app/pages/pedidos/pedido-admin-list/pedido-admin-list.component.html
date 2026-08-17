@@ -125,6 +125,20 @@
             <nz-tag class="status-tag" [attr.data-status]="view.pagamentoStatusClasse">{{ view.pagamentoStatusTexto }}</nz-tag>
           </div>
 
+          @if (view.pedido.entrega; as entrega) {
+            <div class="pedido-entrega-status">
+              <span nz-icon nzType="car" nzTheme="outline"></span>
+              <span>
+                Entrega:
+                <strong>{{ entregaStatusTexto(entrega.status) }}</strong>
+                Â· {{ entregadorNome(view.pedido) }}
+              </span>
+              <nz-tag class="status-tag" [attr.data-status]="entregaStatusClasse(entrega.status)">
+                {{ entregaStatusTexto(entrega.status) }}
+              </nz-tag>
+            </div>
+          }
+
           <div class="pedido-total">
             <span>{{ view.quantidadeItens }} {{ view.quantidadeItens === 1 ? 'item' : 'itens' }}</span>
             <strong>{{ view.pedido.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
