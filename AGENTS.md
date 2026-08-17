@@ -268,7 +268,14 @@ Sempre verificar se existe um componente do NG-ZORRO antes de criar HTML persona
 Sempre utilizar:
 
 ```
-nz-table
+Utilize nz-table quando tabela for a melhor representacao dos dados.
+
+Em telas predominantemente mobile, nao force tabelas desktop.
+Avalie nz-list, cards, collapse, descriptions ou composicao responsiva
+quando oferecerem melhor experiencia.
+
+Quando a mesma tela atender mobile e desktop, pode utilizar apresentacoes
+diferentes preservando a mesma fonte de dados e regras.
 ```
 
 Implementar:

@@ -31,6 +31,13 @@ import { PedidoNotificacaoVisualService } from '../../../core/services/pedido-no
 import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import {
+  pagamentoConfirmadoPedido,
+  pagamentoPixPendentePedido,
+  statusPagamentoClasse,
+  statusPagamentoPedido,
+  statusPagamentoTexto
+} from '../../../shared/utils/pagamento-status.util';
 import { criarOpcoesTamanhoPagina } from '../../../shared/utils/pagination.util';
 
 type StatusFiltroOperacional = StatusPedido | null;
@@ -345,6 +352,7 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   }
 
   private criarPedidoOperacional(pedido: PedidoResponse): PedidoOperacionalView {
+    const pagamentoStatus = statusPagamentoPedido(pedido);
     const pagamentoConfirmado = this.pagamentoConfirmado(pedido);
     const pagamentoPixPendente = this.pagamentoPixPendente(pedido);
     const minutos = this.minutosDesdeCriacao(pedido.dataCriacao);
@@ -357,8 +365,8 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       tipoTexto: this.tipoTexto(pedido.tipo),
       tempoRelativo: this.tempoRelativo(pedido.dataCriacao),
       formaPagamentoTexto: pedido.formaPagamento.nome,
-      pagamentoStatusTexto: pagamentoConfirmado ? 'Pago' : 'Pendente',
-      pagamentoStatusClasse: pagamentoConfirmado ? 'pagamento-pago' : 'pagamento-pendente',
+      pagamentoStatusTexto: statusPagamentoTexto(pagamentoStatus),
+      pagamentoStatusClasse: statusPagamentoClasse(pagamentoStatus),
       novo: minutos <= 10 && !this.pedidoTerminal(pedido),
       atrasado: minutos >= 45 && !this.pedidoTerminal(pedido),
       acaoPrincipal: this.acaoPrincipal(pedido),
@@ -446,13 +454,11 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   }
 
   private pagamentoConfirmado(pedido: PedidoResponse): boolean {
-    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+    return pagamentoConfirmadoPedido(pedido);
   }
 
   private pagamentoPixPendente(pedido: PedidoResponse): boolean {
-    return pedido.formaPagamento.tipo === 'PIX'
-      && !this.pagamentoConfirmado(pedido)
-      && !this.pedidoTerminal(pedido);
+    return pagamentoPixPendentePedido(pedido);
   }
 
   private pedidoTerminal(pedido: PedidoResponse): boolean {

@@ -119,6 +119,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
   protected readonly itemEditando = signal<ItemCarrinho | null>(null);
   protected readonly gruposPersonalizacao = signal<GrupoComplementoResponse[]>([]);
   protected readonly drawerPersonalizacaoAberto = signal(false);
+  protected readonly drawerVendaAberto = signal(false);
   protected readonly carregandoComplementos = signal(false);
   protected readonly carregandoProdutos = signal(false);
   protected readonly carregandoCategorias = signal(false);
@@ -129,7 +130,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
   protected readonly cobrancaPix = signal<PixCobrancaResponse | null>(null);
   protected readonly valorPix = signal<number | null>(null);
   protected readonly modalPixAberta = signal(false);
-  protected readonly vendaMobileAberta = signal(false);
   protected readonly gerandoPix = signal(false);
   protected readonly consultandoPix = signal(false);
   protected readonly statusPix = signal<PixPagamentoStatus | null>(null);
@@ -326,7 +326,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     if (event.key === 'Escape') {
-      this.vendaMobileAberta.set(false);
       this.fecharPersonalizacao();
     }
   }
@@ -423,6 +422,14 @@ export class PdvComponent implements OnInit, AfterViewInit {
     this.gruposPersonalizacao.set([]);
   }
 
+  protected abrirVendaMobile(): void {
+    this.drawerVendaAberto.set(true);
+  }
+
+  protected fecharVendaMobile(): void {
+    this.drawerVendaAberto.set(false);
+  }
+
   protected incrementar(item: ItemCarrinho): void {
     if (!this.pdvService.incrementar(item.id)) {
       this.message.warning('Quantidade maior que o estoque disponivel.');
@@ -469,7 +476,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
   protected limparVenda(): void {
     this.pdvService.limpar();
     this.mensagemErro.set(null);
-    this.vendaMobileAberta.set(false);
   }
 
   protected selecionarFormaPagamento(formaPagamento: FormaPagamentoResponse): void {
@@ -502,14 +508,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   protected formaPagamentoSelecionadaPorId(formaPagamentoId: number): boolean {
     return this.formaPagamentoId() === formaPagamentoId;
-  }
-
-  protected abrirVendaMobile(): void {
-    this.vendaMobileAberta.set(true);
-  }
-
-  protected fecharVendaMobile(): void {
-    this.vendaMobileAberta.set(false);
   }
 
   protected finalizarVenda(): void {
@@ -559,7 +557,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
         }
 
         this.pdvService.limpar();
-        this.vendaMobileAberta.set(false);
         this.message.success(`Venda #${pedido.id} registrada com sucesso.`);
         void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
       },
@@ -745,7 +742,6 @@ export class PdvComponent implements OnInit, AfterViewInit {
   private concluirPedidoPix(pedido: PedidoResponse): void {
     this.pedidoPix.set(pedido);
     this.pdvService.limpar();
-    this.vendaMobileAberta.set(false);
     this.modalPixAberta.set(false);
     void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
   }

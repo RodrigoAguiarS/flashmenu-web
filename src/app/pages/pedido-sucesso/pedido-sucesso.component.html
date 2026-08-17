@@ -24,9 +24,9 @@
       />
 
       @if (!pagamentoConfirmado(pedido)) {
-        <div class="linha-pagamento">
+        <div class="linha-pagamento" [attr.data-status]="pagamentoStatusClasse(pedido)">
           <span>Pagamento</span>
-          <strong>Pendente</strong>
+          <strong>{{ pagamentoStatusTexto(pedido) }}</strong>
         </div>
       }
     </section>

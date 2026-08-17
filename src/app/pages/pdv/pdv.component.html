@@ -35,7 +35,6 @@
     <div class="venda-vazia">
       <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
       <strong>Adicione produtos para iniciar a venda.</strong>
-      <span>Total {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</span>
     </div>
   } @else {
     <div class="itens-venda">
@@ -167,11 +166,6 @@
       }
     </div>
 
-    <div class="total-final">
-      <span>Total</span>
-      <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-    </div>
-
     <button
       class="finalizar"
       nz-button
@@ -181,7 +175,7 @@
       [disabled]="finalizando() || pdvService.vazio() || formulario.invalid"
     >
       <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-      Finalizar venda {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}
+      Finalizar venda
       <kbd>F9</kbd>
     </button>
   </form>
@@ -322,36 +316,6 @@
     <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
   </aside>
 </section>
-
-<button
-  class="barra-venda-mobile"
-  [class.barra-venda-mobile--oculta]="vendaMobileAberta()"
-  nz-button
-  nzType="primary"
-  type="button"
-  [attr.aria-label]="'Abrir venda atual com ' + pdvService.quantidadeTotal() + ' itens no total de ' + (totalPrevisto() | currency:'BRL':'symbol':'1.2-2')"
-  (click)="abrirVendaMobile()"
->
-  <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
-  <span class="barra-venda-mobile__quantidade">{{ pdvService.quantidadeTotal() }}</span>
-  <strong>{{ pdvService.quantidadeTotal() }} itens · {{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-  <span>Ver venda</span>
-</button>
-
-<nz-drawer
-  [nzVisible]="vendaMobileAberta()"
-  nzTitle="Venda atual"
-  nzPlacement="bottom"
-  nzWrapClassName="pdv-venda-mobile-drawer"
-  [nzHeight]="'min(92vh, 760px)'"
-  (nzOnClose)="fecharVendaMobile()"
->
-  <ng-container *nzDrawerContent>
-    <section class="painel-venda mobile" aria-label="Venda atual">
-      <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
-    </section>
-  </ng-container>
-</nz-drawer>
 
 <nz-drawer
   [nzVisible]="drawerPersonalizacaoAberto()"

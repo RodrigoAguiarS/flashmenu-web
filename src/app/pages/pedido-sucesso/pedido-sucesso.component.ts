@@ -6,6 +6,13 @@ import { NzResultModule } from 'ng-zorro-antd/result';
 import { PedidoResponse, StatusPedido } from '../../core/models/pedido.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
+import {
+  pagamentoConfirmadoPedido,
+  pagamentoPixPendentePedido,
+  statusPagamentoClasse,
+  statusPagamentoPedido,
+  statusPagamentoTexto
+} from '../../shared/utils/pagamento-status.util';
 
 @Component({
   selector: 'app-pedido-sucesso',
@@ -41,13 +48,18 @@ export class PedidoSucessoComponent {
   }
 
   protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
-    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+    return pagamentoConfirmadoPedido(pedido);
+  }
+
+  protected pagamentoStatusTexto(pedido: PedidoResponse): string {
+    return statusPagamentoTexto(statusPagamentoPedido(pedido));
+  }
+
+  protected pagamentoStatusClasse(pedido: PedidoResponse): string {
+    return statusPagamentoClasse(statusPagamentoPedido(pedido));
   }
 
   private pagamentoPixPendente(pedido: PedidoResponse): boolean {
-    return pedido.formaPagamento.tipo === 'PIX'
-      && !this.pagamentoConfirmado(pedido)
-      && pedido.status !== 'CONCLUIDO'
-      && pedido.status !== 'CANCELADO';
+    return pagamentoPixPendentePedido(pedido);
   }
 }

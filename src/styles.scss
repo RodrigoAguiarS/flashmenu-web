@@ -554,7 +554,7 @@ a {
 }
 
 .ant-drawer-body {
-  padding: 16px;
+  padding: 0px;
   background: var(--cor-fundo);
 }
 
@@ -1766,10 +1766,46 @@ app-pedido-admin-list .status-tag[data-status='status-concluido'] {
 }
 
 app-pedido-admin-list .status-tag[data-status='status-cancelado'],
+app-pedido-admin-list .status-tag[data-status='pagamento-cancelado'],
+app-pedido-admin-list .status-tag[data-status='pagamento-erro'],
 app-pedido-list .status-tag[data-status='cancelado'] {
   --tag-color: #a8071a;
   --tag-bg: #fff1f0;
   --tag-border: #ffa39e;
+}
+
+app-pedido-admin-list .status-tag[data-status='pagamento-expirado'],
+app-pedido-admin-list .status-tag[data-status='pagamento-nao-informado'] {
+  --tag-color: #595959;
+  --tag-bg: #fafafa;
+  --tag-border: #d9d9d9;
+}
+
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-pendente'] strong,
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-expirado'] strong,
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-nao-informado'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-pendente'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-expirado'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-nao-informado'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-pendente'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-expirado'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-nao-informado'] strong {
+  color: var(--cor-texto-suave);
+}
+
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-pago'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-pago'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-pago'] strong {
+  color: #237804;
+}
+
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-cancelado'] strong,
+app-pedido-admin-detail .linha-pagamento[data-status='pagamento-erro'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-cancelado'] strong,
+app-pedido-detail .linha-pagamento[data-status='pagamento-erro'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-cancelado'] strong,
+app-pedido-sucesso .linha-pagamento[data-status='pagamento-erro'] strong {
+  color: var(--cor-perigo);
 }
 
 .theme-dark .ant-card-head {
@@ -1820,10 +1856,19 @@ app-pedido-list .status-tag[data-status='cancelado'] {
 }
 
 .theme-dark app-pedido-admin-list .status-tag[data-status='status-cancelado'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-cancelado'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-erro'],
 .theme-dark app-pedido-list .status-tag[data-status='cancelado'] {
   --tag-color: #ff7875;
   --tag-bg: color-mix(in srgb, #ff4d4f 16%, var(--cor-superficie));
   --tag-border: color-mix(in srgb, #ff4d4f 42%, var(--cor-borda));
+}
+
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-expirado'],
+.theme-dark app-pedido-admin-list .status-tag[data-status='pagamento-nao-informado'] {
+  --tag-color: var(--cor-texto-suave);
+  --tag-bg: color-mix(in srgb, var(--cor-texto-suave) 12%, var(--cor-superficie));
+  --tag-border: color-mix(in srgb, var(--cor-texto-suave) 30%, var(--cor-borda));
 }
 
 .theme-dark .ant-badge-status-text {

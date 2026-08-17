@@ -120,10 +120,6 @@
   border-top: 1px solid var(--cor-borda);
 }
 
-.linha-pagamento.pendente strong {
-  color: var(--cor-texto-suave);
-}
-
 .entrega-resumo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;

@@ -22,6 +22,13 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { salvarArquivo } from '../../../core/utils/download-file';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PedidoResumoFinanceiroComponent } from '../../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
+import {
+  pagamentoConfirmadoPedido,
+  pagamentoPixPendentePedido,
+  statusPagamentoClasse,
+  statusPagamentoPedido,
+  statusPagamentoTexto
+} from '../../../shared/utils/pagamento-status.util';
 
 @Component({
   selector: 'app-pedido-admin-detail',
@@ -124,18 +131,19 @@ export class PedidoAdminDetailComponent implements OnInit, OnDestroy {
   }
 
   protected pagamentoStatusTexto(pedido: PedidoResponse): string {
-    return this.pagamentoConfirmado(pedido) ? 'Pago' : 'Pendente';
+    return statusPagamentoTexto(statusPagamentoPedido(pedido));
+  }
+
+  protected pagamentoStatusClasse(pedido: PedidoResponse): string {
+    return statusPagamentoClasse(statusPagamentoPedido(pedido));
   }
 
   protected pagamentoConfirmado(pedido: PedidoResponse): boolean {
-    return pedido.pagamento?.status === 'PAGO' || !!pedido.pagamento?.confirmadoEm;
+    return pagamentoConfirmadoPedido(pedido);
   }
 
   protected pagamentoPixPendente(pedido: PedidoResponse): boolean {
-    return pedido.formaPagamento.tipo === 'PIX'
-      && !this.pagamentoConfirmado(pedido)
-      && pedido.status !== 'CONCLUIDO'
-      && pedido.status !== 'CANCELADO';
+    return pagamentoPixPendentePedido(pedido);
   }
 
   protected podeConcluirPedido(pedido: PedidoResponse): boolean {
