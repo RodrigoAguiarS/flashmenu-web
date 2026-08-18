@@ -22,7 +22,7 @@
 .layout-checkout {
   display: grid;
   gap: 18px;
-  padding-bottom: 96px;
+  padding-bottom: var(--app-bottom-action-content-padding);
 }
 
 .alerta-checkout {
@@ -129,55 +129,38 @@
   min-height: 32px;
 }
 
-.formas-pagamento {
-  display: grid;
-  gap: 10px;
+.pagamento-opcoes--detalhadas {
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 8px;
 }
 
-.forma-card {
-  display: grid;
-  grid-template-columns: 18px 42px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  min-height: 68px;
-  padding: 10px 12px;
-  color: var(--cor-texto);
-  text-align: left;
-  background: var(--cor-superficie);
-  border: 1px solid var(--cor-borda);
-  border-radius: 8px;
-  cursor: pointer;
+.pagamento-opcoes--detalhadas .pagamento-opcao {
+  min-height: 48px;
+  padding: 8px 10px;
+  gap: 8px;
 }
 
-.forma-card.selecionada {
-  border-color: var(--cor-primaria);
+.pagamento-opcoes--detalhadas .pagamento-opcao__icone {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 15px;
 }
 
-.radio-visual {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--cor-borda);
-  border-radius: 999px;
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo {
+  gap: 1px;
 }
 
-.forma-card.selecionada .radio-visual {
-  border: 5px solid var(--cor-primaria);
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo strong {
+  font-size: 13px;
 }
 
-.forma-icone {
-  display: grid;
-  place-items: center;
-  height: 42px;
-  color: var(--cor-primaria);
-  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
-  border-radius: 8px;
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo small {
   font-size: 11px;
-  font-weight: 800;
 }
 
-.forma-card strong,
-.forma-card small {
-  display: block;
+.pagamento-opcoes--detalhadas .pagamento-opcao__check {
+  font-size: 15px;
 }
 
 .troco-card nz-form-item {
@@ -223,11 +206,6 @@
 }
 
 .confirmacao-fixa {
-  position: fixed;
-  right: 0;
-  bottom: calc(65px + env(safe-area-inset-bottom));
-  left: 0;
-  z-index: 19;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -279,11 +257,16 @@
   }
 }
 
+@media (max-width: 359px) {
+  .pagamento-opcoes--detalhadas {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (min-width: 960px) {
   .confirmacao-fixa {
     right: 24px;
     left: auto;
-    bottom: 74px;
     width: min(460px, calc(100vw - 48px));
     border: 1px solid var(--cor-borda);
     border-radius: 8px;

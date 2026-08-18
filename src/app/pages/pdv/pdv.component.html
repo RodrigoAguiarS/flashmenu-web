@@ -94,28 +94,36 @@
       <div class="secao-label">
         <span>Pagamento</span>
         @if (formulario.controls.formaPagamentoId.touched && formulario.controls.formaPagamentoId.invalid) {
-          <small>Selecione uma forma.</small>
+          <small id="pdv-pagamento-erro">Selecione uma forma.</small>
         }
       </div>
 
-      <div class="formas-pagamento">
+      <nz-radio-group
+        class="pagamento-opcoes pagamento-opcoes--compactas"
+        formControlName="formaPagamentoId"
+        aria-label="Forma de pagamento"
+        [attr.aria-describedby]="formulario.controls.formaPagamentoId.touched && formulario.controls.formaPagamentoId.invalid ? 'pdv-pagamento-erro' : null"
+        [attr.aria-invalid]="formulario.controls.formaPagamentoId.touched && formulario.controls.formaPagamentoId.invalid"
+      >
         @for (forma of formasPagamento(); track forma.id) {
-          <button
-            class="forma-pagamento"
-            nz-button
-            type="button"
+          <label
+            class="pagamento-opcao"
+            nz-radio
+            [nzValue]="forma.id"
             [class.selecionada]="formaPagamentoSelecionadaPorId(forma.id)"
-            [disabled]="carregandoPagamento()"
-            (click)="selecionarFormaPagamento(forma)"
+            [nzDisabled]="carregandoPagamento()"
           >
-            <span nz-icon [nzType]="formaPagamentoIcone(forma)" nzTheme="outline"></span>
-            <span>{{ forma.nome }}</span>
+            <span class="pagamento-opcao__icone" aria-hidden="true" nz-icon [nzType]="formaPagamentoIcone(forma)" nzTheme="outline"></span>
+            <span class="pagamento-opcao__conteudo">
+              <strong>{{ forma.nome }}</strong>
+            </span>
             @if (formaPagamentoAtalho(forma); as atalho) {
-              <kbd>{{ atalho }}</kbd>
+              <kbd class="pagamento-opcao__atalho" aria-hidden="true">{{ atalho }}</kbd>
             }
-          </button>
+            <span class="pagamento-opcao__check" aria-hidden="true" nz-icon nzType="check-circle" nzTheme="fill"></span>
+          </label>
         }
-      </div>
+      </nz-radio-group>
 
       @if (formaPagamentoSelecionada()?.percentualAcrescimo) {
         <div class="impacto-pagamento">
@@ -246,16 +254,13 @@
       @if (possuiProdutos()) {
         <section class="grade-produtos" aria-label="Lista de produtos">
           @for (produto of produtos(); track produto.id) {
-            <article
+            <button
               class="produto-card"
-              role="button"
-              tabindex="0"
+              type="button"
               [class.indisponivel]="!podeAdicionar(produto)"
-              [attr.aria-disabled]="!podeAdicionar(produto)"
+              [disabled]="!podeAdicionar(produto)"
               [attr.aria-label]="'Adicionar ' + produto.nome + ' a venda'"
               (click)="adicionarProduto(produto)"
-              (keydown.enter)="adicionarProduto(produto)"
-              (keydown.space)="adicionarProduto(produto)"
             >
               <div class="produto-midia">
                 @if (imagemPrincipal(produto); as imagem) {
@@ -276,23 +281,15 @@
                     <small>{{ estoqueTexto(produto) }}</small>
                   </div>
 
-                  <button
+                  <span
                     class="botao-adicionar"
-                    nz-button
-                    nzType="primary"
-                    nzShape="circle"
-                    type="button"
-                    [disabled]="!podeAdicionar(produto)"
-                    nz-tooltip
-                    nzTooltipTitle="Adicionar"
-                    aria-label="Adicionar produto a venda"
-                    (click)="$event.stopPropagation(); adicionarProduto(produto)"
+                    aria-hidden="true"
                   >
                     <span nz-icon nzType="plus" nzTheme="outline"></span>
-                  </button>
+                  </span>
                 </div>
               </div>
-            </article>
+            </button>
           }
         </section>
 
@@ -312,10 +309,48 @@
     </nz-spin>
   </section>
 
-  <aside class="painel-venda desktop" aria-label="Venda atual">
-    <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
-  </aside>
+  @if (!pdvMobile()) {
+    <aside class="painel-venda desktop" aria-label="Venda atual">
+      <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
+    </aside>
+  }
 </section>
+
+@if (pdvMobile()) {
+  <section class="pdv-resumo-mobile bottom-action-mobile" aria-label="Resumo da venda atual">
+    <button
+      class="pdv-resumo-mobile__abrir"
+      nz-button
+      type="button"
+      [attr.aria-label]="'Abrir venda atual com ' + pdvService.quantidadeTotal() + ' itens no total de ' + (totalPrevisto() | currency:'BRL':'symbol':'1.2-2')"
+      (click)="abrirVendaMobile()"
+    >
+      <span class="pdv-resumo-mobile__icone" nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+      <span class="pdv-resumo-mobile__dados">
+        <span>{{ pdvService.quantidadeTotal() }} itens</span>
+        <strong>{{ totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+      </span>
+      <span class="pdv-resumo-mobile__acao">Venda</span>
+    </button>
+  </section>
+
+  <nz-drawer
+    nzWrapClassName="pdv-venda-drawer"
+    [nzVisible]="drawerVendaAberto()"
+    nzTitle="Venda atual"
+    nzPlacement="right"
+    [nzWidth]="'min(100vw, 460px)'"
+    (nzOnClose)="fecharVendaMobile()"
+  >
+    <ng-container *nzDrawerContent>
+      @if (drawerVendaAberto()) {
+        <aside class="painel-venda mobile" aria-label="Venda atual">
+          <ng-container [ngTemplateOutlet]="vendaAtual"></ng-container>
+        </aside>
+      }
+    </ng-container>
+  </nz-drawer>
+}
 
 <nz-drawer
   [nzVisible]="drawerPersonalizacaoAberto()"

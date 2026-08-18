@@ -13,6 +13,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -43,6 +44,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzInputModule,
     NzModalModule,
     NzQRCodeModule,
+    NzRadioModule,
     NzSpinModule,
     NzTagModule,
     NgxMaskDirective,
@@ -137,14 +139,18 @@ export class CheckoutComponent implements OnInit {
 
   protected iconeFormaPagamento(forma: FormaPagamentoResponse): string {
     if (forma.tipo === 'PIX') {
-      return 'PIX';
+      return 'thunderbolt';
     }
 
     if (forma.tipo === 'DINHEIRO') {
-      return 'R$';
+      return 'dollar';
     }
 
-    return 'CARD';
+    if (forma.tipo === 'CARTAO_CREDITO' || forma.tipo === 'CARTAO_DEBITO') {
+      return 'credit-card';
+    }
+
+    return 'wallet';
   }
 
   protected textoBotaoConfirmar(): string {

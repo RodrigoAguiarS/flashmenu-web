@@ -62,12 +62,14 @@
                 <nz-card
                   class="produto-card"
                   [class.produto-indisponivel]="!podeAdicionar(produto)"
-                  role="button"
-                  tabindex="0"
-                  (click)="abrirDetalhes(produto)"
-                  (keydown.enter)="abrirDetalhes(produto)"
-                  (keydown.space)="abrirDetalhes(produto)"
                 >
+                  <button
+                    class="produto-card-acao"
+                    type="button"
+                    [attr.aria-label]="'Abrir detalhes de ' + produto.nome"
+                    (click)="abrirDetalhes(produto)"
+                  ></button>
+
                   <div class="produto-layout">
                     <div class="produto-midia">
                       @if (imagemPrincipal(produto); as imagem) {
@@ -149,7 +151,7 @@
 }
 
 @if (!carrinhoService.vazio()) {
-  <a class="carrinho-flutuante" routerLink="/carrinho" aria-label="Ver carrinho">
+  <a class="carrinho-flutuante bottom-action-mobile" routerLink="/carrinho" aria-label="Ver carrinho">
     <span>{{ carrinhoService.quantidadeTotal() }} itens · {{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</span>
     <strong>Ver carrinho</strong>
     <span nz-icon nzType="arrow-right" nzTheme="outline"></span>

@@ -27,7 +27,7 @@
   grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
-  padding-bottom: 86px;
+  padding-bottom: var(--app-bottom-action-content-padding);
 }
 
 .itens-carrinho {
@@ -218,11 +218,6 @@
 }
 
 .fechamento-fixo {
-  position: fixed;
-  right: 0;
-  bottom: calc(65px + env(safe-area-inset-bottom));
-  left: 0;
-  z-index: 19;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -298,7 +293,6 @@
   .fechamento-fixo {
     right: 24px;
     left: auto;
-    bottom: 74px;
     width: min(420px, calc(100vw - 48px));
     border: 1px solid var(--cor-borda);
     border-radius: 8px;

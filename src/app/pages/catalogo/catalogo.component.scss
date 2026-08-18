@@ -121,7 +121,7 @@
   gap: 18px;
   width: min(100%, 1240px);
   margin-inline: auto;
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  padding-bottom: var(--app-bottom-action-content-padding);
 }
 
 .categoria-secao {
@@ -152,15 +152,23 @@
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
   cursor: pointer;
+  outline: 0;
   transition: box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-:host .produto-card:hover,
-:host .produto-card:focus-visible {
+:host .produto-card:hover {
   color: var(--cor-texto);
   background: var(--cor-superficie);
   box-shadow: 0 12px 28px color-mix(in srgb, var(--cor-primaria) 12%, rgba(15, 23, 42, 0.08));
-  outline: 0;
+  transform: translateY(-1px);
+}
+
+:host .produto-card:focus-visible {
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  box-shadow:
+    var(--focus-ring),
+    0 12px 28px color-mix(in srgb, var(--cor-primaria) 12%, rgba(15, 23, 42, 0.08));
   transform: translateY(-1px);
 }
 
@@ -350,18 +358,12 @@
 }
 
 .carrinho-flutuante {
-  position: fixed;
-  right: 12px;
-  bottom: calc(74px + env(safe-area-inset-bottom));
-  left: 12px;
-  z-index: 19;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
   max-width: 620px;
   min-height: 48px;
-  margin-inline: auto;
   padding: 0 14px;
   color: #fff;
   background: var(--cor-primaria);
@@ -466,10 +468,6 @@
 
   :host .botao-indisponivel.ant-btn {
     max-width: 118px;
-  }
-
-  .carrinho-flutuante {
-    bottom: 76px;
   }
 }
 

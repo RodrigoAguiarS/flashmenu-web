@@ -110,25 +110,27 @@
         <span class="secao-indice">3. PAGAMENTO</span>
         <h2>Como voce quer pagar?</h2>
 
-        <div class="formas-pagamento" role="radiogroup" aria-label="Forma de pagamento">
+        <nz-radio-group
+          class="pagamento-opcoes pagamento-opcoes--detalhadas"
+          formControlName="formaPagamentoId"
+          aria-label="Forma de pagamento"
+        >
           @for (forma of checkout.formasPagamento(); track forma.id) {
-            <button
-              class="forma-card"
-              type="button"
-              role="radio"
-              [attr.aria-checked]="checkout.formaPagamentoId() === forma.id"
+            <label
+              class="pagamento-opcao"
+              nz-radio
+              [nzValue]="forma.id"
               [class.selecionada]="checkout.formaPagamentoId() === forma.id"
-              (click)="selecionarFormaPagamento(forma.id)"
             >
-              <span class="radio-visual" aria-hidden="true"></span>
-              <span class="forma-icone" aria-hidden="true">{{ iconeFormaPagamento(forma) }}</span>
-              <span>
+              <span class="pagamento-opcao__icone" aria-hidden="true" nz-icon [nzType]="iconeFormaPagamento(forma)" nzTheme="outline"></span>
+              <span class="pagamento-opcao__conteudo">
                 <strong>{{ rotuloFormaPagamento(forma) }}</strong>
                 <small>{{ descricaoFormaPagamento(forma) }}</small>
               </span>
-            </button>
+              <span class="pagamento-opcao__check" aria-hidden="true" nz-icon nzType="check-circle" nzTheme="fill"></span>
+            </label>
           }
-        </div>
+        </nz-radio-group>
 
         @if (checkout.pagamentoEmDinheiro()) {
           <section class="troco-card" aria-label="Troco">
@@ -199,7 +201,7 @@
         </div>
       </section>
 
-      <section class="confirmacao-fixa" aria-label="Confirmar pedido">
+      <section class="confirmacao-fixa bottom-action-mobile" aria-label="Confirmar pedido">
         <div>
           <span>Total</span>
           <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>

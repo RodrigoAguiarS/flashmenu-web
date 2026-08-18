@@ -15,6 +15,7 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EMPTY, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, switchMap, timer } from 'rxjs';
@@ -31,6 +32,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
@@ -81,6 +83,7 @@ import {
     NzPaginationModule,
     NzPopconfirmModule,
     NzQRCodeModule,
+    NzRadioModule,
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
@@ -106,8 +109,10 @@ export class PdvComponent implements OnInit, AfterViewInit {
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   protected readonly pdvService = inject(PdvService);
+  protected readonly pdvMobile = signal(false);
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly formasPagamento = signal<FormaPagamentoResponse[]>([]);
@@ -248,6 +253,16 @@ export class PdvComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.breakpointObserver.observe('(max-width: 1039px)').pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((state) => {
+      this.pdvMobile.set(state.matches);
+
+      if (!state.matches) {
+        this.fecharVendaMobile();
+      }
+    });
+
     this.carregarConfiguracaoComercial();
     this.carregarCategorias();
     this.carregarFormasPagamento();
@@ -280,7 +295,11 @@ export class PdvComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    queueMicrotask(() => this.focarBusca());
+    queueMicrotask(() => {
+      if (!this.pdvMobile()) {
+        this.focarBusca();
+      }
+    });
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -794,7 +813,10 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     this.message.success('Produto adicionado a venda.');
-    this.focarBusca();
+
+    if (!this.pdvMobile()) {
+      this.focarBusca();
+    }
   }
 
   private selecionarFormaPorTipo(tipo: string): void {

@@ -52,18 +52,23 @@
   border-radius: 999px;
 }
 
-.categorias-chips button.selecionada,
-.forma-pagamento.selecionada {
+.categorias-chips button.selecionada {
   color: var(--cor-primaria);
   background: color-mix(in srgb, var(--cor-primaria) 12%, var(--cor-superficie));
   border-color: var(--cor-primaria);
 }
 
-.botao-adicionar,
-.botao-adicionar:hover,
-.botao-adicionar:focus {
+.botao-adicionar {
+  display: inline-grid;
+  place-items: center;
   flex: 0 0 auto;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
   color: #fff;
+  background: var(--cor-primaria);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--cor-primaria) 22%, transparent);
 }
 
 .botao-adicionar .anticon {
@@ -100,6 +105,104 @@
 
 .painel-venda.desktop .itens-venda {
   max-height: 32vh;
+}
+
+.painel-venda.mobile {
+  min-height: 100%;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pdv-resumo-mobile {
+  display: none;
+}
+
+.pdv-resumo-mobile__abrir.ant-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 620px);
+  min-height: 56px;
+  margin-inline: auto;
+  padding: 8px 12px;
+  color: #fff;
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+}
+
+.pdv-resumo-mobile__abrir.ant-btn:hover,
+.pdv-resumo-mobile__abrir.ant-btn:focus-visible {
+  color: #fff;
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.pdv-resumo-mobile__abrir.ant-btn:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 12px 28px rgba(15, 23, 42, 0.22);
+}
+
+.pdv-resumo-mobile__icone {
+  font-size: 18px;
+}
+
+.pdv-resumo-mobile__dados {
+  display: grid;
+  min-width: 0;
+  text-align: left;
+}
+
+.pdv-resumo-mobile__dados span,
+.pdv-resumo-mobile__acao {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.pdv-resumo-mobile__dados strong {
+  overflow: hidden;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdv-resumo-mobile__acao {
+  padding: 6px 10px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-body {
+  padding: 0;
+  overflow: auto;
+  background: var(--cor-superficie);
+}
+
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-content {
+  background: var(--cor-superficie);
+}
+
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-header {
+  background: color-mix(in srgb, var(--cor-superficie) 94%, var(--cor-fundo));
+}
+
+:host ::ng-deep .pdv-venda-drawer .finalizar {
+  position: sticky;
+  bottom: env(safe-area-inset-bottom);
+  z-index: 2;
+  margin-top: 2px;
+  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.08);
 }
 
 :host .grade-produtos {
@@ -144,14 +247,15 @@
   .layout-pdv {
     grid-template-columns: minmax(0, 1fr);
     width: 100%;
+    padding-bottom: var(--app-bottom-action-content-padding);
   }
 
   .painel-venda.desktop {
-    order: 2;
+    display: none;
   }
 
-  .painel-venda.desktop .itens-venda {
-    max-height: none;
+  .pdv-resumo-mobile {
+    display: block;
   }
 }
 
@@ -186,6 +290,10 @@
 
   .painel-venda.desktop {
     margin-bottom: 8px;
+  }
+
+  .pdv-resumo-mobile__abrir.ant-btn {
+    min-height: 54px;
   }
 
   .finalizar {

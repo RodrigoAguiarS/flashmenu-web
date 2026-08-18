@@ -27,6 +27,9 @@
   --status-info-bg: #eff8ff;
   --status-info-text: #175cd3;
   --shadow-panel: 0 14px 34px rgba(15, 23, 42, 0.08);
+  --focus-ring-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+  --focus-ring: 0 0 0 3px var(--focus-ring-color);
+  --focus-ring-inset: inset 0 0 0 3px var(--focus-ring-color);
   --raio-sm: 6px;
   --raio-md: 8px;
   --espaco-sm: 8px;
@@ -76,6 +79,9 @@
   --status-info-bg: rgba(96, 165, 250, 0.14);
   --status-info-text: #bfdbfe;
   --shadow-panel: 0 14px 34px rgba(0, 0, 0, 0.24);
+  --focus-ring-color: color-mix(in srgb, var(--color-primary) 42%, transparent);
+  --focus-ring: 0 0 0 3px var(--focus-ring-color);
+  --focus-ring-inset: inset 0 0 0 3px var(--focus-ring-color);
 
   --cor-fundo: var(--bg-page);
   --cor-superficie: var(--bg-surface);
@@ -122,6 +128,9 @@
   --status-info-bg: #ecfeff;
   --status-info-text: #155e75;
   --shadow-panel: 0 14px 34px rgba(13, 76, 69, 0.1);
+  --focus-ring-color: color-mix(in srgb, var(--color-primary) 34%, transparent);
+  --focus-ring: 0 0 0 3px var(--focus-ring-color);
+  --focus-ring-inset: inset 0 0 0 3px var(--focus-ring-color);
 
   --cor-fundo: var(--bg-page);
   --cor-superficie: var(--bg-surface);
@@ -242,6 +251,15 @@ a {
   border: 1px solid var(--divider-color);
   border-radius: var(--raio-md);
   box-shadow: var(--sombra-painel);
+}
+
+.bottom-action-mobile {
+  position: fixed;
+  right: 12px;
+  bottom: var(--app-bottom-action-bottom);
+  left: 12px;
+  z-index: var(--app-bottom-action-z-index);
+  margin-inline: auto;
 }
 
 .cabecalho-pagina {
@@ -514,6 +532,159 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 16px;
+}
+
+.pagamento-opcoes.ant-radio-group {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.pagamento-opcao.ant-radio-wrapper {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  margin: 0;
+  padding: 12px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pagamento-opcao.ant-radio-wrapper:hover,
+.pagamento-opcao.ant-radio-wrapper:focus-within {
+  border-color: var(--cor-primaria);
+}
+
+.pagamento-opcao.ant-radio-wrapper:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+.pagamento-opcao.ant-radio-wrapper.selecionada,
+.pagamento-opcao.ant-radio-wrapper-checked {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 10%, var(--cor-superficie));
+  border-color: var(--cor-primaria);
+  box-shadow: inset 0 0 0 1px var(--cor-primaria);
+}
+
+.pagamento-opcao.ant-radio-wrapper .ant-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pagamento-opcao.ant-radio-wrapper .ant-radio-input:focus-visible + .ant-radio-inner {
+  box-shadow: var(--focus-ring);
+}
+
+.pagamento-opcao.ant-radio-wrapper .ant-radio-input:focus-visible ~ span {
+  outline: 0;
+}
+
+.pagamento-opcao.ant-radio-wrapper .ant-radio + span {
+  display: contents;
+}
+
+.pagamento-opcao__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  border-radius: var(--raio-md);
+  font-size: 18px;
+}
+
+.pagamento-opcao__conteudo {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pagamento-opcao__conteudo strong {
+  min-width: 0;
+  color: var(--cor-texto);
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.pagamento-opcao.ant-radio-wrapper-checked .pagamento-opcao__conteudo strong,
+.pagamento-opcao.ant-radio-wrapper.selecionada .pagamento-opcao__conteudo strong {
+  color: var(--cor-primaria);
+}
+
+.pagamento-opcao__conteudo small {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.pagamento-opcao__atalho {
+  align-self: center;
+}
+
+.pagamento-opcao__check {
+  color: var(--cor-primaria);
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.pagamento-opcao.ant-radio-wrapper.selecionada .pagamento-opcao__check,
+.pagamento-opcao.ant-radio-wrapper-checked .pagamento-opcao__check {
+  opacity: 1;
+}
+
+.pagamento-opcoes--compactas.ant-radio-group {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pagamento-opcoes--compactas .pagamento-opcao.ant-radio-wrapper {
+  min-height: 56px;
+  padding: 10px;
+}
+
+.pagamento-opcoes--compactas .pagamento-opcao__icone {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.pagamento-opcoes--compactas .pagamento-opcao__conteudo {
+  overflow: hidden;
+}
+
+.pagamento-opcoes--compactas .pagamento-opcao__conteudo strong,
+.pagamento-opcoes--compactas .pagamento-opcao__conteudo small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pagamento-opcao.ant-radio-wrapper-disabled {
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border-color: var(--cor-borda);
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .ant-drawer-content {
@@ -839,9 +1010,42 @@ app-catalogo .grade-produtos {
 }
 
 app-catalogo .produto-card {
+  position: relative;
   overflow: hidden;
   border-radius: 8px;
   cursor: pointer;
+}
+
+app-catalogo .produto-card-acao,
+app-pdv .produto-card-acao {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  cursor: pointer;
+  outline: 0;
+}
+
+app-catalogo .produto-card-acao:focus-visible,
+app-pdv .produto-card-acao:focus-visible {
+  box-shadow: var(--focus-ring-inset);
+}
+
+app-catalogo .produto-indisponivel .produto-card-acao,
+app-pdv .produto-card.indisponivel .produto-card-acao,
+app-pdv .produto-card-acao:disabled {
+  cursor: not-allowed;
+}
+
+app-catalogo .produto-card .ant-btn,
+app-pdv .produto-card .ant-btn {
+  position: relative;
+  z-index: 2;
 }
 
 app-catalogo .produto-card .ant-card-body {
@@ -992,19 +1196,30 @@ app-pdv .estado-vazio {
 }
 
 app-pdv .produto-card {
+  position: relative;
   display: grid;
   grid-template-columns: 78px minmax(0, 1fr);
+  width: 100%;
   min-height: 96px;
+  padding: 0;
   overflow: hidden;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
+  outline: 0;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-app-pdv .produto-card:hover,
-app-pdv .produto-card:focus-visible {
+app-pdv .produto-card:hover {
   border-color: var(--cor-primaria);
   box-shadow: 0 8px 18px color-mix(in srgb, var(--cor-primaria) 14%, transparent);
-  outline: 0;
+}
+
+app-pdv .produto-card:focus-visible {
+  border-color: var(--cor-primaria);
+  box-shadow:
+    var(--focus-ring),
+    0 8px 18px color-mix(in srgb, var(--cor-primaria) 14%, transparent);
 }
 
 app-pdv .produto-card:active {
@@ -1014,6 +1229,10 @@ app-pdv .produto-card:active {
 app-pdv .produto-card.indisponivel {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+app-pdv .produto-card:disabled {
+  cursor: not-allowed;
 }
 
 app-pdv .produto-midia {
@@ -1415,7 +1634,8 @@ app-pdv kbd,
 }
 
 @media (max-width: 520px) {
-  .painel-venda .formas-pagamento {
+  .painel-venda .formas-pagamento,
+  .painel-venda .pagamento-opcoes--compactas.ant-radio-group {
     grid-template-columns: 1fr;
   }
 
@@ -2047,7 +2267,6 @@ app-pedido-sucesso .linha-pagamento[data-status='pagamento-erro'] strong {
   color: var(--cor-texto);
 }
 
-.theme-dark app-pdv .forma-pagamento.ant-btn,
 .theme-dark app-pdv .quantidade-controle .ant-btn,
 .theme-dark app-pdv .categorias-chips .ant-btn {
   color: var(--cor-texto);
@@ -2055,20 +2274,16 @@ app-pedido-sucesso .linha-pagamento[data-status='pagamento-erro'] strong {
   border-color: var(--cor-borda);
 }
 
-.theme-dark app-pdv .forma-pagamento.ant-btn:hover,
-.theme-dark app-pdv .forma-pagamento.ant-btn:focus,
 .theme-dark app-pdv .quantidade-controle .ant-btn:hover,
 .theme-dark app-pdv .quantidade-controle .ant-btn:focus,
 .theme-dark app-pdv .categorias-chips .ant-btn:hover,
 .theme-dark app-pdv .categorias-chips .ant-btn:focus,
-.theme-dark app-pdv .forma-pagamento.selecionada,
 .theme-dark app-pdv .categorias-chips button.selecionada {
   color: var(--cor-primaria);
   background: color-mix(in srgb, var(--cor-primaria) 16%, var(--cor-superficie));
   border-color: var(--cor-primaria);
 }
 
-.theme-dark app-pdv .forma-pagamento kbd,
 .theme-dark app-pdv .resumo-venda,
 .theme-dark app-pdv .venda-vazia {
   color: var(--cor-texto);
@@ -2080,6 +2295,31 @@ app-pedido-sucesso .linha-pagamento[data-status='pagamento-erro'] strong {
   color: var(--cor-texto);
   background: color-mix(in srgb, var(--cor-primaria) 12%, var(--cor-superficie));
   border-color: color-mix(in srgb, var(--cor-primaria) 34%, var(--cor-borda));
+}
+
+.theme-dark .pagamento-opcao.ant-radio-wrapper {
+  color: var(--cor-texto);
+  background: var(--bg-surface-elevated);
+  border-color: var(--cor-borda);
+}
+
+.theme-dark .pagamento-opcao.ant-radio-wrapper:hover,
+.theme-dark .pagamento-opcao.ant-radio-wrapper:focus-within,
+.theme-dark .pagamento-opcao.ant-radio-wrapper.selecionada,
+.theme-dark .pagamento-opcao.ant-radio-wrapper-checked {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 16%, var(--cor-superficie));
+  border-color: var(--cor-primaria);
+}
+
+.theme-dark .pagamento-opcao__icone {
+  background: color-mix(in srgb, var(--cor-primaria) 14%, var(--cor-campo));
+}
+
+.theme-dark .pagamento-opcao.ant-radio-wrapper-disabled {
+  color: var(--cor-texto-suave);
+  background: var(--cor-campo);
+  border-color: var(--cor-borda);
 }
 
 .theme-dark app-pdv .resumo-venda .linha-resumo span,

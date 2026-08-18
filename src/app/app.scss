@@ -1,4 +1,16 @@
 .estrutura-app {
+  --app-safe-area-bottom: env(safe-area-inset-bottom);
+  --app-bottom-nav-height: 64px;
+  --app-bottom-nav-space: calc(var(--app-bottom-nav-height) + var(--app-safe-area-bottom));
+  --app-bottom-nav-z-index: 20;
+  --app-bottom-action-gap: 10px;
+  --app-bottom-action-height: 64px;
+  --app-bottom-action-z-index: 19;
+  --app-bottom-action-bottom: calc(var(--app-bottom-nav-space) + var(--app-bottom-action-gap));
+  --app-page-bottom-padding: calc(var(--app-bottom-nav-space) + 14px);
+  --app-bottom-action-content-padding: calc(
+    var(--app-bottom-nav-space) + var(--app-bottom-action-height) + var(--app-bottom-action-gap) + 16px
+  );
   min-height: 100vh;
   background: var(--bg-page);
 }
@@ -165,7 +177,7 @@
 }
 
 .conteudo-app {
-  padding: 14px 12px calc(78px + env(safe-area-inset-bottom));
+  padding: 14px 12px var(--app-page-bottom-padding);
 }
 
 .rodape-app {
@@ -173,10 +185,11 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 20;
+  z-index: var(--app-bottom-nav-z-index);
   display: flex;
   justify-content: center;
-  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  min-height: var(--app-bottom-nav-space);
+  padding: 8px 10px calc(8px + var(--app-safe-area-bottom));
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior: contain;
@@ -186,6 +199,11 @@
 }
 
 @media (min-width: 900px) {
+  .estrutura-app {
+    --app-bottom-nav-height: 54px;
+    --app-page-bottom-padding: calc(var(--app-bottom-nav-space) + 24px);
+  }
+
   .cabecalho-app {
     grid-template-columns: auto auto;
     gap: 24px;
@@ -202,7 +220,7 @@
   }
 
   .conteudo-app {
-    padding: 24px 24px 84px;
+    padding: 24px 24px var(--app-page-bottom-padding);
   }
 
   .rodape-app {
