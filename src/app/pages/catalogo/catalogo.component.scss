@@ -2,7 +2,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   width: min(100%, 1240px);
   margin-bottom: 14px;
   margin-inline: auto;
@@ -27,8 +28,21 @@
   white-space: nowrap;
 }
 
+.cardapio-topo-infos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .estado-vazio {
   margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.estado-erro-produtos {
+  width: min(100%, 1240px);
+  margin: 0 auto 12px;
   padding: 12px;
   border-radius: 8px;
 }
@@ -130,6 +144,62 @@
   padding-bottom: var(--app-bottom-action-content-padding);
 }
 
+.cardapio-secoes--skeleton {
+  padding-bottom: 12px;
+}
+
+.cardapio-secoes--skeleton h2 {
+  width: 190px;
+}
+
+.produto-card-skeleton .produto-layout {
+  pointer-events: none;
+}
+
+.produto-midia-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cor-campo) 78%, var(--cor-superficie)) 25%,
+    color-mix(in srgb, var(--cor-campo) 64%, var(--cor-superficie)) 50%,
+    color-mix(in srgb, var(--cor-campo) 78%, var(--cor-superficie)) 75%
+  );
+  background-size: 180% 100%;
+  animation: shimmer-cardapio 1.4s ease-in-out infinite;
+}
+
+.produto-card-skeleton .produto-rodape {
+  align-items: center;
+}
+
+.produto-card-skeleton ::ng-deep .ant-skeleton {
+  padding-top: 2px;
+}
+
+.produto-card-skeleton ::ng-deep .ant-skeleton-avatar.ant-skeleton-avatar-circle {
+  width: 38px;
+  height: 38px;
+}
+
+.produto-card-skeleton ::ng-deep .ant-skeleton-button {
+  width: 90px;
+  min-width: 90px;
+  height: 22px;
+  border-radius: 999px;
+}
+
+.cardapio-secoes--skeleton ::ng-deep .ant-skeleton-button {
+  width: 100%;
+}
+
+@keyframes shimmer-cardapio {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 .categoria-secao {
   display: grid;
   gap: 10px;
@@ -196,6 +266,7 @@
 
 :host .produto-conteudo h3 {
   display: -webkit-box;
+  margin: 0;
   overflow: hidden;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -208,7 +279,7 @@
   color: var(--cor-texto-suave);
   font-size: 12px;
   line-height: 1.32;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
 
@@ -249,12 +320,14 @@
 :host .botao-adicionar.ant-btn {
   display: inline-grid;
   flex: 0 0 auto;
-  width: 38px;
-  min-width: 38px;
-  height: 38px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   place-items: center;
   padding: 0;
   border-radius: 999px;
+  margin: -3px;
+  border-color: color-mix(in srgb, var(--cor-primaria) 45%, transparent);
   box-shadow: 0 8px 18px color-mix(in srgb, var(--cor-primaria) 22%, transparent);
 }
 
@@ -388,6 +461,10 @@
 
   :host .produto-conteudo h3 {
     font-size: 15px;
+  }
+
+  :host .produto-conteudo p {
+    -webkit-line-clamp: 2;
   }
 
   :host .produto-status {

@@ -2,6 +2,26 @@
   <div class="cardapio-titulo">
     <h1>{{ tituloCatalogo() }}</h1>
   </div>
+
+  @if (unidadeResumo()) {
+    <div class="cardapio-topo-infos" aria-label="Informações da unidade">
+      <nz-tag [nzColor]="unidadeAberta() ? 'success' : 'default'">{{ statusUnidade() }}</nz-tag>
+
+      @if (statusUnidadeComplemento(); as statusComplemento) {
+        <nz-tag>{{ statusComplemento }}</nz-tag>
+      }
+
+      @if (valorPedidoMinimo(); as valorMinimo) {
+        <nz-tag>
+          Pedido mínimo {{ valorMinimo | currency:'BRL':'symbol':'1.2-2' }}
+        </nz-tag>
+      } @else if (quantidadePedidoMinimo(); as quantidadeMinima) {
+        <nz-tag>
+          Pedido mínimo {{ quantidadeMinima }} {{ quantidadeMinima > 1 ? 'itens' : 'item' }}
+        </nz-tag>
+      }
+    </div>
+  }
 </header>
 
 @if (cardapioIndisponivel()) {
@@ -13,46 +33,157 @@
     ></nz-result>
   </section>
 } @else {
-  <section class="filtros" aria-label="Filtros do catálogo">
+  <section #filtrosRef class="filtros" [class.filtros--compactos]="filtrosCompactos()" aria-label="Filtros do catálogo">
     <form nz-form nzLayout="vertical" [formGroup]="filtros">
       <div class="busca-catalogo">
         <nz-form-item class="campo-busca">
           <nz-form-control>
             <nz-input-group nzPrefixIcon="search">
-              <input nz-input id="nome" formControlName="nome" placeholder="Buscar no cardápio..." />
+              <input
+                nz-input
+                id="nome"
+                type="search"
+                formControlName="nome"
+                placeholder="Buscar no cardápio..."
+                aria-label="Buscar produto"
+              />
             </nz-input-group>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <nav class="categorias-menu" aria-label="Categorias do cardápio">
-        <button
-          class="categoria-chip"
-          type="button"
-          [class.selecionada]="categoriaSelecionadaId() === null"
-          (click)="selecionarCategoria(null)"
+      <div class="categorias-bloco">
+        <nav
+          #categoriasMenuRef
+          class="categorias-menu"
+          [class.categorias-menu--com-atalho]="exibirAtalhoRetorno()"
+          aria-label="Categorias do cardápio"
+          (scroll)="aoRolarCategorias()"
         >
-          Todos
-        </button>
-
-        @for (categoria of categoriasMenu(); track categoria.id) {
           <button
             class="categoria-chip"
             type="button"
-            [class.selecionada]="categoriaSelecionadaId() === categoria.id"
-            (click)="selecionarCategoria(categoria.id)"
+            [class.selecionada]="categoriaSelecionadaId() === null"
+            [attr.aria-pressed]="categoriaSelecionadaId() === null"
+            (click)="selecionarCategoria(null)"
           >
-            {{ categoria.nome }}
+            Todos
+          </button>
+
+          @for (categoria of categoriasMenu(); track categoria.id) {
+            <button
+              class="categoria-chip"
+              type="button"
+              [class.selecionada]="categoriaSelecionadaId() === categoria.id"
+              [attr.aria-pressed]="categoriaSelecionadaId() === categoria.id"
+              (click)="selecionarCategoria(categoria.id)"
+            >
+              {{ categoria.nome }}
+            </button>
+          }
+        </nav>
+
+        @if (exibirAtalhoRetorno()) {
+          <button
+            class="atalho-categorias"
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            type="button"
+            aria-label="Voltar para categorias"
+            nz-tooltip
+            nzTooltipTitle="Voltar para categorias"
+            (click)="voltarParaCategorias()"
+          >
+            <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
           </button>
         }
-      </nav>
+
+        @if (categoriasComOverflow()) {
+          <small aria-live="polite">
+            {{ categoriasPodeRolarDireita() ? 'Deslize para ver mais categorias' : 'Deslize para ver categorias anteriores' }}
+          </small>
+        }
+      </div>
 
     </form>
   </section>
 
-  <nz-spin [nzSpinning]="carregando()">
+  @if (exibirDescoberta()) {
+    <section class="descoberta" [attr.aria-label]="tituloDescoberta()">
+      <nz-tag>{{ tituloDescoberta() }}</nz-tag>
+
+      <div class="descoberta-lista" role="list">
+        @for (produto of produtosDescoberta(); track produto.id) {
+          <nz-card class="produto-card descoberta-card" role="listitem">
+            <button
+              class="produto-card-acao focus-ring-compartilhado focus-ring-compartilhado--inset"
+              type="button"
+              [attr.aria-label]="'Abrir detalhes de ' + produto.nome"
+              (click)="abrirDetalhes(produto)"
+            ></button>
+
+            <div class="produto-layout descoberta-layout">
+              <div class="produto-midia descoberta-midia">
+                @if (imagemPrincipal(produto); as imagem) {
+                  <img class="produto-imagem" [src]="imagem" [alt]="produto.nome" (error)="marcarImagemInvalida(produto.id)" />
+                } @else {
+                  <div class="produto-sem-imagem" aria-hidden="true">
+                    <span nz-icon nzType="picture" nzTheme="outline"></span>
+                  </div>
+                }
+              </div>
+
+              <div class="produto-conteudo descoberta-conteudo">
+                <div class="produto-info-principal">
+                  <h3>{{ produto.nome }}</h3>
+                </div>
+                <div class="produto-rodape">
+                  <strong class="produto-preco">{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+          </nz-card>
+        }
+      </div>
+    </section>
+  }
+
+  @if (carregando()) {
+    <section
+      class="cardapio-secoes cardapio-secoes--skeleton"
+      [class.cardapio-secoes--com-carrinho]="!carrinhoService.vazio()"
+      aria-label="Carregando produtos"
+    >
+      <section class="categoria-secao">
+        <h2><nz-skeleton-element nzType="button" [nzActive]="true"></nz-skeleton-element></h2>
+        <div class="grade-produtos">
+          @for (_ of skeletonCards; track $index) {
+            <nz-card class="produto-card produto-card-skeleton" aria-hidden="true">
+              <div class="produto-layout">
+                <div class="produto-midia produto-midia-skeleton"></div>
+                <div class="produto-conteudo">
+                  <div class="produto-info-principal">
+                    <nz-skeleton [nzActive]="true" [nzTitle]="{ width: '72%' }" [nzParagraph]="{ rows: 2 }"></nz-skeleton>
+                  </div>
+                  <div class="produto-rodape">
+                    <nz-skeleton-element nzType="button" [nzActive]="true"></nz-skeleton-element>
+                    <nz-skeleton-element nzType="avatar" [nzActive]="true"></nz-skeleton-element>
+                  </div>
+                </div>
+              </div>
+            </nz-card>
+          }
+        </div>
+      </section>
+    </section>
+  } @else {
     @if (possuiProdutos()) {
-      <section class="cardapio-secoes" aria-label="Produtos">
+      <section
+        class="cardapio-secoes"
+        [class.cardapio-secoes--com-carrinho]="!carrinhoService.vazio()"
+        aria-label="Produtos"
+      >
         @for (grupo of produtosPorCategoria(); track grupo.categoria.id) {
           <section class="categoria-secao" [attr.aria-labelledby]="'categoria-' + grupo.categoria.id">
             <h2 [id]="'categoria-' + grupo.categoria.id">{{ grupo.categoria.nome }}</h2>
@@ -91,7 +222,9 @@
                           <h3>{{ produto.nome }}</h3>
                         </div>
 
-                        <p>{{ produto.descricao || 'Sem descrição.' }}</p>
+                        @if (descricaoProduto(produto); as descricao) {
+                          <p>{{ descricao }}</p>
+                        }
 
                         @if (estoqueTextoConsumidor(produto); as estoque) {
                           <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
@@ -111,7 +244,7 @@
                             nzShape="circle"
                             type="button"
                             (click)="adicionarOuPersonalizar(produto); $event.stopPropagation()"
-                            aria-label="Adicionar produto ao carrinho"
+                            [attr.aria-label]="'Adicionar ' + produto.nome + ' ao carrinho'"
                           >
                             <span nz-icon nzType="plus" nzTheme="outline"></span>
                           </button>
@@ -142,17 +275,36 @@
           Carregar mais
         </button>
       }
-    } @else {
+    }
+
+    @if (erroProdutos()) {
+      <section class="estado-erro-produtos cartao-sistema" aria-live="polite">
+        <nz-result
+          nzStatus="error"
+          nzTitle="Não foi possível carregar os produtos."
+          [nzSubTitle]="erroProdutos() || ''"
+        >
+          <div nz-result-extra>
+            <button nz-button nzType="primary" type="button" (click)="tentarNovamenteProdutos()">
+              Tentar novamente
+            </button>
+          </div>
+        </nz-result>
+      </section>
+    } @else if (!possuiProdutos()) {
       <section class="estado-vazio cartao-sistema">
         <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
       </section>
     }
-  </nz-spin>
+  }
 }
 
 @if (!carrinhoService.vazio()) {
   <a class="carrinho-flutuante bottom-action-mobile" routerLink="/carrinho" aria-label="Ver carrinho">
-    <span>{{ carrinhoService.quantidadeTotal() }} itens · {{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}</span>
+    <span>
+      {{ carrinhoService.quantidadeTotal() }} {{ carrinhoService.quantidadeTotal() === 1 ? 'item' : 'itens' }} ·
+      {{ carrinhoService.valorTotal() | currency:'BRL':'symbol':'1.2-2' }}
+    </span>
     <strong>Ver carrinho</strong>
     <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
   </a>

@@ -1,10 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -18,17 +30,22 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { StandardError, ValidationError } from '../../core/models/api-error.model';
 import { CategoriaResponse } from '../../core/models/categoria.model';
 import { GrupoComplementoResponse, ComplementoSelecionado } from '../../core/models/complemento.model';
+import { HorarioFuncionamentoResponse } from '../../core/models/horario-funcionamento.model';
 import { ProdutoResponse } from '../../core/models/produto.model';
+import { UnidadeResponse } from '../../core/models/unidade.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProdutoService } from '../../core/services/produto.service';
+import { UnidadeService } from '../../core/services/unidade.service';
+import { encontrarProximaAbertura, estaAbertaAgora, montarHorariosSemana } from '../../core/utils/horario-funcionamento.util';
 import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
@@ -37,6 +54,15 @@ import {
 interface ProdutosPorCategoria {
   categoria: CategoriaResponse;
   produtos: ProdutoResponse[];
+}
+
+interface FiltrosCatalogo {
+  nome: string;
+  categoriaId: number | null;
+}
+
+interface AcaoCarregarProdutos {
+  reset: boolean;
 }
 
 @Component({
@@ -58,6 +84,7 @@ interface ProdutosPorCategoria {
     NzInputModule,
     NzInputNumberModule,
     NzResultModule,
+    NzSkeletonModule,
     NzSpinModule,
     NzTagModule,
     NzTooltipModule,
@@ -67,10 +94,11 @@ interface ProdutosPorCategoria {
   styleUrl: './catalogo.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CatalogoComponent implements OnInit {
+export class CatalogoComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly produtoService = inject(ProdutoService);
   private readonly categoriaService = inject(CategoriaService);
+  private readonly unidadeService = inject(UnidadeService);
   private readonly authService = inject(AuthService);
   protected readonly carrinhoService = inject(CarrinhoService);
   private readonly message = inject(NzMessageService);
@@ -78,7 +106,14 @@ export class CatalogoComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  @ViewChild('categoriasMenuRef')
+  private categoriasMenuRef?: ElementRef<HTMLElement>;
+  @ViewChild('filtrosRef')
+  private filtrosRef?: ElementRef<HTMLElement>;
+
   protected readonly unidadeSlug = signal<string | null>(null);
+  protected readonly unidadeResumo = signal<UnidadeResponse | null>(null);
+  protected readonly horariosUnidade = signal<HorarioFuncionamentoResponse[]>([]);
   protected readonly produtos = signal<ProdutoResponse[]>([]);
   protected readonly categorias = signal<CategoriaResponse[]>([]);
   protected readonly produtoSelecionado = signal<ProdutoResponse | null>(null);
@@ -91,6 +126,13 @@ export class CatalogoComponent implements OnInit {
   protected readonly carregando = signal(false);
   protected readonly carregandoMais = signal(false);
   protected readonly carregandoCategorias = signal(false);
+  protected readonly carregandoDescoberta = signal(false);
+  protected readonly categoriasComOverflow = signal(false);
+  protected readonly categoriasPodeRolarEsquerda = signal(false);
+  protected readonly categoriasPodeRolarDireita = signal(false);
+  protected readonly filtrosCompactos = signal(false);
+  protected readonly exibirAtalhoRetorno = signal(false);
+  protected readonly erroProdutos = signal<string | null>(null);
   protected readonly filtroNome = signal('');
   protected readonly categoriaSelecionadaId = signal<number | null>(null);
   protected readonly total = signal(0);
@@ -101,7 +143,53 @@ export class CatalogoComponent implements OnInit {
   protected readonly podeCarregarMais = computed(() => this.possuiProdutos() && !this.ultimaPagina());
   protected readonly cardapioIndisponivel = signal(false);
   protected readonly mensagemCardapioIndisponivel = signal('Cardápio não encontrado.');
+  protected readonly produtosNovidades = signal<ProdutoResponse[]>([]);
   protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardápio' : 'Catálogo');
+  protected readonly tipoDescoberta = computed<'novidades' | null>(() => this.produtosNovidades().length ? 'novidades' : null);
+  protected readonly tituloDescoberta = computed(() => this.tipoDescoberta() === 'novidades' ? 'Novidades' : null);
+  protected readonly produtosDescoberta = computed(() => this.produtosNovidades());
+  protected readonly exibirDescoberta = computed(() => (
+    !!this.tipoDescoberta()
+    && this.produtosDescoberta().length > 0
+    && !this.carregandoDescoberta()
+    && !this.cardapioIndisponivel()
+  ));
+  protected readonly unidadeAberta = computed(() => {
+    const unidade = this.unidadeResumo();
+
+    if (!unidade?.ativo) {
+      return false;
+    }
+
+    if (typeof unidade.abertaAgora === 'boolean') {
+      return unidade.abertaAgora;
+    }
+
+    return estaAbertaAgora(this.horariosUnidade());
+  });
+  protected readonly statusUnidade = computed(() => this.unidadeAberta() ? 'Aberto' : 'Fechado');
+  protected readonly statusUnidadeComplemento = computed(() => {
+    const unidade = this.unidadeResumo();
+
+    if (!unidade?.ativo) {
+      return 'Unidade indisponível';
+    }
+
+    if (this.unidadeAberta()) {
+      const horarioHoje = montarHorariosSemana(this.horariosUnidade()).find((horario) => horario.hoje);
+      return horarioHoje?.horaFechamento ? `Fecha às ${horarioHoje.horaFechamento}` : null;
+    }
+
+    return encontrarProximaAbertura(this.horariosUnidade());
+  });
+  protected readonly valorPedidoMinimo = computed(() => {
+    const valor = this.unidadeResumo()?.valorPedidoMinimo;
+    return typeof valor === 'number' && valor > 0 ? valor : null;
+  });
+  protected readonly quantidadePedidoMinimo = computed(() => {
+    const quantidade = this.unidadeResumo()?.pedidoMinimo;
+    return typeof quantidade === 'number' && quantidade > 0 ? Math.trunc(quantidade) : null;
+  });
   protected readonly produtosPorCategoria = computed<ProdutosPorCategoria[]>(() => {
     const grupos = new Map<number, ProdutosPorCategoria>();
 
@@ -135,8 +223,23 @@ export class CatalogoComponent implements OnInit {
     nome: [''],
     categoriaId: this.fb.control<number | null>(null)
   });
+  protected readonly skeletonCards = Array.from({ length: 8 });
+  private readonly carregarProdutosAcao$ = new Subject<AcaoCarregarProdutos>();
+  private readonly limiteDescoberta = 6;
+  private ultimaAcaoProdutos: AcaoCarregarProdutos | null = null;
+  private sequenciaCarregamentoProdutos = 0;
+  private carregamentoProdutosAtivo = 0;
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.atualizarIndicadoresCategorias();
+      this.atualizarEstadoNavegacao();
+    });
+  }
 
   ngOnInit(): void {
+    this.iniciarFluxoCarregamentoProdutos();
+
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -151,9 +254,14 @@ export class CatalogoComponent implements OnInit {
         this.unidadeSlug.set(slug);
         this.carrinhoService.definirUnidadeSlug(slug);
         this.cardapioIndisponivel.set(false);
+        this.unidadeResumo.set(null);
+        this.horariosUnidade.set([]);
         this.pageIndex.set(0);
+        this.erroProdutos.set(null);
+        this.carregarResumoUnidade(slug);
         this.carregarCategorias();
-        this.carregarProdutos(true);
+        this.carregarProdutosDescoberta(slug);
+        this.dispararCarregamentoProdutos({ reset: true });
 
         if (Number.isFinite(produtoId) && produtoId > 0) {
           this.carregarProdutoPublico(produtoId, true);
@@ -163,29 +271,39 @@ export class CatalogoComponent implements OnInit {
     this.filtros.valueChanges
       .pipe(
         debounceTime(350),
-        distinctUntilChanged((anterior, atual) => JSON.stringify(anterior) === JSON.stringify(atual)),
+        map((filtros) => this.normalizarFiltrosCatalogo(filtros.nome, filtros.categoriaId)),
+        distinctUntilChanged((anterior, atual) => (
+          anterior.nome === atual.nome
+          && anterior.categoriaId === atual.categoriaId
+        )),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(() => {
-        const filtros = this.filtros.getRawValue();
-
-        this.filtroNome.set(filtros.nome.trim());
+      .subscribe((filtros) => {
+        this.filtroNome.set(filtros.nome);
         this.categoriaSelecionadaId.set(filtros.categoriaId);
-        this.carregarProdutos(true);
+        this.dispararCarregamentoProdutos({ reset: true });
       });
   }
 
   carregarMais(): void {
-    if (this.carregandoMais() || this.ultimaPagina()) {
+    if (this.carregando() || this.carregandoMais() || this.ultimaPagina()) {
       return;
     }
 
-    this.carregarProdutos(false);
+    this.dispararCarregamentoProdutos({ reset: false });
   }
 
   selecionarCategoria(categoriaId: number | null): void {
     this.categoriaSelecionadaId.set(categoriaId);
     this.filtros.patchValue({ categoriaId });
+  }
+
+  tentarNovamenteProdutos(): void {
+    if (this.carregando() || this.carregandoMais()) {
+      return;
+    }
+
+    this.dispararCarregamentoProdutos(this.ultimaAcaoProdutos ?? { reset: true });
   }
 
   abrirDetalhes(produto: ProdutoResponse): void {
@@ -298,6 +416,11 @@ export class CatalogoComponent implements OnInit {
     return estoque > 0 ? 'Últimas unidades' : 'Indisponível';
   }
 
+  protected descricaoProduto(produto: ProdutoResponse): string | null {
+    const descricao = produto.descricao?.trim();
+    return descricao ? descricao : null;
+  }
+
   protected preco(produto: ProdutoResponse): number {
     return this.carrinhoService.obterPreco(produto);
   }
@@ -310,53 +433,87 @@ export class CatalogoComponent implements OnInit {
     return this.carrinhoService.possuiEstoque(produto);
   }
 
-  private carregarProdutos(reset: boolean): void {
-    const slug = this.unidadeSlug();
+  private iniciarFluxoCarregamentoProdutos(): void {
+    this.carregarProdutosAcao$
+      .pipe(
+        switchMap((acao) => {
+          const slug = this.unidadeSlug();
 
-    if (!slug) {
-      this.produtos.set([]);
-      this.total.set(0);
-      this.ultimaPagina.set(true);
-      return;
-    }
+          if (!slug) {
+            this.produtos.set([]);
+            this.total.set(0);
+            this.ultimaPagina.set(true);
+            this.erroProdutos.set(null);
+            return EMPTY;
+          }
 
-    const filtros = this.filtros.getRawValue();
-    const proximaPagina = reset ? 0 : this.pageIndex() + 1;
+          const filtros = this.normalizarFiltrosCatalogo(
+            this.filtros.controls.nome.value,
+            this.filtros.controls.categoriaId.value
+          );
 
-    if (reset) {
-      this.carregando.set(true);
-    } else {
-      this.carregandoMais.set(true);
-    }
+          const proximaPagina = acao.reset ? 0 : this.pageIndex() + 1;
+          const idRequisicao = ++this.sequenciaCarregamentoProdutos;
+          this.carregamentoProdutosAtivo = idRequisicao;
+          this.ultimaAcaoProdutos = acao;
+          this.erroProdutos.set(null);
 
-    this.produtoService.listarPublicoPorUnidade(slug, {
-      page: proximaPagina,
-      size: this.pageSize(),
-      sort: 'nome',
-      nome: filtros.nome?.trim() || undefined,
-      categoriaId: filtros.categoriaId ?? undefined
-    }).pipe(
-      finalize(() => {
-        this.carregando.set(false);
-        this.carregandoMais.set(false);
-      })
-    ).subscribe({
-      next: (page) => {
+          if (acao.reset) {
+            this.carregando.set(true);
+          } else {
+            this.carregandoMais.set(true);
+          }
+
+          return this.produtoService.listarPublicoPorUnidade(slug, {
+            page: proximaPagina,
+            size: this.pageSize(),
+            sort: 'nome',
+            nome: filtros.nome || undefined,
+            categoriaId: filtros.categoriaId ?? undefined
+          }).pipe(
+            catchError((error: HttpErrorResponse) => {
+              if (acao.reset) {
+                this.produtos.set([]);
+                this.total.set(0);
+                this.ultimaPagina.set(true);
+              }
+
+              this.tratarErroCardapio(error);
+              const mensagemErro = this.extrairMensagemErro(error);
+              this.erroProdutos.set(mensagemErro);
+              this.message.error(mensagemErro);
+              return EMPTY;
+            }),
+            finalize(() => {
+              if (this.carregamentoProdutosAtivo !== idRequisicao) {
+                return;
+              }
+
+              this.carregando.set(false);
+              this.carregandoMais.set(false);
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((page) => {
         this.pageIndex.set(page.number);
-        this.produtos.set(reset ? page.content : [...this.produtos(), ...page.content]);
+        this.produtos.set(this.ultimaAcaoProdutos?.reset ? page.content : [...this.produtos(), ...page.content]);
         this.total.set(page.totalElements);
         this.ultimaPagina.set(page.last);
-      },
-      error: (error: HttpErrorResponse) => {
-        if (reset) {
-          this.produtos.set([]);
-          this.total.set(0);
-          this.ultimaPagina.set(true);
-        }
-        this.tratarErroCardapio(error);
-        this.message.error(this.extrairMensagemErro(error));
-      }
-    });
+        queueMicrotask(() => this.atualizarIndicadoresCategorias());
+      });
+  }
+
+  private dispararCarregamentoProdutos(acao: AcaoCarregarProdutos): void {
+    this.carregarProdutosAcao$.next({ ...acao });
+  }
+
+  private normalizarFiltrosCatalogo(nome: string | null | undefined, categoriaId: number | null | undefined): FiltrosCatalogo {
+    return {
+      nome: (nome ?? '').trim(),
+      categoriaId: categoriaId ?? null
+    };
   }
 
   private carregarCategorias(): void {
@@ -372,7 +529,10 @@ export class CatalogoComponent implements OnInit {
     this.categoriaService.listarPublicoPorUnidade(slug, { page: 0, size: 100, sort: 'nome' }).pipe(
       finalize(() => this.carregandoCategorias.set(false))
     ).subscribe({
-      next: (categorias) => this.categorias.set(categorias),
+      next: (categorias) => {
+        this.categorias.set(categorias);
+        queueMicrotask(() => this.atualizarIndicadoresCategorias());
+      },
       error: (error: HttpErrorResponse) => {
         this.categorias.set([]);
         this.tratarErroCardapio(error);
@@ -433,7 +593,10 @@ export class CatalogoComponent implements OnInit {
 
     this.carrinhoService.limparContextoUnidade();
     this.unidadeSlug.set(null);
+    this.unidadeResumo.set(null);
+    this.horariosUnidade.set([]);
     this.produtos.set([]);
+    this.produtosNovidades.set([]);
     this.categorias.set([]);
     this.total.set(0);
     this.ultimaPagina.set(true);
@@ -469,6 +632,124 @@ export class CatalogoComponent implements OnInit {
     }
 
     return 'Não foi possível carregar o catálogo.';
+  }
+
+  protected aoRolarCategorias(): void {
+    this.atualizarIndicadoresCategorias();
+  }
+
+  @HostListener('window:scroll')
+  protected aoRolarPagina(): void {
+    this.atualizarEstadoNavegacao();
+  }
+
+  @HostListener('window:resize')
+  protected aoRedimensionarJanela(): void {
+    this.atualizarIndicadoresCategorias();
+    this.atualizarEstadoNavegacao();
+  }
+
+  protected voltarParaCategorias(): void {
+    const alvo = this.filtrosRef?.nativeElement ?? this.categoriasMenuRef?.nativeElement;
+
+    if (!alvo || typeof window === 'undefined') {
+      return;
+    }
+
+    const topo = alvo.getBoundingClientRect().top + window.scrollY - 8;
+    window.scrollTo({
+      top: Math.max(0, topo),
+      behavior: 'smooth'
+    });
+  }
+
+  private carregarResumoUnidade(slug: string): void {
+    this.unidadeService.buscarPublicaPorSlug(slug).pipe(
+      switchMap((unidade) => forkJoin({
+        unidade: of(unidade),
+        horarios: this.unidadeService.listarHorariosPublicos(unidade.id).pipe(
+          catchError(() => of([] as HorarioFuncionamentoResponse[]))
+        )
+      })),
+      catchError(() => EMPTY),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ unidade, horarios }) => {
+      if (this.unidadeSlug() !== slug) {
+        return;
+      }
+
+      this.unidadeResumo.set(unidade);
+      this.horariosUnidade.set(horarios);
+    });
+  }
+
+  private carregarProdutosDescoberta(slug: string): void {
+    this.carregandoDescoberta.set(true);
+    this.produtosNovidades.set([]);
+
+    this.produtoService.listarPublicoPorUnidade(slug, {
+      page: 0,
+      size: this.limiteDescoberta,
+      sort: 'criadoEm,desc'
+    }).pipe(
+      catchError(() => of({
+        content: [] as ProdutoResponse[],
+        totalElements: 0,
+        totalPages: 0,
+        size: this.limiteDescoberta,
+        number: 0,
+        first: true,
+        last: true,
+        empty: true
+      })),
+      finalize(() => this.carregandoDescoberta.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((page) => {
+      if (this.unidadeSlug() !== slug) {
+        return;
+      }
+
+      this.produtosNovidades.set(
+        page.content
+          .filter((produto) => produto.ativo !== false)
+          .slice(0, this.limiteDescoberta)
+      );
+    });
+  }
+
+  private atualizarIndicadoresCategorias(): void {
+    const container = this.categoriasMenuRef?.nativeElement;
+
+    if (!container) {
+      this.categoriasComOverflow.set(false);
+      this.categoriasPodeRolarEsquerda.set(false);
+      this.categoriasPodeRolarDireita.set(false);
+      return;
+    }
+
+    const limite = 2;
+    const possuiOverflow = container.scrollWidth - container.clientWidth > limite;
+    const scrollLeft = container.scrollLeft;
+    const maximo = Math.max(0, container.scrollWidth - container.clientWidth);
+
+    this.categoriasComOverflow.set(possuiOverflow);
+    this.categoriasPodeRolarEsquerda.set(possuiOverflow && scrollLeft > limite);
+    this.categoriasPodeRolarDireita.set(possuiOverflow && maximo - scrollLeft > limite);
+  }
+
+  private atualizarEstadoNavegacao(): void {
+    if (typeof window === 'undefined') {
+      this.filtrosCompactos.set(false);
+      this.exibirAtalhoRetorno.set(false);
+      return;
+    }
+
+    const posicaoVertical = Math.max(0, window.scrollY || 0);
+    const alturaViewport = Math.max(0, window.innerHeight || 0);
+    const limiteAtalho = Math.max(560, Math.round(alturaViewport * 1.2));
+
+    this.filtrosCompactos.set(posicaoVertical > 96);
+    this.exibirAtalhoRetorno.set(posicaoVertical > limiteAtalho);
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {
