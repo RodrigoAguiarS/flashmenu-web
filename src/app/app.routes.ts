@@ -53,7 +53,8 @@ export const routes: Routes = [
     path: 'pdv',
     canActivate: [authGuard],
     data: { permissoes: PERMISSOES_ROTAS.PDV },
-    loadComponent: () => import('./pages/pdv/pdv.component').then((component) => component.PdvComponent)
+    loadComponent: () =>
+      import('./pages/pdv/pdv.component').then((component) => component.PdvComponent)
   },
   {
     path: 'pedidos',

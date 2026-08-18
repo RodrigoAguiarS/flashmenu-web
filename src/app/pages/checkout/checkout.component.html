@@ -21,9 +21,17 @@
         <nz-alert class="alerta-checkout" nzType="error" [nzMessage]="checkout.mensagemErro()" nzShowIcon></nz-alert>
       }
 
+      <section class="checkout-etapas" aria-label="Etapas do checkout">
+        <nz-steps nzSize="small" [nzCurrent]="etapaAtualCheckout()">
+          @for (etapa of etapasCheckout(); track etapa) {
+            <nz-step [nzTitle]="etapa"></nz-step>
+          }
+        </nz-steps>
+      </section>
+
       @if (!checkout.usuario()) {
         <section class="checkout-secao">
-          <span class="secao-indice">1. IDENTIFICACAO</span>
+          <span class="secao-indice">{{ indiceEtapaIdentificacao() }}. IDENTIFICACAO</span>
           <app-identificacao-cliente
             [unidadeSlug]="checkout.unidadeSlug()"
             (clienteIdentificado)="checkout.atualizarClienteIdentificado()"
@@ -32,7 +40,7 @@
       }
 
       <section class="checkout-secao">
-        <span class="secao-indice">1. ENTREGA</span>
+        <span class="secao-indice">{{ indiceEtapaEntrega() }}. ENTREGA</span>
 
         @if (checkout.carregandoEnderecos()) {
           <div class="confirmacao-card">
@@ -75,7 +83,7 @@
       </section>
 
       <section class="checkout-secao">
-        <span class="secao-indice">2. PEDIDO</span>
+        <span class="secao-rotulo">PEDIDO</span>
 
         <nz-collapse class="pedido-collapse" nzGhost>
           <nz-collapse-panel [nzHeader]="carrinhoService.quantidadeTotal() + ' itens do pedido'">
@@ -107,7 +115,7 @@
       </section>
 
       <section class="checkout-secao">
-        <span class="secao-indice">3. PAGAMENTO</span>
+        <span class="secao-indice">{{ indiceEtapaPagamento() }}. PAGAMENTO</span>
         <h2>Como voce quer pagar?</h2>
 
         <nz-radio-group
@@ -202,6 +210,7 @@
       </section>
 
       <section class="confirmacao-fixa bottom-action-mobile" aria-label="Confirmar pedido">
+        <span class="secao-indice confirmacao-indice">{{ indiceEtapaConfirmacao() }}. CONFIRMACAO</span>
         <div>
           <span>Total</span>
           <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>

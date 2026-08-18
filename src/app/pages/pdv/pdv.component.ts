@@ -525,6 +525,22 @@ export class PdvComponent implements OnInit, AfterViewInit {
     return icones[formaPagamento.tipo] ?? 'wallet';
   }
 
+  protected descricaoFormaPagamento(formaPagamento: FormaPagamentoResponse): string {
+    if (formaPagamento.tipo === 'PIX') {
+      return 'Pagamento instantaneo';
+    }
+
+    if (formaPagamento.tipo === 'DINHEIRO') {
+      return 'Pagamento imediato';
+    }
+
+    if (formaPagamento.percentualAcrescimo) {
+      return `Acrescimo de ${Number(formaPagamento.percentualAcrescimo)}%`;
+    }
+
+    return 'Sem acrescimo';
+  }
+
   protected formaPagamentoSelecionadaPorId(formaPagamentoId: number): boolean {
     return this.formaPagamentoId() === formaPagamentoId;
   }

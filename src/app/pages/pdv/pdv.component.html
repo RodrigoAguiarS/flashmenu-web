@@ -99,7 +99,7 @@
       </div>
 
       <nz-radio-group
-        class="pagamento-opcoes pagamento-opcoes--compactas"
+        class="pagamento-opcoes pagamento-opcoes--detalhadas"
         formControlName="formaPagamentoId"
         aria-label="Forma de pagamento"
         [attr.aria-describedby]="formulario.controls.formaPagamentoId.touched && formulario.controls.formaPagamentoId.invalid ? 'pdv-pagamento-erro' : null"
@@ -116,6 +116,7 @@
             <span class="pagamento-opcao__icone" aria-hidden="true" nz-icon [nzType]="formaPagamentoIcone(forma)" nzTheme="outline"></span>
             <span class="pagamento-opcao__conteudo">
               <strong>{{ forma.nome }}</strong>
+              <small>{{ descricaoFormaPagamento(forma) }}</small>
             </span>
             @if (formaPagamentoAtalho(forma); as atalho) {
               <kbd class="pagamento-opcao__atalho" aria-hidden="true">{{ atalho }}</kbd>
@@ -255,7 +256,7 @@
         <section class="grade-produtos" aria-label="Lista de produtos">
           @for (produto of produtos(); track produto.id) {
             <button
-              class="produto-card"
+              class="produto-card focus-ring-compartilhado"
               type="button"
               [class.indisponivel]="!podeAdicionar(produto)"
               [disabled]="!podeAdicionar(produto)"

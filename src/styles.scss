@@ -178,6 +178,19 @@ a {
   color: inherit;
 }
 
+.focus-ring-compartilhado {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring-compartilhado:focus-visible {
+  box-shadow: var(--focus-ring-shadow, var(--focus-ring));
+}
+
+.focus-ring-compartilhado--inset {
+  --focus-ring-shadow: var(--focus-ring-inset);
+}
+
 .identificacao-cliente {
   display: grid;
   gap: 12px;
@@ -651,6 +664,40 @@ a {
   opacity: 1;
 }
 
+.pagamento-opcoes--detalhadas.ant-radio-group {
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 8px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao.ant-radio-wrapper {
+  min-height: 48px;
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao__icone {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 15px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo {
+  gap: 1px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo strong {
+  font-size: 13px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo small {
+  font-size: 11px;
+}
+
+.pagamento-opcoes--detalhadas .pagamento-opcao__check {
+  font-size: 15px;
+}
+
 .pagamento-opcoes--compactas.ant-radio-group {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
@@ -1016,6 +1063,10 @@ app-catalogo .produto-card {
   cursor: pointer;
 }
 
+app-catalogo .produto-card:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
 app-catalogo .produto-card-acao,
 app-pdv .produto-card-acao {
   position: absolute;
@@ -1028,12 +1079,13 @@ app-pdv .produto-card-acao {
   border: 0;
   border-radius: inherit;
   cursor: pointer;
-  outline: 0;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 app-catalogo .produto-card-acao:focus-visible,
 app-pdv .produto-card-acao:focus-visible {
-  box-shadow: var(--focus-ring-inset);
+  box-shadow: var(--focus-ring-shadow, var(--focus-ring-inset));
 }
 
 app-catalogo .produto-indisponivel .produto-card-acao,
@@ -1206,7 +1258,8 @@ app-pdv .produto-card {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  outline: 0;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -1218,7 +1271,7 @@ app-pdv .produto-card:hover {
 app-pdv .produto-card:focus-visible {
   border-color: var(--cor-primaria);
   box-shadow:
-    var(--focus-ring),
+    var(--focus-ring-shadow, var(--focus-ring)),
     0 8px 18px color-mix(in srgb, var(--cor-primaria) 14%, transparent);
 }
 
@@ -1635,12 +1688,19 @@ app-pdv kbd,
 
 @media (max-width: 520px) {
   .painel-venda .formas-pagamento,
-  .painel-venda .pagamento-opcoes--compactas.ant-radio-group {
+  .painel-venda .pagamento-opcoes--compactas.ant-radio-group,
+  .painel-venda .pagamento-opcoes--detalhadas.ant-radio-group {
     grid-template-columns: 1fr;
   }
 
   .painel-venda .total-final strong {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 359px) {
+  .pagamento-opcoes--detalhadas.ant-radio-group {
+    grid-template-columns: 1fr;
   }
 }
 

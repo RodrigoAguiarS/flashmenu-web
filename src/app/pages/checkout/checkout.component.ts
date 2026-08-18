@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -15,6 +15,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzStepsModule } from 'ng-zorro-antd/steps';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NgxMaskDirective } from 'ngx-mask';
 
@@ -46,6 +47,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzQRCodeModule,
     NzRadioModule,
     NzSpinModule,
+    NzStepsModule,
     NzTagModule,
     NgxMaskDirective,
     IdentificacaoClienteComponent
@@ -63,6 +65,33 @@ export class CheckoutComponent implements OnInit {
   protected readonly carrinhoService = inject(CarrinhoService);
   protected readonly checkout = inject(CheckoutFacade);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
+  protected readonly identificacaoObrigatoria = computed(() => !this.checkout.usuario());
+  protected readonly etapasCheckout = computed(() =>
+    this.identificacaoObrigatoria()
+      ? ['Identificacao', 'Entrega', 'Pagamento', 'Confirmacao']
+      : ['Entrega', 'Pagamento', 'Confirmacao']
+  );
+  protected readonly etapaAtualCheckout = computed(() => {
+    if (this.identificacaoObrigatoria() && !this.checkout.usuario()) {
+      return 0;
+    }
+
+    const indiceEntrega = this.identificacaoObrigatoria() ? 1 : 0;
+
+    if (this.checkout.checkoutValido() || this.checkout.finalizando()) {
+      return indiceEntrega + 2;
+    }
+
+    if (this.checkout.formaPagamentoId()) {
+      return indiceEntrega + 1;
+    }
+
+    return indiceEntrega;
+  });
+  protected readonly indiceEtapaIdentificacao = computed(() => 1);
+  protected readonly indiceEtapaEntrega = computed(() => (this.identificacaoObrigatoria() ? 2 : 1));
+  protected readonly indiceEtapaPagamento = computed(() => (this.identificacaoObrigatoria() ? 3 : 2));
+  protected readonly indiceEtapaConfirmacao = computed(() => (this.identificacaoObrigatoria() ? 4 : 3));
 
   ngOnInit(): void {
     const unidadeSlug = this.route.snapshot.paramMap.get('unidadeSlug');

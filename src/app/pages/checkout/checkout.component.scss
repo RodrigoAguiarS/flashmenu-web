@@ -29,6 +29,19 @@
   margin-bottom: -4px;
 }
 
+.checkout-etapas {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.checkout-etapas ::ng-deep .ant-steps {
+  min-width: 320px;
+}
+
+.checkout-etapas ::ng-deep .ant-steps-item-title {
+  font-size: 12px;
+}
+
 .checkout-secao {
   display: grid;
   gap: 10px;
@@ -38,6 +51,13 @@
   color: var(--cor-texto-suave);
   font-size: 12px;
   font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.secao-rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.02em;
 }
 
@@ -129,40 +149,6 @@
   min-height: 32px;
 }
 
-.pagamento-opcoes--detalhadas {
-  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
-  gap: 8px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao {
-  min-height: 48px;
-  padding: 8px 10px;
-  gap: 8px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao__icone {
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  font-size: 15px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo {
-  gap: 1px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo strong {
-  font-size: 13px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao__conteudo small {
-  font-size: 11px;
-}
-
-.pagamento-opcoes--detalhadas .pagamento-opcao__check {
-  font-size: 15px;
-}
-
 .troco-card nz-form-item {
   margin-bottom: 0;
 }
@@ -216,6 +202,11 @@
   box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
 }
 
+.confirmacao-indice {
+  grid-column: 1 / -1;
+  margin-bottom: -2px;
+}
+
 .confirmacao-fixa div {
   display: grid;
 }
@@ -254,12 +245,6 @@
   .card-icone,
   .confirmacao-fixa div {
     display: none;
-  }
-}
-
-@media (max-width: 359px) {
-  .pagamento-opcoes--detalhadas {
-    grid-template-columns: 1fr;
   }
 }
 
