@@ -235,11 +235,11 @@ export class CheckoutFacade {
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === 401) {
-          this.mensagemErro.set('Sua sessao expirou. Confirme seus dados para continuar.');
+          this.mensagemErro.set('Sua sessão expirou. Confirme seus dados para continuar.');
           return;
         }
 
-        this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel finalizar o pedido.'));
+        this.mensagemErro.set(this.extrairMensagemErro(error, 'Não foi possível finalizar o pedido.'));
       }
     });
   }
@@ -248,7 +248,7 @@ export class CheckoutFacade {
     const codigo = this.pixCopiaECola();
 
     if (!codigo) {
-      this.message.warning('Codigo PIX indisponivel.');
+      this.message.warning('Código PIX indisponível.');
       return;
     }
 
@@ -258,7 +258,7 @@ export class CheckoutFacade {
     }
 
     void navigator.clipboard.writeText(codigo)
-      .then(() => this.message.success('Codigo PIX copiado.'))
+      .then(() => this.message.success('Código PIX copiado.'))
       .catch(() => this.message.info(codigo));
   }
 
@@ -278,7 +278,7 @@ export class CheckoutFacade {
       return;
     }
 
-    this.message.info('Aguardando confirmacao do pagamento PIX.');
+    this.message.info('Aguardando confirmação do pagamento PIX.');
   }
 
   private carregarFormasPagamento(): void {
@@ -296,7 +296,7 @@ export class CheckoutFacade {
         }
       },
       error: (error: HttpErrorResponse) =>
-        this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel finalizar o pedido.'))
+        this.mensagemErro.set(this.extrairMensagemErro(error, 'Não foi possível finalizar o pedido.'))
     });
   }
 
@@ -326,7 +326,7 @@ export class CheckoutFacade {
         this.iniciarPollingPix(pedido.id);
       },
       error: (error: HttpErrorResponse) => {
-        this.erroPix.set(this.extrairMensagemErro(error, 'Nao foi possivel gerar a cobranca PIX.'));
+        this.erroPix.set(this.extrairMensagemErro(error, 'Não foi possível gerar a cobrança PIX.'));
         this.statusPix.set('PENDENTE');
       }
     });
@@ -346,7 +346,7 @@ export class CheckoutFacade {
       if (status.expirado || status.status === 'EXPIRADO' || status.status === 'CANCELADO') {
         this.pararPollingPix();
         this.consultandoPix.set(false);
-        this.erroPix.set('PIX expirado. Gere uma nova cobranca para continuar.');
+        this.erroPix.set('PIX expirado. Gere uma nova cobrança para continuar.');
         return;
       }
 
@@ -420,7 +420,7 @@ export class CheckoutFacade {
       error: (error: HttpErrorResponse) => {
         this.enderecos.set([]);
         if (error.status !== 404) {
-          this.message.warning(this.extrairMensagemErro(error, 'Nao foi possivel carregar o endereco do cliente.'));
+          this.message.warning(this.extrairMensagemErro(error, 'Não foi possível carregar o endereço do cliente.'));
         }
       }
     });

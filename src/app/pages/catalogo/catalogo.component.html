@@ -8,24 +8,24 @@
   <section class="estado-vazio cartao-sistema">
     <nz-result
       nzStatus="404"
-      nzTitle="Cardapio indisponivel"
+      nzTitle="Cardápio indisponível"
       [nzSubTitle]="mensagemCardapioIndisponivel()"
     ></nz-result>
   </section>
 } @else {
-  <section class="filtros" aria-label="Filtros do catalogo">
+  <section class="filtros" aria-label="Filtros do catálogo">
     <form nz-form nzLayout="vertical" [formGroup]="filtros">
       <div class="busca-catalogo">
         <nz-form-item class="campo-busca">
           <nz-form-control>
             <nz-input-group nzPrefixIcon="search">
-              <input nz-input id="nome" formControlName="nome" placeholder="Buscar no cardapio..." />
+              <input nz-input id="nome" formControlName="nome" placeholder="Buscar no cardápio..." />
             </nz-input-group>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <nav class="categorias-menu" aria-label="Categorias do cardapio">
+      <nav class="categorias-menu" aria-label="Categorias do cardápio">
         <button
           class="categoria-chip"
           type="button"
@@ -81,7 +81,7 @@
                       }
 
                       @if (!podeAdicionar(produto)) {
-                        <span class="produto-status">Indisponivel</span>
+                        <span class="produto-status">Indisponível</span>
                       }
                     </div>
 
@@ -91,7 +91,7 @@
                           <h3>{{ produto.nome }}</h3>
                         </div>
 
-                        <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+                        <p>{{ produto.descricao || 'Sem descrição.' }}</p>
 
                         @if (estoqueTextoConsumidor(produto); as estoque) {
                           <span class="estoque-chip" [class.sem-estoque]="!podeAdicionar(produto)">
@@ -117,7 +117,7 @@
                           </button>
                         } @else {
                           <button class="botao-indisponivel" nz-button type="button" disabled>
-                            Indisponivel
+                            Indisponível
                           </button>
                         }
                       </div>
@@ -183,7 +183,7 @@
           <div class="detalhe-cabecalho">
             <nz-tag class="detalhe-categoria">{{ produto.categoria.nome }}</nz-tag>
             <h2>{{ produto.nome }}</h2>
-            <p>{{ produto.descricao || 'Sem descricao.' }}</p>
+            <p>{{ produto.descricao || 'Sem descrição.' }}</p>
           </div>
 
           <div class="detalhe-info">
@@ -229,7 +229,7 @@
               </div>
 
               <div class="observacao-bloco">
-                <label class="quantidade-label" for="observacaoItem">Observacao do item</label>
+                <label class="quantidade-label" for="observacaoItem">Observação do item</label>
                 <textarea
                   nz-input
                   id="observacaoItem"

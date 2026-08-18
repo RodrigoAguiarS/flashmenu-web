@@ -1,5 +1,18 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, computed, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  ViewChild,
+  computed,
+  signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -38,7 +51,7 @@ export interface ProdutoPersonalizacaoConfirmacao {
   styleUrl: './produto-personalizacao.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProdutoPersonalizacaoComponent implements OnChanges {
+export class ProdutoPersonalizacaoComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input({ required: true }) produto!: ProdutoResponse | ProdutoCarrinho;
   @Input() gruposComplementos: GrupoComplementoResponse[] = [];
   @Input() configuracaoInicial: ComplementoSelecionado[] = [];
@@ -49,11 +62,14 @@ export class ProdutoPersonalizacaoComponent implements OnChanges {
   @Input() carregando = false;
   @Input() mostrarProdutoTopo = true;
   @Output() confirmar = new EventEmitter<ProdutoPersonalizacaoConfirmacao>();
+  @ViewChild('resumoFooter') private readonly resumoFooter?: ElementRef<HTMLElement>;
 
   protected readonly quantidades = signal<Record<number, number>>({});
   protected readonly quantidadeItem = signal(1);
   protected readonly observacao = signal('');
+  protected readonly alturaFooterMobile = signal(176);
   private readonly gruposComplementosState = signal<GrupoComplementoResponse[]>([]);
+  private observadorFooter?: ResizeObserver;
 
   protected readonly gruposAtivos = computed(() =>
     [...this.gruposComplementosState()]
@@ -105,6 +121,30 @@ export class ProdutoPersonalizacaoComponent implements OnChanges {
     this.quantidades.set(quantidades);
     this.quantidadeItem.set(Math.max(1, Math.trunc(this.quantidadeInicial || 1)));
     this.observacao.set((this.observacaoInicial ?? '').substring(0, 255));
+  }
+
+  ngAfterViewInit(): void {
+    const elementoFooter = this.resumoFooter?.nativeElement;
+    if (!elementoFooter) {
+      return;
+    }
+
+    const atualizarAlturaFooter = () => {
+      this.alturaFooterMobile.set(Math.ceil(elementoFooter.getBoundingClientRect().height) + 12);
+    };
+
+    atualizarAlturaFooter();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    this.observadorFooter = new ResizeObserver(() => atualizarAlturaFooter());
+    this.observadorFooter.observe(elementoFooter);
+  }
+
+  ngOnDestroy(): void {
+    this.observadorFooter?.disconnect();
   }
 
   protected quantidadeOpcao(opcaoId: number): number {

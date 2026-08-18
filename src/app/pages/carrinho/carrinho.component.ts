@@ -23,6 +23,7 @@ import {
   ProdutoPersonalizacaoComponent,
   ProdutoPersonalizacaoConfirmacao
 } from '../../shared/components/produto-personalizacao/produto-personalizacao.component';
+import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 
 @Component({
   selector: 'app-carrinho',
@@ -36,7 +37,8 @@ import {
     NzEmptyModule,
     NzIconModule,
     NzPopconfirmModule,
-    ProdutoPersonalizacaoComponent
+    ProdutoPersonalizacaoComponent,
+    PedidoResumoFinanceiroComponent
   ],
   templateUrl: './carrinho.component.html',
   styleUrl: './carrinho.component.scss',
@@ -79,19 +81,19 @@ export class CarrinhoComponent implements OnInit {
 
   incrementar(item: ItemCarrinho): void {
     if (!this.carrinhoService.incrementar(item.id)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+      this.message.warning('Quantidade solicitada maior que o estoque disponível.');
     }
   }
 
   decrementar(item: ItemCarrinho): void {
     if (!this.carrinhoService.decrementar(item.id)) {
-      this.message.info('A quantidade minima e 1.');
+      this.message.info('A quantidade mínima é 1.');
     }
   }
 
   alterarQuantidade(item: ItemCarrinho, quantidade: number | null): void {
     if (!this.carrinhoService.definirQuantidade(item.id, quantidade ?? 1)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+      this.message.warning('Quantidade solicitada maior que o estoque disponível.');
     }
   }
 
@@ -117,7 +119,7 @@ export class CarrinhoComponent implements OnInit {
         const grupos = Array.isArray(resultado) ? resultado : resultado.gruposComplementos ?? [];
         this.gruposItemEditando.set(this.normalizarGrupos(grupos));
       },
-      error: () => this.message.error('Nao foi possivel carregar os complementos do produto.')
+      error: () => this.message.error('Não foi possível carregar os complementos do produto.')
     });
   }
 
@@ -135,11 +137,11 @@ export class CarrinhoComponent implements OnInit {
     }
 
     if (!this.carrinhoService.atualizarConfiguracao(item.id, evento.complementos, evento.observacao, evento.quantidade)) {
-      this.message.warning('Nao foi possivel atualizar a personalizacao com o estoque atual.');
+      this.message.warning('Não foi possível atualizar a personalização com o estoque atual.');
       return;
     }
 
-    this.message.success('Personalizacao atualizada.');
+    this.message.success('Personalização atualizada.');
     this.fecharEdicao();
   }
 
@@ -181,16 +183,12 @@ export class CarrinhoComponent implements OnInit {
     return this.carrinhoService.obterPrecoItem(item);
   }
 
-  protected possuiValor(valor: number | null | undefined): boolean {
-    return Math.abs(Number(valor ?? 0)) > 0.0001;
-  }
-
   protected possuiPersonalizacao(item: ItemCarrinho): boolean {
     return !!item.observacao || !!item.complementos?.length;
   }
 
   protected descricaoCurta(produto: ProdutoCarrinho): string {
-    return produto.descricao?.trim() || 'Sem descricao.';
+    return produto.descricao?.trim() || 'Sem descrição.';
   }
 
   protected estoqueMaximo(produto: ProdutoCarrinho): number {

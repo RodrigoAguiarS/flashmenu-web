@@ -100,8 +100,8 @@ export class CatalogoComponent implements OnInit {
   protected readonly possuiProdutos = computed(() => this.produtos().length > 0);
   protected readonly podeCarregarMais = computed(() => this.possuiProdutos() && !this.ultimaPagina());
   protected readonly cardapioIndisponivel = signal(false);
-  protected readonly mensagemCardapioIndisponivel = signal('Cardapio nao encontrado.');
-  protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardapio' : 'Catalogo');
+  protected readonly mensagemCardapioIndisponivel = signal('Cardápio não encontrado.');
+  protected readonly tituloCatalogo = computed(() => this.unidadeSlug() ? 'Cardápio' : 'Catálogo');
   protected readonly produtosPorCategoria = computed<ProdutosPorCategoria[]>(() => {
     const grupos = new Map<number, ProdutosPorCategoria>();
 
@@ -212,12 +212,12 @@ export class CatalogoComponent implements OnInit {
     complementos: ComplementoSelecionado[] = []
   ): void {
     if (!this.carrinhoService.possuiEstoque(produto)) {
-      this.message.warning('Produto sem estoque disponivel.');
+      this.message.warning('Produto sem estoque disponível.');
       return;
     }
 
     if (!this.carrinhoService.adicionar(produto, quantidade, observacao, complementos)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+      this.message.warning('Quantidade solicitada maior que o estoque disponível.');
       return;
     }
 
@@ -227,7 +227,7 @@ export class CatalogoComponent implements OnInit {
 
   adicionarOuPersonalizar(produto: ProdutoResponse): void {
     if (!this.carrinhoService.possuiEstoque(produto)) {
-      this.message.warning('Produto sem estoque disponivel.');
+      this.message.warning('Produto sem estoque disponível.');
       return;
     }
 
@@ -282,7 +282,7 @@ export class CatalogoComponent implements OnInit {
     const estoque = this.carrinhoService.quantidadeDisponivel(produto);
 
     if (estoque === null) {
-      return 'Disponivel';
+      return 'Disponível';
     }
 
     return estoque > 0 ? `${estoque} em estoque` : 'Sem estoque';
@@ -295,7 +295,7 @@ export class CatalogoComponent implements OnInit {
       return null;
     }
 
-    return estoque > 0 ? 'Ultimas unidades' : 'Indisponivel';
+    return estoque > 0 ? 'Últimas unidades' : 'Indisponível';
   }
 
   protected preco(produto: ProdutoResponse): number {
@@ -389,7 +389,7 @@ export class CatalogoComponent implements OnInit {
     const slug = this.unidadeSlug();
 
     if (!slug) {
-      this.message.warning('Acesse o cardapio pelo link da unidade.');
+      this.message.warning('Acesse o cardápio pelo link da unidade.');
       return;
     }
 
@@ -438,13 +438,13 @@ export class CatalogoComponent implements OnInit {
     this.total.set(0);
     this.ultimaPagina.set(true);
     this.cardapioIndisponivel.set(true);
-    this.mensagemCardapioIndisponivel.set('Acesse o cardapio pelo link publico da unidade.');
+    this.mensagemCardapioIndisponivel.set('Acesse o cardápio pelo link público da unidade.');
   }
 
   private tratarErroCardapio(error: HttpErrorResponse): void {
     if (error.status === 404 || error.status === 410) {
       this.cardapioIndisponivel.set(true);
-      this.mensagemCardapioIndisponivel.set('Unidade nao encontrada ou cardapio indisponivel.');
+      this.mensagemCardapioIndisponivel.set('Unidade não encontrada ou cardápio indisponível.');
     }
   }
 
@@ -465,10 +465,10 @@ export class CatalogoComponent implements OnInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      return body.message || body.error || 'Nao foi possivel carregar o catalogo.';
+      return body.message || body.error || 'Não foi possível carregar o catálogo.';
     }
 
-    return 'Nao foi possivel carregar o catalogo.';
+    return 'Não foi possível carregar o catálogo.';
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {

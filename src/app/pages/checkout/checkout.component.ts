@@ -22,6 +22,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
+import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 import { CheckoutFacade } from './checkout.facade';
 import { IdentificacaoClienteComponent } from './components/identificacao-cliente/identificacao-cliente.component';
@@ -50,6 +51,7 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzStepsModule,
     NzTagModule,
     NgxMaskDirective,
+    PedidoResumoFinanceiroComponent,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],
@@ -68,8 +70,8 @@ export class CheckoutComponent implements OnInit {
   protected readonly identificacaoObrigatoria = computed(() => !this.checkout.usuario());
   protected readonly etapasCheckout = computed(() =>
     this.identificacaoObrigatoria()
-      ? ['Identificacao', 'Entrega', 'Pagamento', 'Confirmacao']
-      : ['Entrega', 'Pagamento', 'Confirmacao']
+      ? ['Identificação', 'Entrega', 'Pagamento', 'Confirmação']
+      : ['Entrega', 'Pagamento', 'Confirmação']
   );
   protected readonly etapaAtualCheckout = computed(() => {
     if (this.identificacaoObrigatoria() && !this.checkout.usuario()) {
@@ -124,10 +126,6 @@ export class CheckoutComponent implements OnInit {
     return Number.isFinite(Number(valor)) ? Number(valor) : 0;
   }
 
-  protected possuiValor(valor: number | null | undefined): boolean {
-    return this.valor(valor) !== 0;
-  }
-
   protected rotuloFormaPagamento(forma: FormaPagamentoResponse): string {
     const tipo = forma.tipo;
 
@@ -136,11 +134,11 @@ export class CheckoutComponent implements OnInit {
     }
 
     if (tipo === 'CARTAO_CREDITO') {
-      return 'Cartao de credito';
+      return 'Cartão de crédito';
     }
 
     if (tipo === 'CARTAO_DEBITO') {
-      return 'Cartao de debito';
+      return 'Cartão de débito';
     }
 
     if (tipo === 'DINHEIRO') {
@@ -152,7 +150,7 @@ export class CheckoutComponent implements OnInit {
 
   protected descricaoFormaPagamento(forma: FormaPagamentoResponse): string {
     if (forma.tipo === 'PIX') {
-      return 'Pagamento instantaneo';
+      return 'Pagamento instantâneo';
     }
 
     if (forma.tipo === 'DINHEIRO') {
@@ -160,10 +158,10 @@ export class CheckoutComponent implements OnInit {
     }
 
     if (forma.percentualAcrescimo) {
-      return `Acrescimo de ${this.valor(forma.percentualAcrescimo)}%`;
+      return `Acréscimo de ${this.valor(forma.percentualAcrescimo)}%`;
     }
 
-    return 'Sem acrescimo';
+    return 'Sem acréscimo';
   }
 
   protected iconeFormaPagamento(forma: FormaPagamentoResponse): string {

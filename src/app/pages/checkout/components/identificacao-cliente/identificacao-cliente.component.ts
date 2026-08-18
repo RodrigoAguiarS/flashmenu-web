@@ -97,7 +97,7 @@ export class IdentificacaoClienteComponent {
 
     if (!slug && !this.clienteEncontrado()) {
       this.identificando.set(false);
-      this.mensagemErro.set('Acesse o checkout pelo link do cardapio da unidade.');
+      this.mensagemErro.set('Acesse o checkout pelo link do cardápio da unidade.');
       return;
     }
 
@@ -112,12 +112,12 @@ export class IdentificacaoClienteComponent {
       finalize(() => this.identificando.set(false))
     ).subscribe({
       next: () => {
-        this.mensagemIdentificacao.set('Cliente identificado. Continue a finalizacao.');
+        this.mensagemIdentificacao.set('Cliente identificado. Continue a finalização.');
         this.message.success('Cliente identificado.');
         this.clienteIdentificado.emit();
       },
       error: (error: HttpErrorResponse) => {
-        this.mensagemErro.set(this.extrairMensagemErro(error, 'Nao foi possivel identificar o cliente.'));
+        this.mensagemErro.set(this.extrairMensagemErro(error, 'Não foi possível identificar o cliente.'));
       }
     });
   }
@@ -201,7 +201,7 @@ export class IdentificacaoClienteComponent {
 
     if (!slug) {
       this.buscandoTelefone.set(false);
-      this.mensagemIdentificacao.set('Acesse o checkout pelo link do cardapio da unidade.');
+      this.mensagemIdentificacao.set('Acesse o checkout pelo link do cardápio da unidade.');
       return;
     }
 
@@ -245,11 +245,11 @@ export class IdentificacaoClienteComponent {
         this.limparDadosIdentificacao();
         this.etapaCadastro.set(0);
         this.aplicarValidadoresIdentificacao();
-        this.mensagemIdentificacao.set('Nao encontramos cadastro com esse telefone. Complete seus dados para continuar.');
+        this.mensagemIdentificacao.set('Não encontramos cadastro com esse telefone. Complete seus dados para continuar.');
       },
       error: () => {
         this.clienteEncontrado.set(null);
-        this.mensagemIdentificacao.set('Nao foi possivel buscar o cadastro agora. Confira o telefone e tente novamente.');
+        this.mensagemIdentificacao.set('Não foi possível buscar o cadastro agora. Confira o telefone e tente novamente.');
       }
     });
   }
@@ -279,7 +279,7 @@ export class IdentificacaoClienteComponent {
     ).subscribe({
       next: (dados) => {
         if (dados.erro) {
-          this.message.warning('CEP nao encontrado.');
+          this.message.warning('CEP não encontrado.');
           return;
         }
 
@@ -291,7 +291,7 @@ export class IdentificacaoClienteComponent {
           estado: dados.uf
         });
       },
-      error: () => this.message.error('Nao foi possivel buscar o CEP.')
+      error: () => this.message.error('Não foi possível buscar o CEP.')
     });
   }
 

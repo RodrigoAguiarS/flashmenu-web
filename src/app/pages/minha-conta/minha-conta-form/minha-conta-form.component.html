@@ -9,8 +9,8 @@
     <h1>
       @switch (secaoAtual()) {
         @case ('dados') { Dados pessoais }
-        @case ('enderecos') { Meus enderecos }
-        @case ('seguranca') { Seguranca }
+        @case ('enderecos') { Meus endereços }
+        @case ('seguranca') { Segurança }
         @default { Meus dados }
       }
     </h1>
@@ -47,7 +47,7 @@
           <div class="avatar-conta" aria-hidden="true">{{ iniciaisUsuario() }}</div>
           <strong>{{ usuarioAtual.nome }}</strong>
           <span>{{ usuarioAtual.email }}</span>
-          <span>{{ usuarioAtual.telefone ? (usuarioAtual.telefone | telefone) : 'Telefone nao informado' }}</span>
+          <span>{{ usuarioAtual.telefone ? (usuarioAtual.telefone | telefone) : 'Telefone não informado' }}</span>
 
           <button nz-button nzType="link" type="button" (click)="abrirSecao('dados')">
             Editar dados
@@ -59,38 +59,38 @@
       <section class="menu-conta" aria-label="Minha conta">
         <h2>Perfil</h2>
 
-        <button type="button" class="menu-item" (click)="abrirSecao('dados')">
-          <span class="menu-icone" nz-icon nzType="user" nzTheme="outline"></span>
-          <span>
+        <button type="button" class="menu-item focus-ring-compartilhado" (click)="abrirSecao('dados')">
+          <span class="menu-icone" nz-icon nzType="user" nzTheme="outline" aria-hidden="true"></span>
+          <span class="menu-conteudo">
             <strong>Dados pessoais</strong>
             <small>Nome, e-mail e telefone</small>
           </span>
-          <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+          <span class="menu-seta" nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
         </button>
 
-        <button type="button" class="menu-item" (click)="abrirSecao('enderecos')">
-          <span class="menu-icone" nz-icon nzType="environment" nzTheme="outline"></span>
-          <span>
-            <strong>Enderecos</strong>
+        <button type="button" class="menu-item focus-ring-compartilhado" (click)="abrirSecao('enderecos')">
+          <span class="menu-icone" nz-icon nzType="environment" nzTheme="outline" aria-hidden="true"></span>
+          <span class="menu-conteudo">
+            <strong>Endereços</strong>
             <small>{{ resumoEnderecos() }}</small>
           </span>
-          <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+          <span class="menu-seta" nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
         </button>
 
-        <button type="button" class="menu-item" (click)="abrirSecao('seguranca')">
-          <span class="menu-icone" nz-icon nzType="lock" nzTheme="outline"></span>
-          <span>
-            <strong>Seguranca</strong>
-            <small>Senha e acesso a conta</small>
+        <button type="button" class="menu-item focus-ring-compartilhado" (click)="abrirSecao('seguranca')">
+          <span class="menu-icone" nz-icon nzType="lock" nzTheme="outline" aria-hidden="true"></span>
+          <span class="menu-conteudo">
+            <strong>Segurança</strong>
+            <small>Senha e acesso à conta</small>
           </span>
-          <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+          <span class="menu-seta" nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
         </button>
 
-        <button type="button" class="menu-item sair-conta" (click)="sair()">
-          <span class="menu-icone" nz-icon nzType="logout" nzTheme="outline"></span>
-          <span>
+        <button type="button" class="menu-item focus-ring-compartilhado sair-conta" (click)="sair()">
+          <span class="menu-icone" nz-icon nzType="logout" nzTheme="outline" aria-hidden="true"></span>
+          <span class="menu-conteudo">
             <strong>Sair da conta</strong>
-            <small>Encerrar esta sessao</small>
+            <small>Encerrar esta sessão</small>
           </span>
         </button>
       </section>
@@ -107,14 +107,14 @@
 
         <nz-form-item>
           <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
-          <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="formulario.controls.login">
+          <nz-form-control nzErrorTip="Informe um e-mail válido." [nzValidateStatus]="formulario.controls.login">
             <input nz-input id="login" type="email" formControlName="login" autocomplete="email" placeholder="voce@email.com" />
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
           <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
-          <nz-form-control nzErrorTip="Informe um telefone valido." [nzValidateStatus]="formulario.controls.telefone">
+          <nz-form-control nzErrorTip="Informe um telefone válido." [nzValidateStatus]="formulario.controls.telefone">
             <input
               nz-input
               id="telefone"
@@ -129,7 +129,7 @@
 
         <div class="acoes-form">
           <button nz-button nzType="primary" type="submit" [nzLoading]="salvando()" [disabled]="salvando() || formulario.pristine">
-            Salvar alteracoes
+            Salvar alterações
           </button>
           <button nz-button nzType="link" type="button" (click)="voltarHub()">Cancelar</button>
         </div>
@@ -137,8 +137,8 @@
     }
 
     @if (secaoAtual() === 'enderecos') {
-      <section class="enderecos-secao" aria-label="Meus enderecos">
-        <p>Enderecos utilizados nas suas entregas.</p>
+      <section class="enderecos-secao" aria-label="Meus endereços">
+        <p>Endereços utilizados nas suas entregas.</p>
 
         @if (enderecos().length) {
           <div class="lista-enderecos">
@@ -170,27 +170,27 @@
             }
           </div>
         } @else {
-          <nz-empty nzNotFoundContent="Nenhum endereco cadastrado."></nz-empty>
+          <nz-empty nzNotFoundContent="Nenhum endereço cadastrado."></nz-empty>
         }
 
         @if (!formularioEnderecoAberto()) {
           <button class="adicionar-endereco" nz-button nzType="primary" type="button" (click)="abrirFormularioEndereco()">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
-            Adicionar endereco
+            Adicionar endereço
           </button>
         }
 
         @if (!enderecos().length || formularioEnderecoAberto()) {
           <form class="formulario-conta form-endereco" nz-form nzLayout="vertical" [formGroup]="formularioEndereco" (ngSubmit)="cadastrarEndereco()">
-            <h2>{{ enderecos().length ? 'Novo endereco' : 'Cadastrar endereco' }}</h2>
+            <h2>{{ enderecos().length ? 'Novo endereço' : 'Cadastrar endereço' }}</h2>
 
             <nz-row [nzGutter]="16">
               <nz-col nzXs="24" nzMd="8">
                 <nz-form-item>
                   <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
                   <nz-form-control
-                    [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
-                    nzErrorTip="Informe um CEP valido."
+                    [nzExtra]="buscandoCep() ? 'Buscando endereço...' : ''"
+                    nzErrorTip="Informe um CEP válido."
                     [nzValidateStatus]="formularioEndereco.controls.cep"
                   >
                     <input nz-input id="cep" formControlName="cep" inputmode="numeric" autocomplete="postal-code" placeholder="59000-000" />
@@ -209,8 +209,8 @@
 
               <nz-col nzXs="24" nzMd="8">
                 <nz-form-item>
-                  <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
-                  <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="formularioEndereco.controls.numero">
+                  <nz-form-label nzFor="numero" nzRequired>Número</nz-form-label>
+                  <nz-form-control nzErrorTip="Informe o número." [nzValidateStatus]="formularioEndereco.controls.numero">
                     <input nz-input id="numero" formControlName="numero" inputmode="numeric" placeholder="100" />
                   </nz-form-control>
                 </nz-form-item>
@@ -220,7 +220,7 @@
                 <nz-form-item>
                   <nz-form-label nzFor="complemento">Complemento</nz-form-label>
                   <nz-form-control [nzValidateStatus]="formularioEndereco.controls.complemento">
-                    <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referencia" />
+                    <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referência" />
                   </nz-form-control>
                 </nz-form-item>
               </nz-col>
@@ -255,7 +255,7 @@
 
             <label class="switch-principal">
               <nz-switch formControlName="principal"></nz-switch>
-              <span>Definir como endereco principal</span>
+              <span>Definir como endereço principal</span>
             </label>
 
             <div class="acoes-form">
@@ -264,7 +264,7 @@
               }
 
               <button nz-button nzType="primary" type="submit" [nzLoading]="salvandoEndereco()" [disabled]="salvandoEndereco()">
-                Cadastrar endereco
+                Cadastrar endereço
               </button>
             </div>
           </form>

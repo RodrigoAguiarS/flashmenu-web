@@ -148,7 +148,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     this.itemEditando() ? 'Editar adicionais' : 'Personalizar produto'
   );
   protected readonly textoConfirmarPersonalizacao = computed(() =>
-    this.itemEditando() ? 'Salvar adicionais' : 'Adicionar a venda'
+    this.itemEditando() ? 'Salvar adicionais' : 'Adicionar à venda'
   );
   protected readonly formaPagamentoSelecionada = computed(() => {
     const formaPagamentoId = this.formaPagamentoId();
@@ -385,7 +385,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   protected adicionarProduto(produto: ProdutoResponse): void {
     if (!this.pdvService.possuiEstoque(produto)) {
-      this.message.warning('Produto sem estoque disponivel.');
+      this.message.warning('Produto sem estoque disponível.');
       return;
     }
 
@@ -415,7 +415,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
     if (item) {
       if (!this.pdvService.atualizarConfiguracao(item.id, evento.complementos, evento.quantidade)) {
-        this.message.warning('Nao foi possivel atualizar os adicionais com o estoque atual.');
+        this.message.warning('Não foi possível atualizar os adicionais com o estoque atual.');
         return;
       }
 
@@ -451,7 +451,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   protected incrementar(item: ItemCarrinho): void {
     if (!this.pdvService.incrementar(item.id)) {
-      this.message.warning('Quantidade maior que o estoque disponivel.');
+      this.message.warning('Quantidade maior que o estoque disponível.');
     }
   }
 
@@ -463,13 +463,13 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.pdvService.decrementar(item.id)) {
-      this.message.warning('Nao foi possivel diminuir a quantidade.');
+      this.message.warning('Não foi possível diminuir a quantidade.');
     }
   }
 
   protected alterarQuantidade(item: ItemCarrinho, quantidade: number | null): void {
     if (!this.pdvService.definirQuantidade(item.id, quantidade ?? 1)) {
-      this.message.warning('Quantidade maior que o estoque disponivel.');
+      this.message.warning('Quantidade maior que o estoque disponível.');
     }
   }
 
@@ -527,7 +527,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   protected descricaoFormaPagamento(formaPagamento: FormaPagamentoResponse): string {
     if (formaPagamento.tipo === 'PIX') {
-      return 'Pagamento instantaneo';
+      return 'Pagamento instantâneo';
     }
 
     if (formaPagamento.tipo === 'DINHEIRO') {
@@ -535,10 +535,10 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     if (formaPagamento.percentualAcrescimo) {
-      return `Acrescimo de ${Number(formaPagamento.percentualAcrescimo)}%`;
+      return `Acréscimo de ${Number(formaPagamento.percentualAcrescimo)}%`;
     }
 
-    return 'Sem acrescimo';
+    return 'Sem acréscimo';
   }
 
   protected formaPagamentoSelecionadaPorId(formaPagamentoId: number): boolean {
@@ -603,7 +603,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     const codigo = this.pixCopiaECola();
 
     if (!codigo) {
-      this.message.warning('Codigo PIX indisponivel.');
+      this.message.warning('Código PIX indisponível.');
       return;
     }
 
@@ -613,7 +613,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     void navigator.clipboard.writeText(codigo)
-      .then(() => this.message.success('Codigo PIX copiado.'))
+      .then(() => this.message.success('Código PIX copiado.'))
       .catch(() => this.message.info(codigo));
   }
 
@@ -633,7 +633,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.message.info('Aguardando confirmacao do pagamento PIX.');
+    this.message.info('Aguardando confirmação do pagamento PIX.');
   }
 
   protected imagemPrincipal(produto: ProdutoResponse | ProdutoCarrinho): string | null {
@@ -649,7 +649,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     const estoque = this.pdvService.quantidadeDisponivel(produto);
 
     if (estoque === null) {
-      return 'Disponivel';
+      return 'Disponível';
     }
 
     return estoque > 0 ? `${estoque} em estoque` : 'Sem estoque';
@@ -747,7 +747,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
       if (status.expirado || status.status === 'EXPIRADO' || status.status === 'CANCELADO') {
         this.pararPollingPix();
         this.consultandoPix.set(false);
-        this.erroPix.set('PIX expirado. Gere uma nova cobranca para continuar.');
+        this.erroPix.set('PIX expirado. Gere uma nova cobrança para continuar.');
         return;
       }
 
@@ -824,11 +824,11 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
   private adicionarProdutoConfigurado(produto: ProdutoCarrinho | ProdutoResponse, evento: ProdutoPersonalizacaoConfirmacao): void {
     if (!this.pdvService.adicionar(produto, evento.quantidade, evento.complementos)) {
-      this.message.warning('Quantidade solicitada maior que o estoque disponivel.');
+      this.message.warning('Quantidade solicitada maior que o estoque disponível.');
       return;
     }
 
-    this.message.success('Produto adicionado a venda.');
+    this.message.success('Produto adicionado à venda.');
 
     if (!this.pdvMobile()) {
       this.focarBusca();
@@ -886,10 +886,10 @@ export class PdvComponent implements OnInit, AfterViewInit {
     }
 
     if (this.ehErroPadrao(body)) {
-      return body.message || body.error || 'Nao foi possivel processar a venda.';
+      return body.message || body.error || 'Não foi possível processar a venda.';
     }
 
-    return 'Nao foi possivel processar a venda.';
+    return 'Não foi possível processar a venda.';
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {

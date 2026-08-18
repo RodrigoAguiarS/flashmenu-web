@@ -1,4 +1,5 @@
 .personalizacao,
+.personalizacao-conteudo,
 .grupos,
 .grupo,
 .opcoes,
@@ -8,8 +9,13 @@
 }
 
 .personalizacao {
+  --personalizacao-footer-altura-mobile: 176px;
   gap: 12px;
-  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.personalizacao-conteudo {
+  gap: 12px;
+  padding-bottom: calc(var(--personalizacao-footer-altura-mobile) + env(safe-area-inset-bottom));
 }
 
 .produto-topo,
@@ -18,7 +24,7 @@
 .opcao-info,
 .opcao-acao,
 .contador,
-.resumo-personalizacao > div {
+.resumo-item {
   display: flex;
   gap: 10px;
 }
@@ -128,7 +134,7 @@
   place-items: center;
   width: 24px;
   height: 24px;
-  color: #fff;
+  color: var(--text-on-primary);
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 999px;
@@ -195,26 +201,31 @@
 .resumo-personalizacao {
   position: sticky;
   bottom: 0;
-  z-index: 1;
+  z-index: 2;
   gap: 8px;
   margin-inline: -2px;
-  padding: 12px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
   border-radius: 8px;
-  box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-floating-soft);
 }
 
-.resumo-personalizacao > div {
+.resumo-principal {
+  display: grid;
+  gap: 8px;
+}
+
+.resumo-item {
   align-items: center;
   justify-content: space-between;
 }
 
 .resumo-personalizacao nz-input-number {
-  width: 96px;
+  width: 88px;
 }
 
-.resumo-personalizacao .total {
+.resumo-item.total {
   padding-top: 8px;
   border-top: 1px solid var(--cor-borda);
   font-size: 16px;
@@ -232,6 +243,18 @@
 }
 
 @media (min-width: 520px) {
+  .personalizacao {
+    --personalizacao-footer-altura-mobile: 0px;
+  }
+
+  .personalizacao-conteudo {
+    padding-bottom: 0;
+  }
+
+  .resumo-personalizacao {
+    padding: 12px;
+  }
+
   .produto-topo,
   .grupo-topo {
     display: flex;
@@ -251,5 +274,10 @@
   .opcao-acao {
     align-items: flex-end;
     flex-direction: column;
+  }
+
+  .resumo-principal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }

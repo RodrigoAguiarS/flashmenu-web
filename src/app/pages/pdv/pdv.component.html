@@ -1,4 +1,4 @@
-<app-page-header titulo="PDV" descricao="Venda presencial vinculada ao usuario logado.">
+<app-page-header titulo="PDV" descricao="Venda presencial vinculada ao usuário logado.">
   <nz-tag nzColor="purple">PDV</nz-tag>
 </app-page-header>
 
@@ -128,7 +128,7 @@
 
       @if (formaPagamentoSelecionada()?.percentualAcrescimo) {
         <div class="impacto-pagamento">
-          <span>{{ formaPagamentoSelecionada()?.nome }} tem acrescimo de {{ percentualAcrescimo() }}%</span>
+          <span>{{ formaPagamentoSelecionada()?.nome }} tem acréscimo de {{ percentualAcrescimo() }}%</span>
           <strong>+ {{ valorAcrescimo() | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
       }
@@ -160,7 +160,7 @@
     }
 
     <div class="resumo-venda">
-      <app-pedido-resumo-financeiro [resumo]="resumoFinanceiro()" />
+      <app-pedido-resumo-financeiro [resumo]="resumoFinanceiro()" rotuloTaxa="Taxa de serviço" />
 
       @if (pagamentoEmDinheiro()) {
         <div class="linha-dinheiro">
@@ -203,7 +203,7 @@
                   nz-input
                   id="nome"
                   formControlName="nome"
-                  placeholder="Buscar produto, codigo ou codigo de barras..."
+                  placeholder="Buscar produto, código ou código de barras..."
                   autocomplete="off"
                   aria-label="Buscar produto"
                   (keydown.enter)="adicionarProdutoBusca()"
@@ -402,7 +402,7 @@
             <strong>{{ (valorPix() ?? totalPrevisto()) | currency:'BRL':'symbol':'1.2-2' }}</strong>
           </div>
           @if (consultandoPix()) {
-            <small>Aguardando confirmacao</small>
+            <small>Aguardando confirmação</small>
           }
         </div>
 
@@ -413,7 +413,7 @@
         @if (gerandoPix()) {
           <div class="pix-loading">
             <nz-spin nzSimple></nz-spin>
-            <span>Gerando cobranca PIX...</span>
+            <span>Gerando cobrança PIX...</span>
           </div>
         } @else if (cobrancaPix()) {
           <div class="pix-status">
@@ -421,7 +421,7 @@
               {{ pixExpirado() ? 'PIX expirado' : 'Aguardando pagamento' }}
             </nz-tag>
             @if (consultandoPix()) {
-              <small>Verificacao automatica ativa</small>
+              <small>Verificação automática ativa</small>
             }
           </div>
 
@@ -430,17 +430,15 @@
               <nz-qrcode
                 [nzValue]="codigoPix"
                 [nzSize]="220"
-                nzColor="#000"
-                nzBgColor="#fff"
                 nzStatus="active"
               ></nz-qrcode>
             </div>
 
             <div class="pix-codigo">
-              <label for="codigoPixPdv">Codigo PIX copia e cola</label>
+              <label for="codigoPixPdv">Código PIX copia e cola</label>
               <textarea id="codigoPixPdv" nz-input rows="4" readonly [value]="codigoPix"></textarea>
               <button nz-button nzType="primary" type="button" (click)="copiarCodigoPix()">
-                Copiar codigo PIX
+                Copiar código PIX
               </button>
             </div>
           } @else if (pixQrCodeImagem(); as qrCodeImagem) {
@@ -450,8 +448,8 @@
 
             <nz-alert
               nzType="info"
-              nzMessage="Codigo PIX copia e cola indisponivel"
-              nzDescription="Escaneie o QR Code para pagar. Se precisar copiar o codigo, tente gerar o PIX novamente."
+              nzMessage="Código PIX copia e cola indisponível"
+              nzDescription="Escaneie o QR Code para pagar. Se precisar copiar o código, tente gerar o PIX novamente."
               nzShowIcon
             ></nz-alert>
           }

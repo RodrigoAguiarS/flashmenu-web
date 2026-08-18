@@ -22,7 +22,7 @@ export const PERMISSOES = {
   PERFIL_EDITAR: 'perfil.editar',
   PERFIL_DELETAR: 'perfil.deletar',
   PERMISSAO_LISTAR: 'permissao.listar',
-  PDV_CRIAR: 'pdv.criar',
+  PDV_CRIAR: 'pdv.acessar',
   PEDIDO_LISTAR: 'pedido.listar',
   PEDIDO_ALTERAR_STATUS: 'pedido.alterar-status',
   PEDIDO_CANCELAR: 'pedido.cancelar',

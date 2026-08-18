@@ -65,14 +65,14 @@
   width: 32px;
   min-width: 32px;
   height: 32px;
-  color: #fff;
+  color: var(--text-on-primary);
   background: var(--cor-primaria);
   border-radius: 999px;
   box-shadow: 0 8px 18px color-mix(in srgb, var(--cor-primaria) 22%, transparent);
 }
 
 .botao-adicionar .anticon {
-  color: #fff;
+  color: var(--text-on-primary);
 }
 
 .paginacao {
@@ -92,9 +92,9 @@
 }
 
 .finalizar kbd {
-  color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.24);
+  color: var(--text-on-primary-muted);
+  background: color-mix(in srgb, var(--text-on-primary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--text-on-primary) 24%, transparent);
 }
 
 .painel-venda.desktop {
@@ -128,16 +128,16 @@
   min-height: 56px;
   margin-inline: auto;
   padding: 8px 12px;
-  color: #fff;
+  color: var(--text-on-primary);
   background: var(--cor-primaria);
   border-color: var(--cor-primaria);
   border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+  box-shadow: var(--shadow-floating-strong);
 }
 
 .pdv-resumo-mobile__abrir.ant-btn:hover,
 .pdv-resumo-mobile__abrir.ant-btn:focus-visible {
-  color: #fff;
+  color: var(--text-on-primary);
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
 }
@@ -145,7 +145,7 @@
 .pdv-resumo-mobile__abrir.ant-btn:focus-visible {
   box-shadow:
     var(--focus-ring),
-    0 12px 28px rgba(15, 23, 42, 0.22);
+    var(--shadow-floating-strong);
 }
 
 .pdv-resumo-mobile__icone {
@@ -160,14 +160,14 @@
 
 .pdv-resumo-mobile__dados span,
 .pdv-resumo-mobile__acao {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--text-on-primary-muted);
   font-size: 12px;
   font-weight: 750;
 }
 
 .pdv-resumo-mobile__dados strong {
   overflow: hidden;
-  color: #fff;
+  color: var(--text-on-primary);
   font-size: 16px;
   font-weight: 850;
   line-height: 1.15;
@@ -177,9 +177,9 @@
 
 .pdv-resumo-mobile__acao {
   padding: 6px 10px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--text-on-primary);
+  background: color-mix(in srgb, var(--text-on-primary) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-on-primary) 24%, transparent);
   border-radius: 999px;
 }
 
@@ -202,7 +202,7 @@
   bottom: env(safe-area-inset-bottom);
   z-index: 2;
   margin-top: 2px;
-  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-floating-soft);
 }
 
 :host .grade-produtos {
@@ -232,15 +232,47 @@
 }
 
 :host .produto-rodape > div {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-:host .produto-rodape span,
-:host .produto-rodape small {
+:host .produto-rodape > div > span,
+:host .produto-rodape > div > small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+:host .botao-adicionar {
+  margin-left: auto;
+}
+
+:host .pagamento-opcoes--pdv.ant-radio-group {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao.ant-radio-wrapper {
+  min-height: 44px;
+  padding: 8px;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__icone {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__conteudo strong {
+  font-size: 12px;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__conteudo small {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 10px;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 @media (max-width: 1039px) {
@@ -272,7 +304,6 @@
   :host .produto-midia {
     width: 92px;
     min-width: 92px;
-    border-right: 1px solid var(--cor-borda);
     border-bottom: 0;
   }
 
@@ -280,6 +311,24 @@
   :host .produto-sem-imagem {
     min-height: 112px;
     aspect-ratio: auto;
+  }
+}
+
+@media (min-width: 720px) {
+  :host .produto-card {
+    grid-template-columns: 1fr;
+    min-height: 204px;
+  }
+
+  :host .produto-midia {
+    border-right: 0;
+    border-bottom: 1px solid var(--cor-borda);
+  }
+
+  :host .produto-imagem,
+  :host .produto-sem-imagem {
+    min-height: 110px;
+    aspect-ratio: 4 / 3;
   }
 }
 

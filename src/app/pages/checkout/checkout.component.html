@@ -11,7 +11,7 @@
 
 @if (carrinhoService.vazio()) {
   <section class="estado-vazio cartao-sistema">
-    <nz-empty nzNotFoundContent="Seu carrinho esta vazio."></nz-empty>
+    <nz-empty nzNotFoundContent="Seu carrinho está vazio."></nz-empty>
     <a nz-button nzType="primary" [routerLink]="carrinhoService.cardapioLink()">Ver produtos</a>
   </section>
 } @else {
@@ -31,7 +31,7 @@
 
       @if (!checkout.usuario()) {
         <section class="checkout-secao">
-          <span class="secao-indice">{{ indiceEtapaIdentificacao() }}. IDENTIFICACAO</span>
+          <span class="secao-indice">{{ indiceEtapaIdentificacao() }}. IDENTIFICAÇÃO</span>
           <app-identificacao-cliente
             [unidadeSlug]="checkout.unidadeSlug()"
             (clienteIdentificado)="checkout.atualizarClienteIdentificado()"
@@ -44,7 +44,7 @@
 
         @if (checkout.carregandoEnderecos()) {
           <div class="confirmacao-card">
-            <span>Carregando endereco...</span>
+            <span>Carregando endereço...</span>
           </div>
         } @else if (checkout.usuario(); as usuarioAtual) {
           <article class="confirmacao-card entrega-card">
@@ -53,7 +53,7 @@
             </div>
 
             <div class="confirmacao-conteudo">
-              <strong>Entregar em</strong>
+              <strong>Endereço de entrega</strong>
 
               @if (checkout.enderecoEntrega(); as endereco) {
                 <p>
@@ -65,7 +65,7 @@
                 <span>{{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }}</span>
                 <span>CEP {{ endereco.cep }}</span>
               } @else {
-                <p>Endereco nao informado</p>
+                <p>Endereço não informado</p>
                 <span>Complete seus dados antes de confirmar.</span>
               }
 
@@ -77,7 +77,7 @@
         } @else {
           <article class="confirmacao-card pendente">
             <strong>Cliente pendente</strong>
-            <span>Identifique o cliente para liberar a confirmacao do pedido.</span>
+            <span>Identifique o cliente para liberar a confirmação do pedido.</span>
           </article>
         }
       </section>
@@ -116,7 +116,7 @@
 
       <section class="checkout-secao">
         <span class="secao-indice">{{ indiceEtapaPagamento() }}. PAGAMENTO</span>
-        <h2>Como voce quer pagar?</h2>
+        <h2>Como você quer pagar?</h2>
 
         <nz-radio-group
           class="pagamento-opcoes pagamento-opcoes--detalhadas"
@@ -177,40 +177,14 @@
       <section class="checkout-secao resumo" aria-label="Resumo do pedido">
         <h2>Resumo do pedido</h2>
 
-        <div class="linha-resumo">
-          <span>Subtotal</span>
-          <strong>{{ valor(checkout.resumoFinanceiro().subtotal) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
-
-        @if (possuiValor(checkout.resumoFinanceiro().valorDesconto) || possuiValor(checkout.resumoFinanceiro().percentualDesconto)) {
-          <div class="linha-resumo ajuste desconto">
-            <span>Desconto {{ valor(checkout.resumoFinanceiro().percentualDesconto) }}%</span>
-            <strong>- {{ valor(checkout.resumoFinanceiro().valorDesconto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-        }
-
-        @if (possuiValor(checkout.resumoFinanceiro().valorTaxaFixa)) {
-          <div class="linha-resumo ajuste">
-            <span>Taxa de servico</span>
-            <strong>+ {{ valor(checkout.resumoFinanceiro().valorTaxaFixa) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-        }
-
-        @if (possuiValor(checkout.resumoFinanceiro().valorAcrescimo) || possuiValor(checkout.resumoFinanceiro().percentualAcrescimo)) {
-          <div class="linha-resumo ajuste">
-            <span>Acrescimo pagamento {{ valor(checkout.resumoFinanceiro().percentualAcrescimo) }}%</span>
-            <strong>+ {{ valor(checkout.resumoFinanceiro().valorAcrescimo) | currency:'BRL':'symbol':'1.2-2' }}</strong>
-          </div>
-        }
-
-        <div class="linha-resumo total">
-          <span>Total</span>
-          <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
+        <app-pedido-resumo-financeiro
+          [resumo]="checkout.resumoFinanceiro()"
+          rotuloTaxa="Taxa de serviço"
+        />
       </section>
 
       <section class="confirmacao-fixa bottom-action-mobile" aria-label="Confirmar pedido">
-        <span class="secao-indice confirmacao-indice">{{ indiceEtapaConfirmacao() }}. CONFIRMACAO</span>
+        <span class="secao-indice confirmacao-indice">{{ indiceEtapaConfirmacao() }}. CONFIRMAÇÃO</span>
         <div>
           <span>Total</span>
           <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
@@ -257,7 +231,7 @@
           </div>
 
           @if (checkout.consultandoPix()) {
-            <small>Aguardando confirmacao</small>
+            <small>Aguardando confirmação</small>
           }
         </div>
 
@@ -268,7 +242,7 @@
         @if (checkout.gerandoPix()) {
           <div class="pix-loading">
             <nz-spin nzSimple></nz-spin>
-            <span>Gerando cobranca PIX...</span>
+            <span>Gerando cobrança PIX...</span>
           </div>
         } @else if (checkout.cobrancaPix()) {
           <div class="pix-status">
@@ -276,7 +250,7 @@
               {{ checkout.pixExpirado() ? 'PIX expirado' : 'Aguardando pagamento' }}
             </nz-tag>
             @if (checkout.consultandoPix()) {
-              <small>Verificacao automatica ativa</small>
+              <small>Verificação automática ativa</small>
             }
           </div>
 
@@ -285,17 +259,15 @@
               <nz-qrcode
                 [nzValue]="codigoPix"
                 [nzSize]="220"
-                nzColor="#000"
-                nzBgColor="#fff"
                 nzStatus="active"
               ></nz-qrcode>
             </div>
 
             <div class="pix-codigo">
-              <label for="codigoPix">Codigo PIX copia e cola</label>
+              <label for="codigoPix">Código PIX copia e cola</label>
               <textarea id="codigoPix" nz-input rows="4" readonly [value]="codigoPix"></textarea>
               <button nz-button nzType="primary" type="button" (click)="checkout.copiarCodigoPix()">
-                Copiar codigo PIX
+                Copiar código PIX
               </button>
             </div>
           } @else if (checkout.pixQrCodeImagem(); as qrCodeImagem) {
@@ -305,8 +277,8 @@
 
             <nz-alert
               nzType="info"
-              nzMessage="Codigo PIX copia e cola indisponivel"
-              nzDescription="Escaneie o QR Code para pagar. Se precisar copiar o codigo, tente gerar o PIX novamente."
+              nzMessage="Código PIX copia e cola indisponível"
+              nzDescription="Escaneie o QR Code para pagar. Se precisar copiar o código, tente gerar o PIX novamente."
               nzShowIcon
             ></nz-alert>
           }

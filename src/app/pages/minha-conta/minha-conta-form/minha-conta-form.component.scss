@@ -50,7 +50,7 @@
   width: 54px;
   height: 54px;
   margin-bottom: 8px;
-  color: #fff;
+  color: var(--text-on-primary);
   background: var(--cor-primaria);
   border-radius: 999px;
   font-weight: 800;
@@ -70,7 +70,7 @@
 }
 
 .menu-conta {
-  gap: 8px;
+  gap: 10px;
 }
 
 .menu-conta h2 {
@@ -79,23 +79,74 @@
 
 .menu-item {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 38px minmax(0, 1fr) 20px;
   align-items: center;
   gap: 12px;
-  min-height: 64px;
-  padding: 10px 0;
+  min-height: 68px;
+  padding: 12px;
   color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
   text-align: left;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--cor-borda);
+  outline-offset: 2px;
   cursor: pointer;
   text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.menu-item:hover {
+  border-color: color-mix(in srgb, var(--cor-primaria) 45%, var(--cor-borda));
+  background: color-mix(in srgb, var(--cor-primaria) 8%, var(--cor-superficie));
+}
+
+.menu-item:focus-visible {
+  outline: 0;
+  border-color: var(--cor-primaria);
+  box-shadow: var(--focus-ring);
+}
+
+.menu-item:active {
+  background: color-mix(in srgb, var(--cor-primaria) 14%, var(--cor-superficie));
+  transform: translateY(1px);
+}
+
+.menu-item.menu-item--selecionado,
+.menu-item[aria-current='page'] {
+  border-color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, var(--cor-superficie));
+}
+
+.menu-item.menu-item--selecionado .menu-seta,
+.menu-item[aria-current='page'] .menu-seta {
+  color: var(--cor-primaria);
 }
 
 .menu-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
   color: var(--cor-primaria);
-  font-size: 20px;
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-primaria) 24%, var(--cor-borda));
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.menu-conteudo {
+  display: grid;
+  gap: 3px;
+}
+
+.menu-seta {
+  justify-self: end;
+  color: var(--cor-texto-suave);
+  font-size: 16px;
 }
 
 .menu-item strong,
@@ -106,6 +157,25 @@
 .sair-conta .menu-icone,
 .sair-conta strong {
   color: var(--danger);
+}
+
+.sair-conta .menu-icone {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 24%, var(--cor-borda));
+}
+
+.sair-conta:hover {
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--cor-borda));
+  background: color-mix(in srgb, var(--danger) 8%, var(--cor-superficie));
+}
+
+.sair-conta:focus-visible {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 34%, transparent);
+}
+
+.sair-conta:active {
+  background: color-mix(in srgb, var(--danger) 14%, var(--cor-superficie));
 }
 
 .formulario-conta {

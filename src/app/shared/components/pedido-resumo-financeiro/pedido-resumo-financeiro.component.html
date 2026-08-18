@@ -1,6 +1,6 @@
 <div class="resumo-financeiro-lista">
   <div class="linha-resumo">
-    <span>Subtotal</span>
+    <span>{{ rotuloSubtotal() }}</span>
     <strong>{{ valor(resumo().subtotal) | currency:'BRL':'symbol':'1.2-2' }}</strong>
   </div>
 
@@ -13,7 +13,7 @@
 
   @if (exibirTaxaFixa()) {
     <div class="linha-resumo ajuste">
-      <span>Taxa fixa</span>
+      <span>{{ rotuloTaxa() }}</span>
       <strong>+ {{ valor(resumo().valorTaxaFixa) | currency:'BRL':'symbol':'1.2-2' }}</strong>
     </div>
   }

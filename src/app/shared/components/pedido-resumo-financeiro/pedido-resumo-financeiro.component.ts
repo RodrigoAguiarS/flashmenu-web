@@ -14,6 +14,8 @@ import { PedidoResumoFinanceiro } from '../../../core/models/pedido.model';
 })
 export class PedidoResumoFinanceiroComponent {
   readonly resumo = input.required<PedidoResumoFinanceiro>();
+  readonly rotuloSubtotal = input('Subtotal');
+  readonly rotuloTaxa = input('Taxa fixa');
   readonly rotuloTotal = input('Total');
   readonly formaPagamentoTipo = input<TipoFormaPagamento | null | undefined>(null);
   readonly valorRecebido = input<number | null | undefined>(null);

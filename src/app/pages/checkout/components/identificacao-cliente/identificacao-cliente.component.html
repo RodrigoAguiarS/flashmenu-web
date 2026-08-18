@@ -1,4 +1,4 @@
-<section class="identificacao-cliente" aria-label="Identificacao do cliente">
+<section class="identificacao-cliente" aria-label="Identificação do cliente">
   <header class="identificacao-cabecalho">
     <h2>Identifique-se para continuar</h2>
     <p>Informe seu telefone para buscar ou criar seu cadastro.</p>
@@ -23,7 +23,7 @@
         <nz-form-label nzFor="telefone" nzRequired>Telefone</nz-form-label>
         <nz-form-control
           [nzExtra]="buscandoTelefone() ? 'Buscando cadastro...' : ''"
-          nzErrorTip="Informe um telefone valido."
+          nzErrorTip="Informe um telefone válido."
           [nzValidateStatus]="identificacaoForm.controls.telefone"
         >
           <input
@@ -94,7 +94,7 @@
       <section class="checkout-bloco cadastro-etapas" aria-label="Cadastro do cliente">
         <nz-steps [nzCurrent]="etapaCadastroAtual()" nzSize="small">
           <nz-step nzTitle="Dados"></nz-step>
-          <nz-step nzTitle="Endereco"></nz-step>
+          <nz-step nzTitle="Endereço"></nz-step>
         </nz-steps>
 
         @if (etapaCadastroAtual() === 0) {
@@ -114,7 +114,7 @@
             <nz-col [nzXs]="24" [nzMd]="12">
               <nz-form-item>
                 <nz-form-label nzFor="login" nzRequired>E-mail</nz-form-label>
-                <nz-form-control nzErrorTip="Informe um e-mail valido." [nzValidateStatus]="identificacaoForm.controls.login">
+                <nz-form-control nzErrorTip="Informe um e-mail válido." [nzValidateStatus]="identificacaoForm.controls.login">
                   <input nz-input id="login" type="email" autocomplete="email" formControlName="login" placeholder="voce@email.com" />
                 </nz-form-control>
               </nz-form-item>
@@ -122,14 +122,14 @@
           </nz-row>
 
         } @else {
-          <section class="checkout-endereco" formGroupName="endereco" aria-label="Endereco do cliente">
+          <section class="checkout-endereco" formGroupName="endereco" aria-label="Endereço do cliente">
             <nz-row [nzGutter]="12">
               <nz-col [nzXs]="24" [nzMd]="8">
                 <nz-form-item>
                   <nz-form-label nzFor="cep" nzRequired>CEP</nz-form-label>
                   <nz-form-control
-                    [nzExtra]="buscandoCep() ? 'Buscando endereco...' : ''"
-                    nzErrorTip="Informe um CEP valido."
+                    [nzExtra]="buscandoCep() ? 'Buscando endereço...' : ''"
+                    nzErrorTip="Informe um CEP válido."
                     [nzValidateStatus]="identificacaoForm.controls.endereco.controls.cep"
                   >
                     <input nz-input id="cep" inputmode="numeric" formControlName="cep" placeholder="59000-000" />
@@ -148,8 +148,8 @@
 
               <nz-col [nzXs]="24" [nzMd]="8">
                 <nz-form-item>
-                  <nz-form-label nzFor="numero" nzRequired>Numero</nz-form-label>
-                  <nz-form-control nzErrorTip="Informe o numero." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.numero">
+                  <nz-form-label nzFor="numero" nzRequired>Número</nz-form-label>
+                  <nz-form-control nzErrorTip="Informe o número." [nzValidateStatus]="identificacaoForm.controls.endereco.controls.numero">
                     <input nz-input id="numero" formControlName="numero" placeholder="100" />
                   </nz-form-control>
                 </nz-form-item>
@@ -159,7 +159,7 @@
                 <nz-form-item>
                   <nz-form-label nzFor="complemento">Complemento</nz-form-label>
                   <nz-form-control [nzValidateStatus]="identificacaoForm.controls.endereco.controls.complemento">
-                    <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referencia" />
+                    <input nz-input id="complemento" formControlName="complemento" placeholder="Apto, bloco, referência" />
                   </nz-form-control>
                 </nz-form-item>
               </nz-col>

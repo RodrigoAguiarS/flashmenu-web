@@ -110,7 +110,7 @@ export class MinhaContaFormComponent implements OnInit {
     const perfilId = usuario?.perfil?.id;
 
     if (!usuario || !perfilId) {
-      this.mensagemErro.set('Nao foi possivel identificar seu perfil.');
+      this.mensagemErro.set('Não foi possível identificar seu perfil.');
       return;
     }
 
@@ -142,12 +142,12 @@ export class MinhaContaFormComponent implements OnInit {
     const valor = this.formularioSenha.getRawValue();
 
     if (!usuario) {
-      this.mensagemErro.set('Nao foi possivel identificar seu usuario.');
+      this.mensagemErro.set('Não foi possível identificar seu usuário.');
       return;
     }
 
     if (valor.novaSenha !== valor.confirmarSenha) {
-      this.mensagemErro.set('A confirmacao da senha nao confere.');
+      this.mensagemErro.set('A confirmação da senha não confere.');
       return;
     }
 
@@ -175,7 +175,7 @@ export class MinhaContaFormComponent implements OnInit {
 
     const usuario = this.usuario();
     if (!usuario) {
-      this.mensagemErro.set('Nao foi possivel identificar seu usuario.');
+      this.mensagemErro.set('Não foi possível identificar seu usuário.');
       return;
     }
 
@@ -198,7 +198,7 @@ export class MinhaContaFormComponent implements OnInit {
           estado: '',
           principal: true
         });
-        this.message.success('Endereco cadastrado com sucesso.');
+        this.message.success('Endereço cadastrado com sucesso.');
       },
       error: (error: HttpErrorResponse) => this.tratarErro(error)
     });
@@ -268,7 +268,7 @@ export class MinhaContaFormComponent implements OnInit {
 
   protected resumoEnderecos(): string {
     const total = this.enderecos().length;
-    return `${total} endereco${total === 1 ? '' : 's'} cadastrado${total === 1 ? '' : 's'}`;
+    return `${total} endereço${total === 1 ? '' : 's'} cadastrado${total === 1 ? '' : 's'}`;
   }
 
   protected sair(): void {
@@ -310,7 +310,7 @@ export class MinhaContaFormComponent implements OnInit {
     ).subscribe({
       next: (enderecos) => {
         this.enderecos.set(enderecos);
-        this.message.success('Endereco principal atualizado.');
+        this.message.success('Endereço principal atualizado.');
       },
       error: (error: HttpErrorResponse) => this.tratarErro(error)
     });
@@ -341,7 +341,7 @@ export class MinhaContaFormComponent implements OnInit {
     ).subscribe({
       next: (dados) => {
         if (dados.erro) {
-          this.message.warning('CEP nao encontrado.');
+          this.message.warning('CEP não encontrado.');
           return;
         }
 
@@ -354,7 +354,7 @@ export class MinhaContaFormComponent implements OnInit {
         });
         this.formularioEndereco.controls.numero.markAsTouched();
       },
-      error: () => this.message.error('Nao foi possivel buscar o CEP.')
+      error: () => this.message.error('Não foi possível buscar o CEP.')
     });
   }
 
@@ -403,17 +403,17 @@ export class MinhaContaFormComponent implements OnInit {
     const body = error.error;
 
     if (this.ehErroValidacao(body)) {
-      this.mensagemErro.set(body.message || body.error || 'Erro de validacao.');
+      this.mensagemErro.set(body.message || body.error || 'Erro de validação.');
       this.errosValidacao.set(body.errors.map((erroCampo) => this.formatarErroCampo(erroCampo.fieldName, erroCampo.message)));
       return;
     }
 
     if (this.ehErroPadrao(body)) {
-      this.mensagemErro.set(body.message || body.error || 'Nao foi possivel atualizar seus dados.');
+      this.mensagemErro.set(body.message || body.error || 'Não foi possível atualizar seus dados.');
       return;
     }
 
-    this.mensagemErro.set('Nao foi possivel atualizar seus dados.');
+    this.mensagemErro.set('Não foi possível atualizar seus dados.');
   }
 
   private formatarErroCampo(fieldName: string, message: string): string {
@@ -427,7 +427,7 @@ export class MinhaContaFormComponent implements OnInit {
       confirmarSenha: 'Confirmar senha',
       cep: 'CEP',
       logradouro: 'Logradouro',
-      numero: 'Numero',
+      numero: 'Número',
       complemento: 'Complemento',
       bairro: 'Bairro',
       cidade: 'Cidade',
