@@ -11,6 +11,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -75,6 +76,7 @@ interface PedidoOperacionalView {
     NzFormModule,
     NzGridModule,
     NzIconModule,
+    NzInputModule,
     NzInputNumberModule,
     NzMenuModule,
     NzModalModule,
@@ -146,7 +148,9 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
     id: this.fb.control<number | null>(null),
     usuarioId: this.fb.control<number | null>(null),
     status: this.fb.control<StatusPedido | null>(null),
-    tipo: this.fb.control<TipoPedido | null>(null)
+    tipo: this.fb.control<TipoPedido | null>(null),
+    dataInicio: this.fb.control<string | null>(null),
+    dataFim: this.fb.control<string | null>(null)
   });
 
   protected readonly atribuicaoEntregaForm = this.fb.group({
@@ -172,7 +176,7 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   }
 
   protected limparFiltros(): void {
-    this.filtros.reset({ id: null, usuarioId: null, status: null, tipo: null });
+    this.filtros.reset({ id: null, usuarioId: null, status: null, tipo: null, dataInicio: null, dataFim: null });
     this.pageIndex.set(1);
     this.carregarPedidos();
   }
@@ -489,6 +493,11 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
     const filtros = this.filtros.getRawValue();
     const unidadeId = this.authService.usuarioAutenticado()?.unidade?.id;
 
+    if (this.periodoInvalido(filtros.dataInicio, filtros.dataFim)) {
+      this.message.warning('Data final deve ser maior ou igual a data inicial.');
+      return;
+    }
+
     if (!unidadeId) {
       this.pedidos.set([]);
       this.total.set(0);
@@ -506,7 +515,9 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       usuarioId: filtros.usuarioId ?? undefined,
       unidadeId,
       status: filtros.status ?? undefined,
-      tipo: filtros.tipo ?? undefined
+      tipo: filtros.tipo ?? undefined,
+      dataInicio: filtros.dataInicio ?? undefined,
+      dataFim: filtros.dataFim ?? undefined
     }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
@@ -601,6 +612,16 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       return false;
     }
 
+    const dataNotificacao = this.extrairData(notificacao.dataHora);
+
+    if (filtros.dataInicio && dataNotificacao && dataNotificacao < filtros.dataInicio) {
+      return false;
+    }
+
+    if (filtros.dataFim && dataNotificacao && dataNotificacao > filtros.dataFim) {
+      return false;
+    }
+
     return true;
   }
 
@@ -609,7 +630,17 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
 
     return (!filtros.id || filtros.id === pedido.id) &&
       (!filtros.status || filtros.status === pedido.status) &&
-      (!filtros.tipo || filtros.tipo === pedido.tipo);
+      (!filtros.tipo || filtros.tipo === pedido.tipo) &&
+      (!filtros.dataInicio || this.extrairData(pedido.dataCriacao) >= filtros.dataInicio) &&
+      (!filtros.dataFim || this.extrairData(pedido.dataCriacao) <= filtros.dataFim);
+  }
+
+  private periodoInvalido(dataInicio: string | null, dataFim: string | null): boolean {
+    return !!dataInicio && !!dataFim && dataFim < dataInicio;
+  }
+
+  private extrairData(dataHora: string): string {
+    return dataHora.slice(0, 10);
   }
 
   private executarAcao(

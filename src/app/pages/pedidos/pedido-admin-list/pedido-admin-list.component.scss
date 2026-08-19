@@ -82,7 +82,7 @@
 }
 
 .busca-operacional nz-input-number,
-.filtros-avancados nz-input-number,
+.filtros-avancados :is(nz-input-number, input[nz-input]),
 .filtros-avancados nz-select,
 nz-modal nz-input-number {
   width: 100%;

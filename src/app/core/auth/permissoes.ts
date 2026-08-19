@@ -27,6 +27,8 @@ export const PERMISSOES = {
   PEDIDO_ALTERAR_STATUS: 'pedido.alterar-status',
   PEDIDO_CANCELAR: 'pedido.cancelar',
   ENTREGA_LISTAR: 'entrega.listar',
+  ENTREGA_MINHAS: 'entrega.minhas',
+  ENTREGA_MINHAS_DETALHAR: 'entrega.minhas.detalhar',
   ENTREGA_DETALHAR: 'entrega.detalhar',
   ENTREGA_ATRIBUIR: 'entrega.atribuir',
   ENTREGA_ACEITAR: 'entrega.aceitar',
@@ -48,7 +50,7 @@ export const PERMISSOES = {
   HORARIO_FUNCIONAMENTO_LISTAR: 'horario-funcionamento.listar',
   HORARIO_FUNCIONAMENTO_CRIAR: 'horario-funcionamento.criar',
   HORARIO_FUNCIONAMENTO_EDITAR: 'horario-funcionamento.editar',
-  HORARIO_FUNCIONAMENTO_DELETAR: 'horario-funcionamento.deletar'
+  HORARIO_FUNCIONAMENTO_DELETAR: 'horario-funcionamento.deletar',
 } as const;
 
 export type PermissaoAuthority = typeof PERMISSOES[keyof typeof PERMISSOES];
@@ -67,8 +69,8 @@ export const PERMISSOES_ROTAS = {
   GERENCIAR_PEDIDOS: [PERMISSOES.PEDIDO_ALTERAR_STATUS, PERMISSOES.PAGAMENTO_CONFIRMAR],
   ENTREGAS: [PERMISSOES.ENTREGA_LISTAR, PERMISSOES.ENTREGA_DETALHAR, PERMISSOES.ENTREGA_ATRIBUIR],
   MINHAS_ENTREGAS: [
-    PERMISSOES.ENTREGA_LISTAR,
-    PERMISSOES.ENTREGA_DETALHAR,
+    PERMISSOES.ENTREGA_MINHAS,
+    PERMISSOES.ENTREGA_MINHAS_DETALHAR,
     PERMISSOES.ENTREGA_ACEITAR,
     PERMISSOES.ENTREGA_RECUSAR,
     PERMISSOES.ENTREGA_INICIAR,

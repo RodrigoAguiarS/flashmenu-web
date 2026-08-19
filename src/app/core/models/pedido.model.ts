@@ -47,6 +47,8 @@ export interface PedidoFiltros {
   unidadeId?: number;
   status?: StatusPedido;
   tipo?: TipoPedido;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 export interface ItemPedidoResponse {

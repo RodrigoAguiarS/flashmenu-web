@@ -86,6 +86,20 @@
           </nz-form-control>
         </nz-form-item>
 
+        <nz-form-item>
+          <nz-form-label nzFor="dataInicio">Data inicial</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="dataInicio" type="date" formControlName="dataInicio" aria-label="Data inicial do pedido" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzFor="dataFim">Data final</nz-form-label>
+          <nz-form-control>
+            <input nz-input id="dataFim" type="date" formControlName="dataFim" aria-label="Data final do pedido" />
+          </nz-form-control>
+        </nz-form-item>
+
         <button nz-button type="button" (click)="limparFiltros()" aria-label="Limpar filtros">Limpar filtros</button>
       </div>
     }

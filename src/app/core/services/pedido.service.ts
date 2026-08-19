@@ -106,6 +106,8 @@ export class PedidoService {
       unidadeId: filtros.unidadeId,
       status: filtros.status,
       tipo: filtros.tipo,
+      dataInicio: filtros.dataInicio,
+      dataFim: filtros.dataFim,
     };
 
     Object.entries(opcionais).forEach(([chave, valor]) => {
