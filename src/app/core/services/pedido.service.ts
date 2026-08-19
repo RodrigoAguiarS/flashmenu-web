@@ -99,7 +99,7 @@ export class PedidoService {
   private criarParametros(filtros: PedidoFiltros): HttpParams {
     let params = new HttpParams().set('page', filtros.page).set('size', filtros.size);
 
-    const opcionais: Record<string, string | number | undefined> = {
+    const opcionais: Record<string, string | number | boolean | undefined> = {
       sort: filtros.sort,
       id: filtros.id,
       usuarioId: filtros.usuarioId,
@@ -108,6 +108,7 @@ export class PedidoService {
       tipo: filtros.tipo,
       dataInicio: filtros.dataInicio,
       dataFim: filtros.dataFim,
+      recentes: filtros.recentes,
     };
 
     Object.entries(opcionais).forEach(([chave, valor]) => {

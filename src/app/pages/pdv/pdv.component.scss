@@ -2,6 +2,12 @@
   margin-bottom: 12px;
 }
 
+:host app-page-header {
+  display: block;
+  width: min(100%, 1440px);
+  margin: auto;
+}
+
 .layout-pdv {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(380px, 440px);

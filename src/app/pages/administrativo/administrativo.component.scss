@@ -5,6 +5,12 @@
   margin-inline: auto;
 }
 
+:host app-page-header {
+  display: block;
+  width: min(100%, 1120px);
+  margin: auto;
+}
+
 .grupo-admin {
   display: grid;
   gap: 12px;

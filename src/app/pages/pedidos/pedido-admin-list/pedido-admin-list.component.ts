@@ -6,21 +6,21 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDropdownModule } from 'ng-zorro-antd/dropdown';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
@@ -71,20 +71,20 @@ interface PedidoOperacionalView {
     ReactiveFormsModule,
     RouterLink,
     NzButtonModule,
-    NzDropdownModule,
     NzEmptyModule,
     NzFormModule,
     NzGridModule,
     NzIconModule,
     NzInputModule,
     NzInputNumberModule,
-    NzMenuModule,
     NzModalModule,
     NzPaginationModule,
     NzPopconfirmModule,
     NzSelectModule,
     NzSpinModule,
+    NzSwitchModule,
     NzTagModule,
+    NzTooltipModule,
     PageHeaderComponent
   ],
   templateUrl: './pedido-admin-list.component.html',
@@ -150,7 +150,8 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
     status: this.fb.control<StatusPedido | null>(null),
     tipo: this.fb.control<TipoPedido | null>(null),
     dataInicio: this.fb.control<string | null>(null),
-    dataFim: this.fb.control<string | null>(null)
+    dataFim: this.fb.control<string | null>(null),
+    recentes: this.fb.control(false)
   });
 
   protected readonly atribuicaoEntregaForm = this.fb.group({
@@ -176,7 +177,15 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
   }
 
   protected limparFiltros(): void {
-    this.filtros.reset({ id: null, usuarioId: null, status: null, tipo: null, dataInicio: null, dataFim: null });
+    this.filtros.reset({
+      id: null,
+      usuarioId: null,
+      status: null,
+      tipo: null,
+      dataInicio: null,
+      dataFim: null,
+      recentes: false
+    });
     this.pageIndex.set(1);
     this.carregarPedidos();
   }
@@ -517,7 +526,8 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       status: filtros.status ?? undefined,
       tipo: filtros.tipo ?? undefined,
       dataInicio: filtros.dataInicio ?? undefined,
-      dataFim: filtros.dataFim ?? undefined
+      dataFim: filtros.dataFim ?? undefined,
+      recentes: filtros.recentes || undefined
     }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
@@ -622,6 +632,10 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       return false;
     }
 
+    if (filtros.recentes && !this.dataHoraRecente(notificacao.dataHora)) {
+      return false;
+    }
+
     return true;
   }
 
@@ -632,7 +646,8 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
       (!filtros.status || filtros.status === pedido.status) &&
       (!filtros.tipo || filtros.tipo === pedido.tipo) &&
       (!filtros.dataInicio || this.extrairData(pedido.dataCriacao) >= filtros.dataInicio) &&
-      (!filtros.dataFim || this.extrairData(pedido.dataCriacao) <= filtros.dataFim);
+      (!filtros.dataFim || this.extrairData(pedido.dataCriacao) <= filtros.dataFim) &&
+      (!filtros.recentes || this.pedidoRecente(pedido));
   }
 
   private periodoInvalido(dataInicio: string | null, dataFim: string | null): boolean {
@@ -641,6 +656,14 @@ export class PedidoAdminListComponent implements OnInit, OnDestroy {
 
   private extrairData(dataHora: string): string {
     return dataHora.slice(0, 10);
+  }
+
+  private pedidoRecente(pedido: PedidoResponse): boolean {
+    return this.dataHoraRecente(pedido.dataCriacao) && !this.pedidoTerminal(pedido);
+  }
+
+  private dataHoraRecente(dataHora: string): boolean {
+    return this.minutosDesdeCriacao(dataHora) <= 10;
   }
 
   private executarAcao(

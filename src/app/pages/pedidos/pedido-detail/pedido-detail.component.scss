@@ -24,6 +24,12 @@
   gap: 8px;
 }
 
+:host app-page-header {
+  display: block;
+  width: min(100%, 1180px);
+  margin: auto;
+}
+
 .detalhe-layout {
   display: grid;
   gap: 10px;

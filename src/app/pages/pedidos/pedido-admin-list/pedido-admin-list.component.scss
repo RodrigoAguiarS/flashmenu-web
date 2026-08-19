@@ -213,41 +213,28 @@ nz-modal nz-input-number {
 }
 
 .acoes-pedido {
+  flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 4px;
 }
 
-.acoes-pedido > a,
-.acoes-pedido > button:first-child {
+.acao-principal {
   min-width: 150px;
 }
 
-.mais-acoes {
-  display: inline-block;
-  min-width: 16px;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-  transform: translateY(-2px);
+.acoes-secundarias {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
 }
 
-.menu-acao {
-  width: 100%;
-  padding: 0;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
+.acoes-secundarias :is(a, button) {
+  min-width: 36px;
+  height: 36px;
 }
 
-.menu-acao:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.menu-acao--perigo {
+.acao-secundaria--perigo {
   color: var(--cor-perigo);
 }
 
@@ -301,9 +288,22 @@ nz-modal nz-input-number {
     display: none;
   }
 
-  .acoes-pedido > a,
-  .acoes-pedido > button:first-child {
-    flex: 1 1 auto;
+  .acoes-pedido {
+    align-items: stretch;
+  }
+
+  .acao-principal {
+    flex: 1 1 100%;
     min-width: 0;
+  }
+
+  .acoes-secundarias {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .acoes-secundarias :is(a, button) {
+    min-width: 44px;
+    height: 44px;
   }
 }

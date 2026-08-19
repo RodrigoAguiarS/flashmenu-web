@@ -100,6 +100,13 @@
           </nz-form-control>
         </nz-form-item>
 
+        <nz-form-item class="filtro-switch">
+          <nz-form-label nzFor="recente">Recentes</nz-form-label>
+          <nz-form-control>
+            <nz-switch id="recente" formControlName="recentes" aria-label="Filtrar pedidos recentes"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+
         <button nz-button type="button" (click)="limparFiltros()" aria-label="Limpar filtros">Limpar filtros</button>
       </div>
     }
@@ -161,6 +168,7 @@
           <footer class="acoes-pedido" aria-label="Acoes do pedido">
             @if (view.acaoPrincipal === 'confirmar-pedido') {
               <button
+                class="acao-principal"
                 nz-button
                 nzType="primary"
                 type="button"
@@ -176,6 +184,7 @@
               </button>
             } @else if (view.acaoPrincipal === 'concluir-pedido') {
               <button
+                class="acao-principal"
                 nz-button
                 nzType="primary"
                 type="button"
@@ -190,78 +199,98 @@
                 {{ view.acaoPrincipalLabel }}
               </button>
             } @else if (view.acaoPrincipal === 'ver-pedido') {
-              <a nz-button nzType="primary" [routerLink]="['/pedidos/gerenciar', view.pedido.id]">
+              <a class="acao-principal" nz-button nzType="primary" [routerLink]="['/pedidos/gerenciar', view.pedido.id]">
                 {{ view.acaoPrincipalLabel }}
               </a>
             } @else if (view.acaoPrincipal === 'aguardar-pagamento') {
-              <button nz-button type="button" disabled>{{ view.acaoPrincipalLabel }}</button>
+              <button class="acao-principal" nz-button type="button" disabled>{{ view.acaoPrincipalLabel }}</button>
             } @else {
-              <a nz-button [routerLink]="['/pedidos/gerenciar', view.pedido.id]">Ver pedido</a>
+              <a class="acao-principal" nz-button [routerLink]="['/pedidos/gerenciar', view.pedido.id]">Ver pedido</a>
             }
 
-            <button nz-button nz-dropdown [nzDropdownMenu]="acoesMenu" type="button" aria-label="Mais acoes do pedido">
-              <span class="mais-acoes" aria-hidden="true">...</span>
-            </button>
+            <div class="acoes-secundarias" aria-label="Acoes secundarias do pedido">
+              <a
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                nz-tooltip
+                nzTooltipTitle="Ver detalhes"
+                [routerLink]="['/pedidos/gerenciar', view.pedido.id]"
+                aria-label="Ver detalhes do pedido"
+              >
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </a>
 
-            <nz-dropdown-menu #acoesMenu="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item>
-                  <a [routerLink]="['/pedidos/gerenciar', view.pedido.id]">Ver detalhes</a>
-                </li>
-                <li nz-menu-item>
-                  <button
-                    class="menu-acao"
-                    type="button"
-                    [disabled]="pdfProcessandoId() !== null"
-                    (click)="exportarPdf(view.pedido)"
-                  >
-                    Gerar PDF
-                  </button>
-                </li>
-                @if (podeGerenciarEntrega(view.pedido)) {
-                  <li nz-menu-item>
-                    <button
-                      class="menu-acao"
-                      type="button"
-                      nz-popconfirm
-                      nzPopconfirmTitle="Deseja distribuir esta entrega automaticamente?"
-                      nzOkText="Distribuir"
-                      nzCancelText="Cancelar"
-                      [disabled]="entregaProcessandoId() !== null"
-                      (nzOnConfirm)="distribuirEntrega(view.pedido)"
-                    >
-                      Distribuir entrega
-                    </button>
-                  </li>
-                  <li nz-menu-item>
-                    <button
-                      class="menu-acao"
-                      type="button"
-                      [disabled]="entregaProcessandoId() !== null"
-                      (click)="abrirAtribuicaoEntrega(view.pedido)"
-                    >
-                      Atribuir entregador
-                    </button>
-                  </li>
-                }
-                @if (podeExecutarCancelamento(view.pedido)) {
-                  <li nz-menu-item>
-                    <button
-                      class="menu-acao menu-acao--perigo"
-                      type="button"
-                      nz-popconfirm
-                      nzPopconfirmTitle="Deseja cancelar este pedido?"
-                      nzOkText="Cancelar pedido"
-                      nzCancelText="Voltar"
-                      [disabled]="processandoId() !== null"
-                      (nzOnConfirm)="cancelarPedido(view.pedido)"
-                    >
-                      Cancelar pedido
-                    </button>
-                  </li>
-                }
-              </ul>
-            </nz-dropdown-menu>
+              <button
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Gerar PDF"
+                aria-label="Gerar PDF do pedido"
+                [nzLoading]="pdfProcessandoId() === view.pedido.id"
+                [disabled]="pdfProcessandoId() !== null"
+                (click)="exportarPdf(view.pedido)"
+              >
+                <span nz-icon nzType="file-pdf" nzTheme="outline"></span>
+              </button>
+
+              @if (podeGerenciarEntrega(view.pedido)) {
+                <button
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Distribuir entrega"
+                  aria-label="Distribuir entrega do pedido"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja distribuir esta entrega automaticamente?"
+                  nzOkText="Distribuir"
+                  nzCancelText="Cancelar"
+                  [disabled]="entregaProcessandoId() !== null"
+                  (nzOnConfirm)="distribuirEntrega(view.pedido)"
+                >
+                  <span nz-icon nzType="car" nzTheme="outline"></span>
+                </button>
+
+                <button
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Atribuir entregador"
+                  aria-label="Atribuir entregador ao pedido"
+                  [disabled]="entregaProcessandoId() !== null"
+                  (click)="abrirAtribuicaoEntrega(view.pedido)"
+                >
+                  <span nz-icon nzType="user-add" nzTheme="outline"></span>
+                </button>
+              }
+
+              @if (podeExecutarCancelamento(view.pedido)) {
+                <button
+                  class="acao-secundaria--perigo"
+                  nz-button
+                  nzType="text"
+                  nzShape="circle"
+                  type="button"
+                  nz-tooltip
+                  nzTooltipTitle="Cancelar pedido"
+                  aria-label="Cancelar pedido"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Deseja cancelar este pedido?"
+                  nzOkText="Cancelar pedido"
+                  nzCancelText="Voltar"
+                  [disabled]="processandoId() !== null"
+                  (nzOnConfirm)="cancelarPedido(view.pedido)"
+                >
+                  <span nz-icon nzType="close-circle" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
           </footer>
         </article>
       }

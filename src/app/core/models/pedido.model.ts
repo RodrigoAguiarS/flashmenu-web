@@ -49,6 +49,7 @@ export interface PedidoFiltros {
   tipo?: TipoPedido;
   dataInicio?: string;
   dataFim?: string;
+  recentes?: boolean;
 }
 
 export interface ItemPedidoResponse {
