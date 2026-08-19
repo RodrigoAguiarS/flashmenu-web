@@ -229,6 +229,7 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
   private ultimaAcaoProdutos: AcaoCarregarProdutos | null = null;
   private sequenciaCarregamentoProdutos = 0;
   private carregamentoProdutosAtivo = 0;
+  private ultimoFechamentoDrawerProduto = 0;
 
   ngAfterViewInit(): void {
     queueMicrotask(() => {
@@ -307,6 +308,10 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
   }
 
   abrirDetalhes(produto: ProdutoResponse): void {
+    if (this.deveIgnorarAberturaAposFechamento()) {
+      return;
+    }
+
     this.produtoSelecionado.set(produto);
     this.gruposProdutoSelecionado.set([]);
     this.quantidadeDetalhe.set(1);
@@ -316,6 +321,8 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
   }
 
   fecharDetalhes(): void {
+    this.ultimoFechamentoDrawerProduto = Date.now();
+    this.limparFocoAtivo();
     this.drawerAberto.set(false);
     this.produtoSelecionado.set(null);
     this.gruposProdutoSelecionado.set([]);
@@ -750,6 +757,18 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
 
     this.filtrosCompactos.set(posicaoVertical > 96);
     this.exibirAtalhoRetorno.set(posicaoVertical > limiteAtalho);
+  }
+
+  private deveIgnorarAberturaAposFechamento(): boolean {
+    return Date.now() - this.ultimoFechamentoDrawerProduto < 300;
+  }
+
+  private limparFocoAtivo(): void {
+    const elementoAtivo = document.activeElement;
+
+    if (elementoAtivo instanceof HTMLElement) {
+      elementoAtivo.blur();
+    }
   }
 
   private ehErroValidacao(value: unknown): value is ValidationError {
