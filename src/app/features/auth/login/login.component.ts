@@ -81,7 +81,7 @@ export class LoginComponent {
   private obterUrlRetorno(): string {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
 
-    return returnUrl && returnUrl.startsWith('/') ? returnUrl : '/dashboard';
+    return this.authService.obterUrlAutorizadaAposLogin(returnUrl);
   }
 
   private tratarErroLogin(error: HttpErrorResponse): void {

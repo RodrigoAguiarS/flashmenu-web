@@ -6,12 +6,66 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ClienteCheckoutRequest, ClienteIdentificacaoResponse, LoginRequest, LoginResponse } from '../models/auth.model';
 import { UsuarioResponse } from '../models/usuario.model';
-import { PERMISSOES } from '../auth/permissoes';
+import { PERFIS, PERMISSOES, PERMISSOES_ROTAS, PermissaoAuthority } from '../auth/permissoes';
 import { PedidoNotificacaoVisualService } from './pedido-notificacao-visual.service';
 
 const ACCESS_TOKEN_KEY = 'flashmenu_access_token';
 const TOKEN_TYPE_KEY = 'flashmenu_token_type';
 const USUARIO_KEY = 'flashmenu_usuario';
+
+interface RotaInicial {
+  rota: string;
+  permissoes?: readonly PermissaoAuthority[];
+  perfis?: readonly string[];
+}
+
+interface RotaProtegida {
+  prefixo: string;
+  permissoes?: readonly PermissaoAuthority[];
+  perfis?: readonly string[];
+}
+
+const ROTA_SEGURA_AUTENTICADA = '/minha-conta';
+
+const ROTAS_INICIAIS: readonly RotaInicial[] = [
+  { rota: '/dashboard', permissoes: PERMISSOES_ROTAS.DASHBOARD },
+  { rota: '/pdv', permissoes: PERMISSOES_ROTAS.PDV },
+  { rota: '/pedidos/gerenciar', permissoes: PERMISSOES_ROTAS.GERENCIAR_PEDIDOS },
+  { rota: '/minhas-entregas', perfis: [PERFIS.ENTREGADOR], permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+  { rota: '/entregas', permissoes: PERMISSOES_ROTAS.ENTREGAS },
+  { rota: '/produtos', permissoes: PERMISSOES_ROTAS.PRODUTOS },
+  { rota: '/administrativo', permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO },
+  { rota: '/pedidos', permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS }
+];
+
+const ROTAS_PROTEGIDAS: readonly RotaProtegida[] = [
+  { prefixo: '/catalogo', perfis: [PERFIS.CLIENTE] },
+  { prefixo: '/pedido/sucesso' },
+  { prefixo: '/pdv', permissoes: PERMISSOES_ROTAS.PDV },
+  { prefixo: '/pedidos/gerenciar', permissoes: PERMISSOES_ROTAS.GERENCIAR_PEDIDOS },
+  { prefixo: '/pedidos', permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },
+  { prefixo: '/entregas', permissoes: PERMISSOES_ROTAS.ENTREGAS },
+  { prefixo: '/minhas-entregas', perfis: [PERFIS.ENTREGADOR], permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+  { prefixo: '/minha-conta' },
+  { prefixo: '/administrativo', permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO },
+  { prefixo: '/produtos/novo', permissoes: PERMISSOES_ROTAS.PRODUTO_CRIAR },
+  { prefixo: '/produtos', permissoes: PERMISSOES_ROTAS.PRODUTOS },
+  { prefixo: '/categorias/novo', permissoes: PERMISSOES_ROTAS.CATEGORIA_CRIAR },
+  { prefixo: '/categorias', permissoes: PERMISSOES_ROTAS.CATEGORIAS },
+  { prefixo: '/movimentacoes', permissoes: PERMISSOES_ROTAS.MOVIMENTACOES },
+  { prefixo: '/dashboard', permissoes: PERMISSOES_ROTAS.DASHBOARD },
+  { prefixo: '/usuarios/novo', permissoes: PERMISSOES_ROTAS.USUARIO_CRIAR },
+  { prefixo: '/usuarios', permissoes: PERMISSOES_ROTAS.USUARIOS },
+  { prefixo: '/perfis/novo', permissoes: PERMISSOES_ROTAS.PERFIL_CRIAR },
+  { prefixo: '/perfis', permissoes: PERMISSOES_ROTAS.PERFIS },
+  { prefixo: '/permissoes', permissoes: PERMISSOES_ROTAS.PERMISSOES },
+  { prefixo: '/formas-pagamento', permissoes: PERMISSOES_ROTAS.FORMAS_PAGAMENTO },
+  { prefixo: '/configuracao-comercial', permissoes: PERMISSOES_ROTAS.CONFIGURACAO_COMERCIAL },
+  { prefixo: '/unidades/novo', permissoes: PERMISSOES_ROTAS.UNIDADE_CRIAR },
+  { prefixo: '/unidades', permissoes: PERMISSOES_ROTAS.UNIDADES },
+  { prefixo: '/empresa', permissoes: PERMISSOES_ROTAS.EMPRESA }
+];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -93,6 +147,30 @@ export class AuthService {
     return this.usuarioAtual();
   }
 
+  obterRotaInicial(): string {
+    if (this.ehCliente()) {
+      return '/catalogo';
+    }
+
+    const rotaInicial = ROTAS_INICIAIS.find((rota) => this.podeAcessarRota(rota));
+
+    return rotaInicial?.rota ?? ROTA_SEGURA_AUTENTICADA;
+  }
+
+  obterUrlAutorizadaAposLogin(returnUrl: string | null): string {
+    if (!returnUrl) {
+      return this.obterRotaInicial();
+    }
+
+    const urlInterna = this.normalizarUrlInterna(returnUrl);
+
+    if (!urlInterna) {
+      return this.obterRotaInicial();
+    }
+
+    return this.podeAcessarUrl(urlInterna) ? urlInterna : this.obterRotaInicial();
+  }
+
   ehCliente(): boolean {
     return this.perfilCliente();
   }
@@ -135,12 +213,50 @@ export class AuthService {
       permissoes.has(PERMISSOES.ADMINSTRATIVO_CRIAR);
   }
 
+  private podeAcessarUrl(url: string): boolean {
+    const caminho = url.split(/[?#]/)[0] || '/';
+    const rotaProtegida = ROTAS_PROTEGIDAS
+      .filter((rota) => this.caminhoCorrespondeAoPrefixo(caminho, rota.prefixo))
+      .sort((a, b) => b.prefixo.length - a.prefixo.length)[0];
+
+    return rotaProtegida ? this.podeAcessarRota(rotaProtegida) : false;
+  }
+
+  private podeAcessarRota(rota: RotaInicial | RotaProtegida): boolean {
+    if (rota.perfis && !this.possuiAlgumPerfil(rota.perfis)) {
+      return false;
+    }
+
+    if (rota.permissoes && !this.possuiAlgumaPermissao(rota.permissoes)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private caminhoCorrespondeAoPrefixo(caminho: string, prefixo: string): boolean {
+    return caminho === prefixo || caminho.startsWith(`${prefixo}/`);
+  }
+
+  private normalizarUrlInterna(returnUrl: string): string | null {
+    if (!returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      return null;
+    }
+
+    try {
+      const url = new URL(returnUrl, window.location.origin);
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return null;
+    }
+  }
+
   private ehPerfilCliente(usuario: UsuarioResponse | null): boolean {
-    return this.normalizarPerfil(usuario?.perfil?.descricao) === 'cliente';
+    return this.normalizarPerfil(usuario?.perfil?.descricao) === PERFIS.CLIENTE;
   }
 
   private ehPerfilEntregador(usuario: UsuarioResponse | null): boolean {
-    return this.normalizarPerfil(usuario?.perfil?.descricao) === 'entregador';
+    return this.normalizarPerfil(usuario?.perfil?.descricao) === PERFIS.ENTREGADOR;
   }
 
   private normalizarPerfil(descricao?: string | null): string {

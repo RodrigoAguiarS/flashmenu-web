@@ -593,7 +593,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
 
         this.pdvService.limpar();
         this.message.success(`Venda #${pedido.id} registrada com sucesso.`);
-        void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
+        void this.router.navigate(['/pedidos/', pedido.id]);
       },
       error: (error: HttpErrorResponse) => this.mensagemErro.set(this.extrairMensagemErro(error))
     });
@@ -778,7 +778,7 @@ export class PdvComponent implements OnInit, AfterViewInit {
     this.pedidoPix.set(pedido);
     this.pdvService.limpar();
     this.modalPixAberta.set(false);
-    void this.router.navigate(['/pedidos/gerenciar', pedido.id]);
+    void this.router.navigate(['/pedidos/', pedido.id]);
   }
 
   private pararPollingPix(): void {

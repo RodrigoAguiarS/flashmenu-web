@@ -207,15 +207,37 @@
 :host ::ng-deep .pdv-venda-drawer .ant-drawer-body {
   padding: 0;
   overflow: auto;
+  color: var(--cor-texto);
   background: var(--cor-superficie);
 }
 
 :host ::ng-deep .pdv-venda-drawer .ant-drawer-content {
+  color: var(--cor-texto);
   background: var(--cor-superficie);
 }
 
 :host ::ng-deep .pdv-venda-drawer .ant-drawer-header {
   background: color-mix(in srgb, var(--cor-superficie) 94%, var(--cor-fundo));
+  border-bottom-color: var(--cor-borda);
+}
+
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-title,
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-close {
+  color: var(--cor-texto);
+}
+
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-close:hover,
+:host ::ng-deep .pdv-venda-drawer .ant-drawer-close:focus-visible {
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
+}
+
+:host ::ng-deep .pdv-venda-drawer .secao-label {
+  color: var(--cor-texto);
+}
+
+:host ::ng-deep .pdv-venda-drawer .secao-label small {
+  color: var(--cor-perigo);
 }
 
 :host ::ng-deep .pdv-venda-drawer .finalizar {
@@ -271,29 +293,66 @@
 
 :host .pagamento-opcoes--pdv.ant-radio-group {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 :host .pagamento-opcoes--pdv .pagamento-opcao.ant-radio-wrapper {
-  min-height: 44px;
-  padding: 8px;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 42px;
+  padding: 6px 8px;
+  gap: 8px;
 }
 
 :host .pagamento-opcoes--pdv .pagamento-opcao__icone {
   width: 28px;
   min-width: 28px;
   height: 28px;
+  font-size: 14px;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__conteudo {
+  align-content: center;
+  gap: 0;
+  min-height: 28px;
 }
 
 :host .pagamento-opcoes--pdv .pagamento-opcao__conteudo strong {
+  overflow: hidden;
   font-size: 12px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :host .pagamento-opcoes--pdv .pagamento-opcao__conteudo small {
-  display: -webkit-box;
   overflow: hidden;
   font-size: 10px;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__atalho {
+  justify-self: end;
+  min-width: 24px;
+  text-align: center;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao__check {
+  display: none;
+}
+
+:host .pagamento-opcoes--pdv .pagamento-opcao.ant-radio-wrapper-checked,
+:host .pagamento-opcoes--pdv .pagamento-opcao.ant-radio-wrapper.selecionada {
+  box-shadow: inset 0 0 0 1px var(--cor-primaria);
+}
+
+@media (max-width: 520px) {
+  :host .pagamento-opcoes--pdv .pagamento-opcao.ant-radio-wrapper {
+    min-height: 42px;
+    padding: 6px 8px;
+  }
 }
 
 @media (max-width: 1039px) {

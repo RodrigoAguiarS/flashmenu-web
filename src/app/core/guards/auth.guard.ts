@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 
@@ -19,12 +19,23 @@ export const authGuard: CanActivateFn = (route, state) => {
   const perfis = route.data['perfis'];
 
   if (Array.isArray(perfis) && !authService.possuiAlgumPerfil(perfis)) {
-    return router.createUrlTree(['/catalogo']);
+    return router.createUrlTree([authService.obterRotaInicial()]);
   }
 
   if (!Array.isArray(permissoes) || authService.possuiAlgumaPermissao(permissoes)) {
     return true;
   }
 
-  return router.createUrlTree(['/catalogo']);
+  return router.createUrlTree([authService.obterRotaInicial()]);
+};
+
+export const rotaInicialGuard: CanMatchFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.estaAutenticado()) {
+    return router.createUrlTree(['/login']);
+  }
+
+  return router.createUrlTree([authService.obterRotaInicial()]);
 };

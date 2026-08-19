@@ -53,6 +53,13 @@ export const PERMISSOES = {
 
 export type PermissaoAuthority = typeof PERMISSOES[keyof typeof PERMISSOES];
 
+export const PERFIS = {
+  CLIENTE: 'cliente',
+  ENTREGADOR: 'entregador'
+} as const;
+
+export type PerfilAuthority = typeof PERFIS[keyof typeof PERFIS];
+
 export const PERMISSOES_ROTAS = {
   DASHBOARD: [PERMISSOES.DASHBOARD_VISUALIZAR, PERMISSOES.ADMIN],
   PDV: [PERMISSOES.PDV_CRIAR],
@@ -166,12 +173,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
 ];
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: 'catalogo', label: 'Catalogo', route: '/catalogo', icon: 'appstore', exact: true },
+  { id: 'catalogo', label: 'Catalogo', route: '/catalogo', icon: 'appstore', exact: true, perfis: [PERFIS.CLIENTE] },
   { id: 'carrinho', label: 'Carrinho', route: '/carrinho', icon: 'shopping-cart', exact: true },
   { id: 'pedidos', label: 'Pedidos', route: '/pedidos', icon: 'unordered-list', exact: true, permissoes: PERMISSOES_ROTAS.MEUS_PEDIDOS },
   { id: 'pdv', label: 'PDV', route: '/pdv', icon: 'credit-card', exact: true, permissoes: PERMISSOES_ROTAS.PDV },
   { id: 'gerenciar-pedidos', label: 'Pedidos', route: '/pedidos/gerenciar', icon: 'check-circle', exact: false, permissoes: PERMISSOES_ROTAS.GERENCIAR_PEDIDOS },
-  { id: 'minhas-entregas', label: 'Entregas', route: '/minhas-entregas', icon: 'car', exact: true, perfis: ['entregador'], permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
+  { id: 'minhas-entregas', label: 'Entregas', route: '/minhas-entregas', icon: 'car', exact: true, perfis: [PERFIS.ENTREGADOR], permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS },
   { id: 'administrativo', label: 'Admin', route: '/administrativo', icon: 'setting', exact: true, permissoes: PERMISSOES_ROTAS.ADMINISTRATIVO },
   { id: 'minha-conta', label: 'Perfil', route: '/minha-conta', icon: 'user', authOnly: true }
 ];

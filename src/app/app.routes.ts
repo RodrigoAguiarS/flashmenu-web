@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { PERMISSOES_ROTAS } from './core/auth/permissoes';
-import { authGuard } from './core/guards/auth.guard';
+import { PERFIS, PERMISSOES_ROTAS } from './core/auth/permissoes';
+import { authGuard, rotaInicialGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -22,6 +22,8 @@ export const routes: Routes = [
   },
   {
     path: 'catalogo',
+    canActivate: [authGuard],
+    data: { perfis: [PERFIS.CLIENTE] },
     loadComponent: () => import('./pages/catalogo/catalogo.component').then((component) => component.CatalogoComponent)
   },
   {
@@ -93,7 +95,7 @@ export const routes: Routes = [
   {
     path: 'minhas-entregas/:id',
     canActivate: [authGuard],
-    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: ['entregador'] },
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: [PERFIS.ENTREGADOR] },
     loadComponent: () =>
       import('./pages/entregas/entrega-detalhe/entrega-detalhe.component').then(
         (component) => component.EntregaDetalheComponent
@@ -102,7 +104,7 @@ export const routes: Routes = [
   {
     path: 'minhas-entregas',
     canActivate: [authGuard],
-    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: ['entregador'] },
+    data: { permissoes: PERMISSOES_ROTAS.MINHAS_ENTREGAS, perfis: [PERFIS.ENTREGADOR] },
     loadComponent: () =>
       import('./pages/entregas/minhas-entregas/minhas-entregas.component').then(
         (component) => component.MinhasEntregasComponent
@@ -299,10 +301,12 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'catalogo'
+    canMatch: [rotaInicialGuard],
+    loadComponent: () => import('./features/auth/login/login.component').then((component) => component.LoginComponent)
   },
   {
     path: '**',
-    redirectTo: 'catalogo'
+    canMatch: [rotaInicialGuard],
+    loadComponent: () => import('./features/auth/login/login.component').then((component) => component.LoginComponent)
   }
 ];
