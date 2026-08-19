@@ -7,7 +7,6 @@
   width: min(100%, 1240px);
   margin-bottom: 14px;
   margin-inline: auto;
-  padding-top: 2px;
 }
 
 .cardapio-titulo {
@@ -193,6 +192,11 @@
 
 .cardapio-secoes--skeleton ::ng-deep .ant-skeleton-button {
   width: 100%;
+}
+
+.descoberta {
+  width: min(100%, 1240px);
+  margin-inline: auto;
 }
 
 @keyframes shimmer-cardapio {

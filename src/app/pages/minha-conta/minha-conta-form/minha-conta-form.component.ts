@@ -206,8 +206,10 @@ export class MinhaContaFormComponent implements OnInit {
 
   private carregarUsuario(): void {
     this.carregando.set(true);
+    const usuarioAtual = this.authService.obterUsuarioAtual();
+    const usuario$ = usuarioAtual ? of(usuarioAtual) : this.authService.usuarioLogado();
 
-    this.authService.usuarioLogado().pipe(
+    usuario$.pipe(
       switchMap((usuario) => {
         this.usuario.set(usuario);
         this.formulario.patchValue({
