@@ -6,6 +6,14 @@
 }
 
 <section class="filtros cartao-sistema" aria-label="Filtros do dashboard">
+  <div class="filtros__cabecalho">
+    <span class="filtros__icone" nz-icon nzType="filter" nzTheme="outline" aria-hidden="true"></span>
+    <div>
+      <h2>Filtros</h2>
+      <p>Defina o periodo e os limites de exibicao.</p>
+    </div>
+  </div>
+
   <form nz-form nzLayout="vertical" [formGroup]="filtros" (ngSubmit)="filtrar()">
     <nz-row [nzGutter]="16">
       <nz-col nzXs="24" nzMd="6">
@@ -47,6 +55,7 @@
       <nz-col nzXs="24" nzMd="2" class="acao-filtro">
         <button nz-button nzType="primary" type="submit" [nzLoading]="carregando()" aria-label="Atualizar dashboard">
           <span nz-icon nzType="search" nzTheme="outline"></span>
+          <span class="acao-filtro__texto">Atualizar</span>
         </button>
       </nz-col>
     </nz-row>
@@ -57,28 +66,46 @@
   @if (resumo(); as resumoDados) {
     <section class="indicadores" aria-label="Indicadores do periodo">
       <article class="indicador principal">
-        <span>Faturamento</span>
-        <strong>{{ resumoDados.faturamentoBruto | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="dollar" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Faturamento</span>
+          <strong>{{ resumoDados.faturamentoBruto | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
       </article>
       <article class="indicador">
-        <span>Pedidos confirmados</span>
-        <strong>{{ resumoDados.pedidosPagos | number:'1.0-0' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="check-circle" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Pedidos confirmados</span>
+          <strong>{{ resumoDados.pedidosPagos | number:'1.0-0' }}</strong>
+        </div>
       </article>
       <article class="indicador">
-        <span>Aguardando confirmacao</span>
-        <strong>{{ resumoDados.pedidosAguardandoConfirmacao | number:'1.0-0' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="clock-circle" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Aguardando confirmacao</span>
+          <strong>{{ resumoDados.pedidosAguardandoConfirmacao | number:'1.0-0' }}</strong>
+        </div>
       </article>
       <article class="indicador">
-        <span>Cancelados</span>
-        <strong>{{ resumoDados.pedidosCancelados | number:'1.0-0' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="close-circle" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Cancelados</span>
+          <strong>{{ resumoDados.pedidosCancelados | number:'1.0-0' }}</strong>
+        </div>
       </article>
       <article class="indicador">
-        <span>Ticket medio</span>
-        <strong>{{ resumoDados.ticketMedio | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="credit-card" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Ticket medio</span>
+          <strong>{{ resumoDados.ticketMedio | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
       </article>
       <article class="indicador">
-        <span>Itens vendidos</span>
-        <strong>{{ resumoDados.quantidadeItensVendidos | number:'1.0-0' }}</strong>
+        <span class="indicador__icone" nz-icon nzType="shopping-cart" nzTheme="outline" aria-hidden="true"></span>
+        <div>
+          <span>Itens vendidos</span>
+          <strong>{{ resumoDados.quantidadeItensVendidos | number:'1.0-0' }}</strong>
+        </div>
       </article>
     </section>
   }
@@ -86,7 +113,10 @@
   <section class="dashboard-grid">
     <article class="painel-dashboard painel-vendas">
       <header>
-        <h2>Vendas por dia</h2>
+        <div class="painel-dashboard__titulo">
+          <span nz-icon nzType="dollar" nzTheme="outline" aria-hidden="true"></span>
+          <h2>Vendas por dia</h2>
+        </div>
         <nz-tag>{{ vendasPorDia().length }} dias</nz-tag>
       </header>
 
@@ -110,7 +140,10 @@
 
     <article class="painel-dashboard painel-produtos tem-lista-mobile">
       <header>
-        <h2>Produtos mais vendidos</h2>
+        <div class="painel-dashboard__titulo">
+          <span nz-icon nzType="tags" nzTheme="outline" aria-hidden="true"></span>
+          <h2>Produtos mais vendidos</h2>
+        </div>
       </header>
 
       @if (possuiProdutosMaisVendidos()) {
@@ -167,7 +200,10 @@
 
     <article class="painel-dashboard painel-pagamentos">
       <header>
-        <h2>Formas de pagamento</h2>
+        <div class="painel-dashboard__titulo">
+          <span nz-icon nzType="credit-card" nzTheme="outline" aria-hidden="true"></span>
+          <h2>Formas de pagamento</h2>
+        </div>
       </header>
 
       @if (possuiFormasPagamento()) {
@@ -188,7 +224,10 @@
 
     <article class="painel-dashboard painel-estoque tem-lista-mobile">
       <header>
-        <h2>Estoque baixo</h2>
+        <div class="painel-dashboard__titulo">
+          <span nz-icon nzType="unordered-list" nzTheme="outline" aria-hidden="true"></span>
+          <h2>Estoque baixo</h2>
+        </div>
       </header>
 
       @if (possuiEstoqueBaixo()) {
