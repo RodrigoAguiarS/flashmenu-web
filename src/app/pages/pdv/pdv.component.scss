@@ -13,12 +13,20 @@
 
 .painel-produtos {
   min-width: 0;
+  overflow-x: hidden;
 }
 
 .filtros {
   display: grid;
   gap: 8px;
+  max-width: none;
   margin-bottom: 12px;
+  padding: 0;
+}
+
+.filtros form {
+  width: 100%;
+  min-width: 0;
 }
 
 .filtros nz-form-item {
@@ -30,6 +38,11 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+}
+
+.busca-produto ::ng-deep .ant-input-affix-wrapper {
+  width: 100%;
 }
 
 .botao-limpar-busca {
@@ -40,16 +53,24 @@
 
 .categorias-chips {
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
   overflow-x: auto;
   padding-bottom: 2px;
   overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+.categorias-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .categorias-chips button {
   flex: 0 0 auto;
   border-radius: 999px;
+  white-space: nowrap;
 }
 
 .categorias-chips button.selecionada {

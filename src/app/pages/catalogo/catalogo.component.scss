@@ -51,6 +51,7 @@
   position: sticky;
   top: 0;
   z-index: 4;
+  max-width: none;
   margin: 0 -12px 14px;
   padding: 0 12px 10px;
   background: color-mix(in srgb, var(--bg-page) 92%, transparent);
@@ -79,6 +80,7 @@
 }
 
 .filtros ::ng-deep .ant-input-affix-wrapper {
+  width: 100%;
   min-height: 42px;
   background: color-mix(in srgb, var(--cor-superficie) 92%, var(--cor-campo));
   border-color: transparent;
@@ -94,11 +96,13 @@
 
 .categorias-menu {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
   gap: 10px;
-  width: auto;
-  margin: 10px -12px 0;
-  padding: 0 12px 2px;
+  width: 100%;
+  min-width: 0;
+  margin: 10px 0 0;
+  padding: 0 0 2px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   scrollbar-width: none;
@@ -423,10 +427,6 @@
   .filtros {
     margin-inline: 0;
     padding-inline: 0;
-  }
-
-  .busca-catalogo {
-    width: min(100%, 520px);
   }
 
   .categorias-menu {

@@ -69,7 +69,8 @@ export class UsuarioService {
       email: filtros.email,
       telefone: filtros.telefone,
       ativo: filtros.ativo,
-      perfilId: filtros.perfilId
+      perfilId: filtros.perfilId,
+      unidadeId: filtros.unidadeId
     };
 
     Object.entries(opcionais).forEach(([chave, valor]) => {
@@ -81,4 +82,3 @@ export class UsuarioService {
     return params;
   }
 }
-

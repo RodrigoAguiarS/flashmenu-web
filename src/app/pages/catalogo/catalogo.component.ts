@@ -690,7 +690,7 @@ export class CatalogoComponent implements OnInit, AfterViewInit {
     this.produtoService.listarPublicoPorUnidade(slug, {
       page: 0,
       size: this.limiteDescoberta,
-      sort: 'criadoEm,desc'
+      sort: 'criadoEm'
     }).pipe(
       catchError(() => of({
         content: [] as ProdutoResponse[],

@@ -47,6 +47,27 @@
         </nz-form-item>
       </nz-col>
 
+      @if (podeFiltrarPorUnidade()) {
+        <nz-col nzXs="24" nzMd="12" nzLg="6">
+          <nz-form-item>
+            <nz-form-label nzFor="unidade">Unidade</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                id="unidade"
+                formControlName="unidadeId"
+                nzAllowClear
+                nzPlaceHolder="Todas as unidades"
+                [nzLoading]="carregandoUnidades()"
+              >
+                @for (unidade of unidadesOpcoes(); track unidade.id) {
+                  <nz-option [nzValue]="unidade.id" [nzLabel]="unidade.label"></nz-option>
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      }
+
       <nz-col nzXs="24" nzMd="12" nzLg="4">
         <nz-form-item>
           <nz-form-label nzFor="status">Status</nz-form-label>
@@ -92,7 +113,7 @@
     [nzShowSizeChanger]="true"
     [nzPageSizeOptions]="pageSizeOptions()"
     [nzNoResult]="estadoVazio"
-    [nzScroll]="{ x: '720px' }"
+    [nzScroll]="{ x: '860px' }"
     nzSize="middle"
     nzTableLayout="fixed"
     (nzPageIndexChange)="alterarPagina($event)"
@@ -102,6 +123,7 @@
       <tr>
         <th>Usuario</th>
         <th nzWidth="180px">Perfil</th>
+        <th nzWidth="180px">Unidade</th>
         <th nzWidth="120px">Status</th>
         <th nzWidth="172px" nzAlign="right">Acoes</th>
       </tr>
@@ -116,6 +138,7 @@
             </div>
           </td>
           <td>{{ usuario.perfil?.descricao || '-' }}</td>
+          <td>{{ usuario.unidade?.nome || '-' }}</td>
           <td>
             <nz-tag [nzColor]="statusColor(usuario.ativo)">
               {{ statusTexto(usuario.ativo) }}
@@ -203,6 +226,13 @@
           </span>
         </div>
 
+        <div class="mobile-card__linha">
+          <span>
+            <span class="mobile-card__rotulo">Unidade</span>
+            <strong>{{ usuario.unidade?.nome || '-' }}</strong>
+          </span>
+        </div>
+
         <div class="mobile-card__acoes acoes-grupo">
           <button nz-button nzType="text" nzShape="circle" type="button" aria-label="Visualizar usuario" (click)="visualizar(usuario)">
             <span nz-icon nzType="eye" nzTheme="outline"></span>
@@ -270,6 +300,7 @@
         <nz-descriptions-item nzTitle="E-mail">{{ usuario.email }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="Telefone">{{ usuario.telefone | telefone }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="Perfil">{{ usuario.perfil?.descricao || '-' }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Unidade">{{ usuario.unidade?.nome || '-' }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="Status">
           <nz-tag [nzColor]="statusColor(usuario.ativo)">
             {{ statusTexto(usuario.ativo) }}

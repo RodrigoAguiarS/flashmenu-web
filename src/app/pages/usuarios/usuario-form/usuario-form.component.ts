@@ -15,11 +15,15 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 
+import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { EnderecoRequest } from '../../../core/models/endereco.model';
 import { PerfilResponse } from '../../../core/models/perfil.model';
+import { UnidadeResponse } from '../../../core/models/unidade.model';
 import { UsuarioRequest } from '../../../core/models/usuario.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
+import { UnidadeService } from '../../../core/services/unidade.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { ViaCepService } from '../../../core/services/via-cep.service';
 import { DocumentoMaskDirective } from '../../../shared/directives/documento-mask.directive';
@@ -51,8 +55,10 @@ const SENHA_NAO_ALTERADA = 'senha-nao-alterada';
 })
 export class UsuarioFormComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly perfilService = inject(PerfilService);
+  private readonly unidadeService = inject(UnidadeService);
   private readonly viaCepService = inject(ViaCepService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -63,6 +69,7 @@ export class UsuarioFormComponent implements OnInit {
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);
   protected readonly perfis = signal<PerfilResponse[]>([]);
+  protected readonly unidades = signal<UnidadeResponse[]>([]);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly errosValidacao = signal<string[]>([]);
   protected readonly senhaVisivel = signal(false);
@@ -71,12 +78,18 @@ export class UsuarioFormComponent implements OnInit {
   protected readonly editando = computed(() => this.idUsuario() !== null);
   protected readonly titulo = computed(() => this.editando() ? 'Editar usuario' : 'Novo usuario');
   protected readonly textoBotao = computed(() => this.editando() ? 'Salvar alteracoes' : 'Cadastrar usuario');
+  protected readonly podeGerenciarUnidadeUsuario = computed(() => this.authService.permissoes().has(PERMISSOES.ADMIN));
+  protected readonly unidadesOpcoes = computed(() => this.unidades().map((unidade) => ({
+    id: unidade.id,
+    label: unidade.slug ? `${unidade.nome} (${unidade.slug})` : unidade.nome
+  })));
 
   protected readonly formulario = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
     login: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.pattern(/^\(?[1-9]{2}\)?\s?(9?[0-9]{4})-?[0-9]{4}$/)]],
     idPerfil: this.fb.control<number | null>(null, [Validators.required]),
+    idUnidade: this.fb.control<number | null>(null),
     senha: [''],
     novaSenha: [''],
     endereco: this.fb.group({
@@ -92,6 +105,8 @@ export class UsuarioFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.configurarPermissaoUnidade();
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
@@ -118,7 +133,7 @@ export class UsuarioFormComponent implements OnInit {
     this.formulario.controls.novaSenha.updateValueAndValidity({ emitEvent: false });
     this.aplicarValidadoresEnderecoCadastro();
     this.observarCep();
-    this.carregarPerfis();
+    this.carregarOpcoesFormulario();
   }
 
   enviar(): void {
@@ -173,13 +188,23 @@ export class UsuarioFormComponent implements OnInit {
     this.novaSenhaVisivel.update((visivel) => !visivel);
   }
 
-  private carregarPerfis(): void {
+  private carregarOpcoesFormulario(): void {
     this.carregando.set(true);
 
-    this.perfilService.listar({ page: 0, size: 100, sort: 'descricao' }).pipe(
+    const unidades$ = this.podeGerenciarUnidadeUsuario()
+      ? this.unidadeService.listar()
+      : of([] as UnidadeResponse[]);
+
+    forkJoin({
+      perfis: this.perfilService.listar({ page: 0, size: 100, sort: 'descricao' }),
+      unidades: unidades$
+    }).pipe(
       finalize(() => this.carregando.set(false))
     ).subscribe({
-      next: (page) => this.perfis.set(page.content),
+      next: (resultado) => {
+        this.perfis.set(resultado.perfis.content);
+        this.unidades.set(resultado.unidades);
+      },
       error: (error: HttpErrorResponse) => this.tratarErro(error)
     });
   }
@@ -189,7 +214,8 @@ export class UsuarioFormComponent implements OnInit {
 
     forkJoin({
       usuario: this.usuarioService.buscarPorId(id),
-      perfis: this.perfilService.listar({ page: 0, size: 100, sort: 'descricao' })
+      perfis: this.perfilService.listar({ page: 0, size: 100, sort: 'descricao' }),
+      unidades: this.podeGerenciarUnidadeUsuario() ? this.unidadeService.listar() : of([] as UnidadeResponse[])
     }).pipe(
       catchError((error: HttpErrorResponse) => {
         this.tratarErro(error);
@@ -202,11 +228,13 @@ export class UsuarioFormComponent implements OnInit {
       }
 
       this.perfis.set(resultado.perfis.content);
+      this.unidades.set(resultado.unidades);
       this.formulario.patchValue({
         nome: resultado.usuario.nome,
         login: resultado.usuario.email,
         telefone: resultado.usuario.telefone || '',
         idPerfil: resultado.usuario.perfil?.id ?? null,
+        idUnidade: this.podeGerenciarUnidadeUsuario() ? resultado.usuario.unidade?.id ?? null : null,
         senha: '',
         novaSenha: '',
         endereco: {
@@ -232,6 +260,10 @@ export class UsuarioFormComponent implements OnInit {
       idPerfil: valor.idPerfil ?? 0,
       senha: this.editando() ? SENHA_NAO_ALTERADA : valor.senha
     };
+
+    if (this.podeGerenciarUnidadeUsuario()) {
+      request.idUnidade = valor.idUnidade ?? 0;
+    }
 
     if (!this.editando()) {
       request.endereco = this.montarEnderecoRequest();
@@ -264,6 +296,21 @@ export class UsuarioFormComponent implements OnInit {
     endereco.cidade.addValidators([Validators.required]);
     endereco.estado.addValidators([Validators.required]);
     this.atualizarValidadeEndereco();
+  }
+
+  private configurarPermissaoUnidade(): void {
+    const control = this.formulario.controls.idUnidade;
+
+    if (this.podeGerenciarUnidadeUsuario()) {
+      control.enable({ emitEvent: false });
+      control.setValidators([Validators.required]);
+    } else {
+      control.reset(null, { emitEvent: false });
+      control.clearValidators();
+      control.disable({ emitEvent: false });
+    }
+
+    control.updateValueAndValidity({ emitEvent: false });
   }
 
   private observarCep(): void {
@@ -392,6 +439,7 @@ export class UsuarioFormComponent implements OnInit {
       senha: 'Senha',
       novaSenha: 'Nova senha',
       idPerfil: 'Perfil',
+      idUnidade: 'Unidade',
       'endereco.cep': 'CEP',
       'endereco.logradouro': 'Logradouro',
       'endereco.numero': 'Numero',

@@ -7,6 +7,7 @@ export interface UsuarioRequest {
   login: string;
   telefone: string;
   idPerfil: number;
+  idUnidade?: number;
   senha?: string;
   endereco?: EnderecoRequest;
 }
@@ -25,6 +26,7 @@ export interface UsuarioFiltros {
   telefone?: string;
   ativo?: boolean;
   perfilId?: number;
+  unidadeId?: number;
 }
 
 export interface UsuarioResponse {

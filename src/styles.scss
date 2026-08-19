@@ -307,6 +307,8 @@ app-catalogo .filtros {
 
 app-catalogo .categorias-bloco {
   position: relative;
+  min-width: 0;
+  overflow: hidden;
 }
 
 app-catalogo .categorias-menu--com-atalho {

@@ -23,9 +23,11 @@ import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import { PERMISSOES } from '../../../core/auth/permissoes';
 import { StandardError, ValidationError } from '../../../core/models/api-error.model';
 import { PerfilResponse } from '../../../core/models/perfil.model';
+import { UnidadeResponse } from '../../../core/models/unidade.model';
 import { UsuarioResponse } from '../../../core/models/usuario.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PerfilService } from '../../../core/services/perfil.service';
+import { UnidadeService } from '../../../core/services/unidade.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
@@ -65,15 +67,18 @@ export class UsuarioListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly perfilService = inject(PerfilService);
+  private readonly unidadeService = inject(UnidadeService);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuarios = signal<UsuarioResponse[]>([]);
   protected readonly perfis = signal<PerfilResponse[]>([]);
+  protected readonly unidades = signal<UnidadeResponse[]>([]);
   protected readonly usuarioSelecionado = signal<UsuarioResponse | null>(null);
   protected readonly drawerAberto = signal(false);
   protected readonly carregando = signal(false);
   protected readonly carregandoPerfis = signal(false);
+  protected readonly carregandoUnidades = signal(false);
   protected readonly excluindoId = signal<number | null>(null);
   protected readonly total = signal(0);
   protected readonly pageIndex = signal(1);
@@ -82,16 +87,23 @@ export class UsuarioListComponent implements OnInit {
   protected readonly podeCriarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_CRIAR));
   protected readonly podeEditarUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_EDITAR));
   protected readonly podeExcluirUsuario = computed(() => this.authService.possuiPermissao(PERMISSOES.USUARIO_DELETAR));
+  protected readonly podeFiltrarPorUnidade = computed(() => this.authService.permissoes().has(PERMISSOES.ADMIN));
+  protected readonly unidadesOpcoes = computed(() => this.unidades().map((unidade) => ({
+    id: unidade.id,
+    label: unidade.slug ? `${unidade.nome} (${unidade.slug})` : unidade.nome
+  })));
 
   protected readonly filtros = this.fb.group({
     nome: [''],
     email: [''],
     perfilId: this.fb.control<number | null>(null),
+    unidadeId: this.fb.control<number | null>(null),
     ativo: this.fb.control<StatusFiltro>(null)
   });
 
   ngOnInit(): void {
     this.carregarPerfis();
+    this.carregarUnidadesSePermitido();
     this.carregarUsuarios();
 
     this.filtros.valueChanges
@@ -122,6 +134,7 @@ export class UsuarioListComponent implements OnInit {
       nome: '',
       email: '',
       perfilId: null,
+      unidadeId: null,
       ativo: null
     });
   }
@@ -169,6 +182,7 @@ export class UsuarioListComponent implements OnInit {
       nome: filtros.nome?.trim() || undefined,
       email: filtros.email?.trim() || undefined,
       perfilId: filtros.perfilId ?? undefined,
+      unidadeId: this.podeFiltrarPorUnidade() ? filtros.unidadeId ?? undefined : undefined,
       ativo: filtros.ativo ?? undefined
     }).pipe(
       finalize(() => this.carregando.set(false))
@@ -192,6 +206,23 @@ export class UsuarioListComponent implements OnInit {
       finalize(() => this.carregandoPerfis.set(false))
     ).subscribe({
       next: (page) => this.perfis.set(page.content),
+      error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
+    });
+  }
+
+  private carregarUnidadesSePermitido(): void {
+    if (!this.podeFiltrarPorUnidade()) {
+      this.unidades.set([]);
+      this.filtros.controls.unidadeId.disable({ emitEvent: false });
+      return;
+    }
+
+    this.carregandoUnidades.set(true);
+
+    this.unidadeService.listar().pipe(
+      finalize(() => this.carregandoUnidades.set(false))
+    ).subscribe({
+      next: (unidades) => this.unidades.set(unidades),
       error: (error: HttpErrorResponse) => this.message.error(this.extrairMensagemErro(error))
     });
   }

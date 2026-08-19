@@ -81,6 +81,24 @@
           </nz-form-item>
         </nz-col>
 
+        @if (podeGerenciarUnidadeUsuario()) {
+          <nz-col nzXs="24" nzMd="12">
+            <nz-form-item>
+              <nz-form-label nzFor="idUnidade" nzRequired>Unidade</nz-form-label>
+              <nz-form-control
+                nzErrorTip="Selecione uma unidade."
+                [nzValidateStatus]="formulario.controls.idUnidade"
+              >
+                <nz-select id="idUnidade" formControlName="idUnidade" nzPlaceHolder="Selecione uma unidade">
+                  @for (unidade of unidadesOpcoes(); track unidade.id) {
+                    <nz-option [nzValue]="unidade.id" [nzLabel]="unidade.label"></nz-option>
+                  }
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </nz-col>
+        }
+
         @if (!editando()) {
           <nz-col nzXs="24" nzMd="12">
             <nz-form-item>
