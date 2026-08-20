@@ -1,0 +1,749 @@
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2349: This expression is not callable.
+  Type 'readonly ["Cliente", "Endereço e pedido", "Pagamento", "Resumo"]' has no call signatures.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:26:25:
+[37m      26 │           @for (etapa of [32metapasCheckout[37m(); track etapa) {
+         ╵                          [32m~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'indiceEtapaIdentificacao' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:34:40:
+[37m      34 │ ...s="secao-indice">{{ [32mindiceEtapaIdentificacao[37m() }}. IDENTIFICAÇ...
+         ╵                        [32m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'indiceEtapaEntrega' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:43:38:
+[37m      43 │ ...an class="secao-indice">{{ [32mindiceEtapaEntrega[37m() }}. ENTREGA</span>
+         ╵                               [32m~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'indiceEtapaPagamento' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:118:38:
+[37m      118 │ ...ass="secao-indice">{{ [32mindiceEtapaPagamento[37m() }}. PAGAMENTO</span>
+          ╵                          [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'indiceEtapaConfirmacao' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:187:57:
+[37m      187 │ ...firmacao-indice">{{ [32mindiceEtapaConfirmacao[37m() }}. CONFIRMAÇÃO...
+          ╵                        [32m~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2367: This comparison appears to be unintentional because the types 'CheckoutEtapa' and '"cliente"' have no overlap.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:32:11:
+[37m      32 │       @if ([32metapaAtual() === 'cliente'[37m) {
+         ╵            [32m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'podeAvancarCliente' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:57:74:
+[37m      57 │ ...="button" [disabled]="![32mpodeAvancarCliente[37m()" (click)="avancarEt...
+         ╵                           [32m~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2367: This comparison appears to be unintentional because the types 'CheckoutEtapa' and '"entregaPedido"' have no overlap.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:65:11:
+[37m      65 │       @if ([32metapaAtual() === 'entregaPedido'[37m) {
+         ╵            [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'podeAvancarEntregaPedido' does not exist on type 'CheckoutComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:141:27:
+[37m      141 │               [disabled]="![32mpodeAvancarEntregaPedido[37m()"
+          ╵                            [32m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2367: This comparison appears to be unintentional because the types 'CheckoutEtapa' and '"pagamento"' have no overlap.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:151:11:
+[37m      151 │       @if ([32metapaAtual() === 'pagamento'[37m) {
+          ╵            [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2551: Property 'podeAvancarPagamento' does not exist on type 'CheckoutComponent'. Did you mean 'podeAvancarPedidoPagamento'?[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:217:74:
+[37m      217 │ ...button" [disabled]="![32mpodeAvancarPagamento[37m()" (click)="avancarE...
+          ╵                         [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:60:15:
+[37m      60 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8001: 'app-pedido-resumo-financeiro' is not a known element:
+1. If 'app-pedido-resumo-financeiro' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'app-pedido-resumo-financeiro' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:264:10:
+[37m      264 │           [32m<app-pedido-resumo-financeiro[37m
+          ╵           [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:54:15:
+[37m      54 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'resumo' since it isn't a known property of 'app-pedido-resumo-financeiro'.
+1. If 'app-pedido-resumo-financeiro' is an Angular component and it has 'resumo' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'app-pedido-resumo-financeiro' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/checkout/checkout.component.html:265:12:
+[37m      265 │             [32m[resumo]="checkout.resumoFinanceiro()"[37m
+          ╵             [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CheckoutComponent.
+
+    src/app/pages/checkout/checkout.component.ts:54:15:
+[37m      54 │   templateUrl: [32m'./checkout.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 'nzSuffix' since it isn't a known property of 'nz-input-group'.
+1. If 'nz-input-group' is an Angular component and it has 'nzSuffix' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-input-group' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/catalogo/catalogo.component.html:44:50:
+[37m      44 │ ...ixIcon="search" [32m[nzSuffix]="filtroNome() ? limparBuscaTpl : null"[37m>
+         ╵                    [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component CatalogoComponent.
+
+    src/app/pages/catalogo/catalogo.component.ts:93:15:
+[37m      93 │   templateUrl: [32m'./catalogo.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: ThemeToggleComponent is not used within the template of LojaPublicaComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/loja-publica/loja-publica.component.ts:43:4:
+[37m      43 │     [32mThemeToggleComponent[37m
+         ╵     [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "src/tailwind.css"[0m
+
+    angular:styles/global:styles:1:8:
+[37m      1 │ @import [32m'src/tailwind.css'[37m;
+        ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+  You can mark the path "src/tailwind.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+

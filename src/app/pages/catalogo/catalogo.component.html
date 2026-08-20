@@ -1,11 +1,14 @@
 <header class="cardapio-topo">
   <div class="cardapio-titulo">
     <h1>{{ tituloCatalogo() }}</h1>
+    @if (unidadeResumo(); as unidade) {
+      <p>{{ unidade.nome }}</p>
+    }
   </div>
 
   @if (unidadeResumo()) {
     <div class="cardapio-topo-infos" aria-label="Informações da unidade">
-      <nz-tag [nzColor]="unidadeAberta() ? 'success' : 'default'">{{ statusUnidade() }}</nz-tag>
+      <nz-tag class="status-loja" [nzColor]="unidadeAberta() ? 'success' : 'default'">{{ statusUnidade() }}</nz-tag>
 
       @if (statusUnidadeComplemento(); as statusComplemento) {
         <nz-tag>{{ statusComplemento }}</nz-tag>
@@ -48,6 +51,17 @@
                 aria-label="Buscar produto"
               />
             </nz-input-group>
+
+            @if (filtroNome()) {
+              <button
+                class="limpar-busca"
+                type="button"
+                aria-label="Limpar busca"
+                (click)="filtros.patchValue({ nome: '' })"
+              >
+                <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+              </button>
+            }
           </nz-form-control>
         </nz-form-item>
       </div>
@@ -111,7 +125,7 @@
 
   @if (exibirDescoberta()) {
     <section class="descoberta" [attr.aria-label]="tituloDescoberta()">
-      <nz-tag>{{ tituloDescoberta() }}</nz-tag>
+      <h2>{{ tituloDescoberta() }}</h2>
 
       <div class="descoberta-lista" role="list">
         @for (produto of produtosDescoberta(); track produto.id) {
@@ -137,9 +151,29 @@
               <div class="produto-conteudo descoberta-conteudo">
                 <div class="produto-info-principal">
                   <h3>{{ produto.nome }}</h3>
+                  @if (descricaoProduto(produto); as descricao) {
+                    <p>{{ descricao }}</p>
+                  }
                 </div>
                 <div class="produto-rodape">
                   <strong class="produto-preco">{{ preco(produto) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  @if (podeAdicionar(produto)) {
+                    <button
+                      class="botao-adicionar"
+                      nz-button
+                      nzType="primary"
+                      nzShape="circle"
+                      type="button"
+                      (click)="adicionarOuPersonalizar(produto); $event.stopPropagation()"
+                      [attr.aria-label]="'Adicionar ' + produto.nome + ' ao carrinho'"
+                    >
+                      <span nz-icon nzType="plus" nzTheme="outline"></span>
+                    </button>
+                  } @else {
+                    <button class="botao-indisponivel" nz-button type="button" disabled>
+                      IndisponÃ­vel
+                    </button>
+                  }
                 </div>
               </div>
             </div>
@@ -293,7 +327,7 @@
       </section>
     } @else if (!possuiProdutos()) {
       <section class="estado-vazio cartao-sistema">
-        <nz-empty nzNotFoundContent="Nenhum produto encontrado."></nz-empty>
+        <nz-empty nzNotFoundContent="Nenhum produto encontrado. Tente buscar outro produto."></nz-empty>
       </section>
     }
   }

@@ -297,7 +297,7 @@ a {
 }
 
 app-catalogo {
-  --catalogo-carrinho-altura: 52px;
+  --catalogo-carrinho-altura: 54px;
   --catalogo-carrinho-gap: 8px;
 }
 
@@ -361,7 +361,7 @@ app-catalogo .cardapio-secoes.cardapio-secoes--com-carrinho {
 
 app-catalogo .carrinho-flutuante {
   min-height: var(--catalogo-carrinho-altura);
-  padding-inline: 12px;
+  padding-inline: 14px;
 }
 
 app-catalogo .carrinho-flutuante:focus-visible { outline: none; box-shadow: var(--focus-ring-shadow, var(--focus-ring)), var(--shadow-floating-strong); }
@@ -372,13 +372,13 @@ app-catalogo .carrinho-flutuante.bottom-action-mobile {
 
 @media (max-width: 420px) {
   app-catalogo .carrinho-flutuante {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 6px;
-    min-height: 48px;
+    min-height: 50px;
   }
 
   app-catalogo .carrinho-flutuante strong {
-    display: none;
+    display: inline;
   }
 }
 
