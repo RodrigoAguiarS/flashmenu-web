@@ -5,7 +5,7 @@
 
   <div>
     <h1>Checkout</h1>
-    <p>Revise e confirme seu pedido</p>
+    <p>Finalize seu pedido com clareza.</p>
   </div>
 </header>
 
@@ -16,192 +16,390 @@
   </section>
 } @else {
   <nz-spin [nzSpinning]="checkout.carregando()">
-    <form class="layout-checkout" [formGroup]="checkout.formulario" (ngSubmit)="finalizarPedido()">
+    <section class="layout-checkout" [formGroup]="checkout.formulario">
       @if (checkout.mensagemErro()) {
         <nz-alert class="alerta-checkout" nzType="error" [nzMessage]="checkout.mensagemErro()" nzShowIcon></nz-alert>
       }
 
       <section class="checkout-etapas" aria-label="Etapas do checkout">
         <nz-steps nzSize="small" [nzCurrent]="etapaAtualCheckout()">
-          @for (etapa of etapasCheckout(); track etapa) {
+          @for (etapa of etapasCheckout; track etapa) {
             <nz-step [nzTitle]="etapa"></nz-step>
           }
         </nz-steps>
       </section>
 
-      @if (!checkout.usuario()) {
-        <section class="checkout-secao">
-          <span class="secao-indice">{{ indiceEtapaIdentificacao() }}. IDENTIFICAÇÃO</span>
-          <app-identificacao-cliente
-            [unidadeSlug]="checkout.unidadeSlug()"
-            (clienteIdentificado)="checkout.atualizarClienteIdentificado()"
-          />
+      @if (etapaAtual() === 'clienteEndereco') {
+        <section class="checkout-secao etapa-painel etapa-painel--cliente">
+          <div class="etapa-cabecalho">
+            <span class="secao-indice">1. CLIENTE E ENDEREÇO</span>
+            <h2>Seus dados</h2>
+          </div>
+
+          @if (checkout.usuario(); as usuarioAtual) {
+            <article class="confirmacao-card dados-card">
+              <div class="card-icone" aria-hidden="true">
+                <span nz-icon nzType="user" nzTheme="outline"></span>
+              </div>
+
+              <div class="confirmacao-conteudo">
+                <strong>{{ usuarioAtual.nome }}</strong>
+                <span>{{ usuarioAtual.telefone | telefone }}</span>
+              </div>
+            </article>
+
+            @if (checkout.carregandoEnderecos()) {
+              <div class="confirmacao-card confirmacao-card--simples">
+                <span>Carregando endereço...</span>
+              </div>
+            } @else {
+              <article class="confirmacao-card dados-card">
+                <div class="card-icone" aria-hidden="true">
+                  <span nz-icon nzType="environment" nzTheme="outline"></span>
+                </div>
+
+                <div class="confirmacao-conteudo">
+                  <strong>Entrega</strong>
+
+                  @if (checkout.enderecoEntrega(); as endereco) {
+                    <p>
+                      {{ endereco.logradouro }}, {{ endereco.numero }}
+                      @if (endereco.complemento) {
+                        - {{ endereco.complemento }}
+                      }
+                    </p>
+                    <span>{{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }}</span>
+                    <small>CEP {{ endereco.cep }}</small>
+                  } @else {
+                    <p>Endereço não informado</p>
+                    <span>Complete o endereço antes de continuar.</span>
+                  }
+                </div>
+
+                <a class="acao-card" routerLink="/minha-conta">Alterar</a>
+              </article>
+            }
+          } @else {
+            <app-identificacao-cliente
+              [unidadeSlug]="checkout.unidadeSlug()"
+              (clienteIdentificado)="clienteIdentificadoComSucesso()"
+            />
+          }
+
+          <div class="acoes-etapa">
+            <a nz-button routerLink="/carrinho">Carrinho</a>
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              [disabled]="!podeAvancarClienteEndereco()"
+              (click)="avancarEtapa()"
+            >
+              Ver pedido
+              <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            </button>
+          </div>
         </section>
       }
 
-      <section class="checkout-secao">
-        <span class="secao-indice">{{ indiceEtapaEntrega() }}. ENTREGA</span>
-
-        @if (checkout.carregandoEnderecos()) {
-          <div class="confirmacao-card">
-            <span>Carregando endereço...</span>
+      @if (etapaAtual() === 'pedidoPagamento') {
+        <section class="checkout-secao etapa-painel etapa-painel--pedido">
+          <div class="etapa-cabecalho">
+            <span class="secao-indice">2. PEDIDO E PAGAMENTO</span>
+            <h2>Confira e escolha como pagar</h2>
           </div>
-        } @else if (checkout.usuario(); as usuarioAtual) {
-          <article class="confirmacao-card entrega-card">
-            <div class="card-icone" aria-hidden="true">
-              <span nz-icon nzType="environment" nzTheme="outline"></span>
+
+          <section class="pedido-bloco">
+            <div class="pedido-bloco__topo">
+              <span class="secao-rotulo">PEDIDO</span>
+              <span>{{ carrinhoService.quantidadeTotal() }} itens</span>
             </div>
 
-            <div class="confirmacao-conteudo">
-              <strong>Endereço de entrega</strong>
-
-              @if (checkout.enderecoEntrega(); as endereco) {
-                <p>
-                  {{ endereco.logradouro }}, {{ endereco.numero }}
-                  @if (endereco.complemento) {
-                    - {{ endereco.complemento }}
-                  }
-                </p>
-                <span>{{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }}</span>
-                <span>CEP {{ endereco.cep }}</span>
-              } @else {
-                <p>Endereço não informado</p>
-                <span>Complete seus dados antes de confirmar.</span>
-              }
-
-              <small>{{ usuarioAtual.nome }} · {{ usuarioAtual.telefone | telefone }}</small>
-            </div>
-
-            <a class="acao-card" routerLink="/minha-conta">Alterar</a>
-          </article>
-        } @else {
-          <article class="confirmacao-card pendente">
-            <strong>Cliente pendente</strong>
-            <span>Identifique o cliente para liberar a confirmação do pedido.</span>
-          </article>
-        }
-      </section>
-
-      <section class="checkout-secao">
-        <span class="secao-rotulo">PEDIDO</span>
-
-        <nz-collapse class="pedido-collapse" nzGhost>
-          <nz-collapse-panel [nzHeader]="carrinhoService.quantidadeTotal() + ' itens do pedido'">
             <div class="itens-pedido">
               @for (item of carrinhoService.itens(); track item.id) {
                 <article class="item-pedido">
-                  <div>
-                    <strong>{{ item.quantidade }}x {{ item.produto.nome }}</strong>
+                  <div class="item-pedido__midia">
+                    @if (imagemPrincipal(item.produto); as imagem) {
+                      <img
+                        [src]="imagem"
+                        [alt]="item.produto.nome"
+                        loading="lazy"
+                        (error)="marcarImagemInvalida(item.produto.id)"
+                      />
+                    } @else {
+                      <span nz-icon nzType="picture" nzTheme="outline" aria-hidden="true"></span>
+                    }
+                  </div>
+
+                  <div class="item-pedido__conteudo">
+                    <div class="item-pedido__topo">
+                      <strong>{{ item.produto.nome }}</strong>
+                      <a class="editar-carrinho" routerLink="/carrinho">Editar</a>
+                    </div>
+
+                    <span class="item-pedido__quantidade">Quantidade: {{ item.quantidade }}</span>
+
                     @if (item.complementos?.length) {
-                      <small>
+                      <small class="item-pedido__detalhe">
                         @for (complemento of item.complementos; track complemento.opcaoComplementoId) {
-                          {{ complemento.nome }}@if (!$last) { · }
+                          {{ complemento.nome }}@if (!$last) { - }
                         }
                       </small>
                     }
                     @if (item.observacao) {
-                      <small>{{ item.observacao }}</small>
+                      <small class="item-pedido__detalhe">{{ item.observacao }}</small>
+                    }
+
+                    <strong class="item-pedido__preco">
+                      {{ subtotalItem(precoItem(item), item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}
+                    </strong>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="checkout-secao pagamento-bloco">
+            <span class="secao-rotulo">PAGAMENTO</span>
+
+            @if (checkout.formasPagamento().length) {
+              <nz-radio-group
+                class="pagamento-opcoes pagamento-opcoes--detalhadas"
+                formControlName="formaPagamentoId"
+                aria-label="Forma de pagamento"
+              >
+                @for (forma of checkout.formasPagamento(); track forma.id) {
+                  <label
+                    class="pagamento-opcao"
+                    nz-radio
+                    [nzValue]="forma.id"
+                    [class.selecionada]="checkout.formaPagamentoId() === forma.id"
+                  >
+                    <span class="pagamento-opcao__icone" aria-hidden="true" nz-icon [nzType]="iconeFormaPagamento(forma)" nzTheme="outline"></span>
+                    <span class="pagamento-opcao__conteudo">
+                      <strong>{{ rotuloFormaPagamento(forma) }}</strong>
+                      <small>{{ descricaoFormaPagamento(forma) }}</small>
+                    </span>
+                    <span class="pagamento-opcao__check" aria-hidden="true" nz-icon nzType="check-circle" nzTheme="fill"></span>
+                  </label>
+                }
+              </nz-radio-group>
+            } @else {
+              <nz-empty nzNotFoundContent="Nenhuma forma de pagamento disponível."></nz-empty>
+            }
+
+            @if (checkout.pagamentoEmDinheiro()) {
+              <section class="troco-card" aria-label="Troco">
+                <strong>Precisa de troco?</strong>
+                <nz-form-item>
+                  <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Troco para</nz-form-label>
+                  <nz-form-control
+                    nzErrorTip="Informe um valor igual ou maior que o total."
+                    [nzValidateStatus]="checkout.formulario.controls.valorRecebidoDinheiro"
+                  >
+                    <input
+                      nz-input
+                      id="valorRecebidoDinheiro"
+                      formControlName="valorRecebidoDinheiro"
+                      mask="separator.2"
+                      prefix="R$ "
+                      thousandSeparator="."
+                      decimalMarker=","
+                      [leadZero]="true"
+                      [typeFromDecimals]="true"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      placeholder="R$ 0,00"
+                    />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <div class="linha-resumo">
+                  <span>Troco previsto</span>
+                  <strong>{{ checkout.troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              </section>
+            }
+          </section>
+
+          <div class="acoes-etapa">
+            <button nz-button type="button" (click)="voltarEtapa()">Voltar</button>
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              [disabled]="!podeAvancarPedidoPagamento()"
+              (click)="avancarEtapa()"
+            >
+              Ver resumo
+              <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            </button>
+          </div>
+        </section>
+      }
+
+      @if (etapaAtual() === 'resumo') {
+        <section class="checkout-secao etapa-painel revisao" aria-label="Revisão do pedido antes da confirmação">
+          <div class="etapa-cabecalho">
+            <span class="secao-indice">3. REVISÃO</span>
+            <h2>Revise antes de confirmar</h2>
+          </div>
+
+          <section class="revisao-secao">
+            <div class="revisao-secao__topo">
+              <h3>Cliente</h3>
+              <button nz-button nzType="link" type="button" (click)="editarClienteEndereco()">Editar</button>
+            </div>
+
+            @if (checkout.usuario(); as usuarioAtual) {
+              <div class="revisao-dados">
+                <strong>{{ usuarioAtual.nome }}</strong>
+                @if (usuarioAtual.telefone) {
+                  <span>{{ usuarioAtual.telefone | telefone }}</span>
+                }
+                @if (usuarioAtual.email) {
+                  <span>{{ usuarioAtual.email }}</span>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="revisao-secao">
+            <div class="revisao-secao__topo">
+              <h3>Endereço de entrega</h3>
+              <button nz-button nzType="link" type="button" (click)="editarClienteEndereco()">Editar</button>
+            </div>
+
+            @if (checkout.enderecoEntrega(); as endereco) {
+              <address class="revisao-endereco">
+                <span>
+                  {{ endereco.logradouro }}, {{ endereco.numero }}
+                  @if (endereco.complemento) {
+                    - {{ endereco.complemento }}
+                  }
+                </span>
+                <span>{{ endereco.bairro }}</span>
+                <span>{{ endereco.cidade }}/{{ endereco.estado }}</span>
+              </address>
+            }
+          </section>
+
+          <section class="revisao-secao">
+            <div class="revisao-secao__topo">
+              <h3>Itens do pedido</h3>
+              <button nz-button nzType="link" type="button" (click)="editarPedidoPagamento()">Editar</button>
+            </div>
+
+            <div class="itens-pedido itens-pedido--revisao">
+              @for (item of carrinhoService.itens(); track item.id) {
+                <article class="item-pedido">
+                  <div class="item-pedido__midia">
+                    @if (imagemPrincipal(item.produto); as imagem) {
+                      <img
+                        [src]="imagem"
+                        [alt]="item.produto.nome"
+                        loading="lazy"
+                        (error)="marcarImagemInvalida(item.produto.id)"
+                      />
+                    } @else {
+                      <span nz-icon nzType="picture" nzTheme="outline" aria-hidden="true"></span>
                     }
                   </div>
 
-                  <strong>{{ subtotalItem(precoItem(item), item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                  <div class="item-pedido__conteudo">
+                    <strong class="item-pedido__nome">{{ item.produto.nome }}</strong>
+                    <span class="item-pedido__quantidade">
+                      {{ item.quantidade }}x {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2' }}
+                    </span>
+                    <strong class="item-pedido__preco">
+                      {{ subtotalItem(precoItem(item), item.quantidade) | currency:'BRL':'symbol':'1.2-2' }}
+                    </strong>
+                  </div>
                 </article>
               }
-
-              <a class="editar-carrinho" routerLink="/carrinho">Editar carrinho</a>
-            </div>
-          </nz-collapse-panel>
-        </nz-collapse>
-      </section>
-
-      <section class="checkout-secao">
-        <span class="secao-indice">{{ indiceEtapaPagamento() }}. PAGAMENTO</span>
-        <h2>Como você quer pagar?</h2>
-
-        <nz-radio-group
-          class="pagamento-opcoes pagamento-opcoes--detalhadas"
-          formControlName="formaPagamentoId"
-          aria-label="Forma de pagamento"
-        >
-          @for (forma of checkout.formasPagamento(); track forma.id) {
-            <label
-              class="pagamento-opcao"
-              nz-radio
-              [nzValue]="forma.id"
-              [class.selecionada]="checkout.formaPagamentoId() === forma.id"
-            >
-              <span class="pagamento-opcao__icone" aria-hidden="true" nz-icon [nzType]="iconeFormaPagamento(forma)" nzTheme="outline"></span>
-              <span class="pagamento-opcao__conteudo">
-                <strong>{{ rotuloFormaPagamento(forma) }}</strong>
-                <small>{{ descricaoFormaPagamento(forma) }}</small>
-              </span>
-              <span class="pagamento-opcao__check" aria-hidden="true" nz-icon nzType="check-circle" nzTheme="fill"></span>
-            </label>
-          }
-        </nz-radio-group>
-
-        @if (checkout.pagamentoEmDinheiro()) {
-          <section class="troco-card" aria-label="Troco">
-            <strong>Precisa de troco?</strong>
-            <nz-form-item>
-              <nz-form-label nzFor="valorRecebidoDinheiro" nzRequired>Troco para</nz-form-label>
-              <nz-form-control
-                nzErrorTip="Informe um valor igual ou maior que o total."
-                [nzValidateStatus]="checkout.formulario.controls.valorRecebidoDinheiro"
-              >
-                <input
-                  nz-input
-                  id="valorRecebidoDinheiro"
-                  formControlName="valorRecebidoDinheiro"
-                  mask="separator.2"
-                  prefix="R$ "
-                  thousandSeparator="."
-                  decimalMarker=","
-                  [leadZero]="true"
-                  [typeFromDecimals]="true"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  placeholder="R$ 0,00"
-                />
-              </nz-form-control>
-            </nz-form-item>
-
-            <div class="linha-resumo">
-              <span>Troco previsto</span>
-              <strong>{{ checkout.troco() | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>
           </section>
-        }
-      </section>
 
-      <section class="checkout-secao resumo" aria-label="Resumo do pedido">
-        <h2>Resumo do pedido</h2>
+          <section class="revisao-secao">
+            <div class="revisao-secao__topo">
+              <h3>Pagamento</h3>
+              <button nz-button nzType="link" type="button" (click)="editarPedidoPagamento()">Editar</button>
+            </div>
 
-        <app-pedido-resumo-financeiro
-          [resumo]="checkout.resumoFinanceiro()"
-          rotuloTaxa="Taxa de serviço"
-        />
-      </section>
+            @if (checkout.formaPagamentoSelecionada(); as forma) {
+              <div class="revisao-dados">
+                <strong>{{ rotuloFormaPagamento(forma) }}</strong>
+                <span>{{ descricaoFormaPagamento(forma) }}</span>
+                @if (checkout.resumoFinanceiro().valorAcrescimo) {
+                  <small>
+                    Acréscimo:
+                    {{ checkout.resumoFinanceiro().valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}
+                  </small>
+                }
+                @if (checkout.pagamentoEmDinheiro() && checkout.valorRecebidoDinheiro()) {
+                  <small>
+                    Troco para:
+                    {{ checkout.valorRecebidoDinheiro() | currency:'BRL':'symbol':'1.2-2' }}
+                  </small>
+                }
+              </div>
+            }
+          </section>
 
-      <section class="confirmacao-fixa bottom-action-mobile" aria-label="Confirmar pedido">
-        <span class="secao-indice confirmacao-indice">{{ indiceEtapaConfirmacao() }}. CONFIRMAÇÃO</span>
-        <div>
-          <span>Total</span>
-          <strong>{{ checkout.totalPrevisto() | currency:'BRL':'symbol':'1.2-2' }}</strong>
-        </div>
+          <section class="revisao-secao revisao-financeiro">
+            <h3>Resumo financeiro</h3>
 
-        <button
-          nz-button
-          nzType="primary"
-          type="submit"
-          [nzLoading]="checkout.finalizando()"
-          [disabled]="!checkout.checkoutValido()"
-        >
-          {{ textoBotaoConfirmar() }}
-          <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
-        </button>
-      </section>
-    </form>
+            <div class="revisao-valores">
+              <div class="revisao-linha">
+                <span>Subtotal</span>
+                <strong>{{ checkout.resumoFinanceiro().subtotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
+
+              @if (checkout.resumoFinanceiro().valorDesconto) {
+                <div class="revisao-linha revisao-linha--desconto">
+                  <span>Desconto</span>
+                  <strong>-{{ checkout.resumoFinanceiro().valorDesconto | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              }
+
+              @if (checkout.resumoFinanceiro().valorTaxaFixa) {
+                <div class="revisao-linha">
+                  <span>Taxa de serviço</span>
+                  <strong>{{ checkout.resumoFinanceiro().valorTaxaFixa | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              }
+
+              @if (checkout.resumoFinanceiro().valorAcrescimo) {
+                <div class="revisao-linha">
+                  <span>Acréscimo do pagamento</span>
+                  <strong>{{ checkout.resumoFinanceiro().valorAcrescimo | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              }
+
+              <div class="revisao-linha revisao-linha--total">
+                <span>Total</span>
+                <strong>{{ checkout.resumoFinanceiro().valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <div class="acoes-etapa acoes-etapa--final">
+            <button nz-button type="button" (click)="voltarEtapa()">Voltar</button>
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              [nzLoading]="checkout.finalizando()"
+              [disabled]="!checkout.checkoutValido()"
+              (click)="finalizarPedido()"
+            >
+              {{ textoBotaoConfirmar() }}
+              <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            </button>
+          </div>
+        </section>
+      }
+    </section>
   </nz-spin>
 }
 

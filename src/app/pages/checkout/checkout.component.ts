@@ -4,8 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -22,10 +20,11 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ProdutoCarrinho } from '../../core/models/carrinho.model';
 import { FormaPagamentoResponse } from '../../core/models/forma-pagamento.model';
 import { CarrinhoService } from '../../core/services/carrinho.service';
-import { PedidoResumoFinanceiroComponent } from '../../shared/components/pedido-resumo-financeiro/pedido-resumo-financeiro.component';
 import { TelefonePipe } from '../../shared/pipes/telefone.pipe';
 import { CheckoutFacade } from './checkout.facade';
 import { IdentificacaoClienteComponent } from './components/identificacao-cliente/identificacao-cliente.component';
+
+type CheckoutEtapa = 'clienteEndereco' | 'pedidoPagamento' | 'resumo';
 
 @Component({
   selector: 'app-checkout',
@@ -38,8 +37,6 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     RouterLink,
     NzAlertModule,
     NzButtonModule,
-    NzCardModule,
-    NzCollapseModule,
     NzEmptyModule,
     NzFormModule,
     NzIconModule,
@@ -51,7 +48,6 @@ import { IdentificacaoClienteComponent } from './components/identificacao-client
     NzStepsModule,
     NzTagModule,
     NgxMaskDirective,
-    PedidoResumoFinanceiroComponent,
     IdentificacaoClienteComponent
   ],
   providers: [CheckoutFacade],
@@ -67,33 +63,11 @@ export class CheckoutComponent implements OnInit {
   protected readonly carrinhoService = inject(CarrinhoService);
   protected readonly checkout = inject(CheckoutFacade);
   protected readonly imagensInvalidas = signal<ReadonlySet<number>>(new Set<number>());
-  protected readonly identificacaoObrigatoria = computed(() => !this.checkout.usuario());
-  protected readonly etapasCheckout = computed(() =>
-    this.identificacaoObrigatoria()
-      ? ['Identificação', 'Entrega', 'Pagamento', 'Confirmação']
-      : ['Entrega', 'Pagamento', 'Confirmação']
-  );
-  protected readonly etapaAtualCheckout = computed(() => {
-    if (this.identificacaoObrigatoria() && !this.checkout.usuario()) {
-      return 0;
-    }
-
-    const indiceEntrega = this.identificacaoObrigatoria() ? 1 : 0;
-
-    if (this.checkout.checkoutValido() || this.checkout.finalizando()) {
-      return indiceEntrega + 2;
-    }
-
-    if (this.checkout.formaPagamentoId()) {
-      return indiceEntrega + 1;
-    }
-
-    return indiceEntrega;
-  });
-  protected readonly indiceEtapaIdentificacao = computed(() => 1);
-  protected readonly indiceEtapaEntrega = computed(() => (this.identificacaoObrigatoria() ? 2 : 1));
-  protected readonly indiceEtapaPagamento = computed(() => (this.identificacaoObrigatoria() ? 3 : 2));
-  protected readonly indiceEtapaConfirmacao = computed(() => (this.identificacaoObrigatoria() ? 4 : 3));
+  protected readonly etapaAtual = signal<CheckoutEtapa>('clienteEndereco');
+  protected readonly etapasCheckout = ['Cliente', 'Pedido', 'Resumo'] as const;
+  protected readonly etapaAtualCheckout = computed(() => this.indiceEtapa(this.etapaAtual()));
+  protected readonly podeAvancarClienteEndereco = computed(() => this.checkout.entregaPedidoValido());
+  protected readonly podeAvancarPedidoPagamento = computed(() => this.checkout.pagamentoValido());
 
   ngOnInit(): void {
     const unidadeSlug = this.route.snapshot.paramMap.get('unidadeSlug');
@@ -115,7 +89,66 @@ export class CheckoutComponent implements OnInit {
   }
 
   protected finalizarPedido(): void {
+    if (this.etapaAtual() !== 'resumo') {
+      this.avancarEtapa();
+      return;
+    }
+
     this.checkout.finalizarPedido();
+  }
+
+  protected clienteIdentificadoComSucesso(): void {
+    this.checkout.atualizarClienteIdentificado();
+  }
+
+  protected avancarEtapa(): void {
+    this.checkout.mensagemErro.set(null);
+
+    const etapaAtual = this.etapaAtual();
+
+    if (etapaAtual === 'clienteEndereco') {
+      if (!this.checkout.usuario()) {
+        this.message.warning('Identifique o cliente antes de continuar.');
+        return;
+      }
+
+      if (!this.checkout.enderecoEntrega()) {
+        this.message.warning('Informe um endereço de entrega antes de continuar.');
+        return;
+      }
+
+      this.etapaAtual.set('pedidoPagamento');
+      return;
+    }
+
+    if (etapaAtual === 'pedidoPagamento') {
+      if (!this.checkout.pagamentoValido()) {
+        this.checkout.formulario.markAllAsTouched();
+        this.message.warning('Escolha uma forma de pagamento válida.');
+        return;
+      }
+
+      this.etapaAtual.set('resumo');
+    }
+  }
+
+  protected voltarEtapa(): void {
+    const etapaAtual = this.etapaAtual();
+
+    if (etapaAtual === 'resumo') {
+      this.etapaAtual.set('pedidoPagamento');
+      return;
+    }
+
+    this.etapaAtual.set('clienteEndereco');
+  }
+
+  protected editarClienteEndereco(): void {
+    this.etapaAtual.set('clienteEndereco');
+  }
+
+  protected editarPedidoPagamento(): void {
+    this.etapaAtual.set('pedidoPagamento');
   }
 
   protected selecionarFormaPagamento(formaPagamentoId: number): void {
@@ -190,7 +223,7 @@ export class CheckoutComponent implements OnInit {
       return `Pagar ${total} com PIX`;
     }
 
-    return `Confirmar pedido · ${total}`;
+    return `Confirmar pedido - ${total}`;
   }
 
   protected subtotalItem(preco: number, quantidade: number): number {
@@ -211,5 +244,10 @@ export class CheckoutComponent implements OnInit {
 
   protected marcarImagemInvalida(produtoId: number): void {
     this.imagensInvalidas.update((ids) => new Set(ids).add(produtoId));
+  }
+
+  private indiceEtapa(etapa: CheckoutEtapa): number {
+    const etapas: CheckoutEtapa[] = ['clienteEndereco', 'pedidoPagamento', 'resumo'];
+    return etapas.indexOf(etapa);
   }
 }

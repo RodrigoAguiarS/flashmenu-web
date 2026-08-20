@@ -110,11 +110,18 @@ export class CheckoutFacade {
     this.valorRecebidoDinheiro() !== null &&
     Number(this.valorRecebidoDinheiro()) < this.totalPrevisto()
   );
-  readonly checkoutValido = computed(() =>
+  readonly entregaPedidoValido = computed(() =>
     !this.carrinhoService.vazio() &&
     !!this.usuario() &&
+    !!this.enderecoEntrega()
+  );
+  readonly pagamentoValido = computed(() =>
     !!this.formaPagamentoId() &&
-    (!this.pagamentoEmDinheiro() || (!!this.valorRecebidoDinheiro() && !this.valorRecebidoInsuficiente())) &&
+    (!this.pagamentoEmDinheiro() || (!!this.valorRecebidoDinheiro() && !this.valorRecebidoInsuficiente()))
+  );
+  readonly checkoutValido = computed(() =>
+    this.entregaPedidoValido() &&
+    this.pagamentoValido() &&
     !this.finalizando()
   );
 
@@ -200,6 +207,11 @@ export class CheckoutFacade {
 
     if (!this.usuario()) {
       this.mensagemErro.set('Identifique o cliente antes de confirmar o pedido.');
+      return;
+    }
+
+    if (!this.enderecoEntrega()) {
+      this.mensagemErro.set('Informe um endereÃ§o de entrega antes de confirmar o pedido.');
       return;
     }
 
